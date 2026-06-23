@@ -238,6 +238,10 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
       <label>Senha</label>
       <input type="password" id="login-pass" placeholder="Sua senha" onkeydown="if(event.key==='Enter')doLogin()" />
     </div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.75rem;">
+      <input type="checkbox" id="remember-me" style="width:15px;height:15px;accent-color:var(--accent);cursor:pointer;">
+      <label for="remember-me" style="font-size:13px;color:var(--text-2);cursor:pointer;">Lembrar senha</label>
+    </div>
     <button class="login-btn" onclick="doLogin()">Entrar</button>
     <div class="login-error" id="login-error">Usuário ou senha incorretos.</div>
   </div>
@@ -429,26 +433,84 @@ const USERS = {
   'roberto': { pass: 'dfd2026', label: 'Roberto' }
 };
 let currentUser = null;
+const INACTIVITY_LIMIT = 3 * 60 * 60 * 1000; // 3 horas
+let inactivityTimer = null;
+
+function resetInactivityTimer() {
+  clearTimeout(inactivityTimer);
+  inactivityTimer = setTimeout(() => {
+    if(currentUser) {
+      window.doLogout();
+      alert('Você foi deslogado por inatividade (3 horas).');
+    }
+  }, INACTIVITY_LIMIT);
+  localStorage.setItem('dfd_last_activity', Date.now().toString());
+}
+
+function startSession(user) {
+  currentUser = user;
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app-screen').style.display = 'block';
+  document.getElementById('current-user-label').textContent = USERS[user].label;
+  document.getElementById('login-error').style.display = 'none';
+  resetInactivityTimer();
+  ['click','keydown','mousemove','touchstart'].forEach(e => document.addEventListener(e, resetInactivityTimer, {passive:true}));
+}
+
+// Verificar sessão salva ao carregar
+(function checkSavedSession() {
+  const savedUser = localStorage.getItem('dfd_user');
+  const savedPass = localStorage.getItem('dfd_pass');
+  const lastActivity = parseInt(localStorage.getItem('dfd_last_activity') || '0');
+  const now = Date.now();
+  if(savedUser && savedPass && USERS[savedUser] && USERS[savedUser].pass === savedPass) {
+    if(now - lastActivity < INACTIVITY_LIMIT) {
+      document.getElementById('login-user').value = savedUser;
+      document.getElementById('login-pass').value = savedPass;
+      if(localStorage.getItem('dfd_remember') === '1') {
+        document.getElementById('remember-me').checked = true;
+      }
+      startSession(savedUser);
+    } else {
+      localStorage.removeItem('dfd_user');
+      localStorage.removeItem('dfd_pass');
+      localStorage.removeItem('dfd_last_activity');
+    }
+  }
+})();
 
 window.doLogin = function() {
   const u = document.getElementById('login-user').value.trim().toLowerCase();
   const p = document.getElementById('login-pass').value;
+  const remember = document.getElementById('remember-me').checked;
   if(USERS[u] && USERS[u].pass === p) {
-    currentUser = u;
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('app-screen').style.display = 'block';
-    document.getElementById('current-user-label').textContent = USERS[u].label;
-    document.getElementById('login-error').style.display = 'none';
+    if(remember) {
+      localStorage.setItem('dfd_user', u);
+      localStorage.setItem('dfd_pass', p);
+      localStorage.setItem('dfd_remember', '1');
+    } else {
+      localStorage.setItem('dfd_user', u);
+      localStorage.setItem('dfd_pass', p);
+      localStorage.removeItem('dfd_remember');
+    }
+    startSession(u);
   } else {
     document.getElementById('login-error').style.display = 'block';
   }
 };
+
 window.doLogout = function() {
   currentUser = null;
+  clearTimeout(inactivityTimer);
+  localStorage.removeItem('dfd_user');
+  localStorage.removeItem('dfd_pass');
+  localStorage.removeItem('dfd_last_activity');
+  localStorage.removeItem('dfd_remember');
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('app-screen').style.display = 'none';
   document.getElementById('login-user').value = '';
   document.getElementById('login-pass').value = '';
+  document.getElementById('remember-me').checked = false;
 };
 
 const FORNECEDORES = ['Agroindústria Real','Asa','Fugini Alimentos','Gaboardi','Global','Globopack','Godinho','Infinity','JPS','Master','Mundial','Nossa Distribuidora','Oderich','RTL','Superglobo'];
@@ -479,8 +541,13 @@ function addNotif(texto) {
 }
 function renderNotifs() {
   const sec = document.getElementById('notif-section');
+  const now24 = Date.now();
   const all = Object.entries(notificacoes).sort((a,b)=>b[1].ts-a[1].ts);
-  const visiveis = all.filter(([k,n])=>!(n.lido&&n.lido[currentUser]));
+  const visiveis = all.filter(([k,n])=>{
+    if(n.lido && n.lido[currentUser]) return false;
+    if(n.ts && (now24 - n.ts) > 24*60*60*1000) return false;
+    return true;
+  });
   if(!visiveis.length) { sec.innerHTML=''; return; }
   sec.innerHTML=`
     <div class="notif-header">
@@ -504,13 +571,16 @@ function renderNotifs() {
 window.dismissNotif = function(key) {
   if(!currentUser) return;
   const n = notificacoes[key]; if(!n) return;
-  const lido = n.lido||{};
-  lido[currentUser]=true;
-  update(ref(db,'notificacoes/'+key), { lido });
+  const lido = n.lido ? {...n.lido} : {};
+  lido[currentUser] = true;
+  update(ref(db, 'notificacoes/' + key + '/lido'), { [currentUser]: true });
 };
 window.clearAllNotifs = function() {
+  if(!currentUser) return;
   const all = Object.entries(notificacoes).filter(([k,n])=>!(n.lido&&n.lido[currentUser]));
-  all.forEach(([k])=>dismissNotif(k));
+  all.forEach(([k])=>{
+    update(ref(db, 'notificacoes/' + k + '/lido'), { [currentUser]: true });
+  });
 };
 function fmtTs(ts) {
   if(!ts) return '';

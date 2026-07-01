@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard DFD Representações</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%231a1a1a'/%3E%3Crect width='64' height='64' rx='14' fill='url(%23g)'/%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%232DBF8A'/%3E%3Cstop offset='100%25' stop-color='%231a1a1a'/%3E%3C/linearGradient%3E%3C/defs%3E%3Ctext x='32' y='43' font-family='Arial Black,Arial,sans-serif' font-weight='900' font-size='22' fill='white' text-anchor='middle' letter-spacing='1'%3EDFD%3C/text%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%231e1e1e'/%3E%3C!-- Letra D em cinza --%3E%3Cpath d='M14 12 L14 52 L30 52 C42 52 50 44 50 32 C50 20 42 12 30 12 Z M22 20 L29 20 C37 20 42 25 42 32 C42 39 37 44 29 44 L22 44 Z' fill='%238a8a8a'/%3E%3C!-- Listras verdes --%3E%3Crect x='24' y='24' width='4' height='16' rx='1' fill='%232DBF8A' opacity='0.9'/%3E%3Crect x='30' y='24' width='4' height='16' rx='1' fill='%232DBF8A' opacity='0.6'/%3E%3Crect x='36' y='27' width='4' height='10' rx='1' fill='%232DBF8A' opacity='0.35'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -227,6 +227,13 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
 <div id="login-screen">
   <div class="login-box">
     <div class="login-logo">
+      <svg viewBox="0 0 80 80" width="64" height="64" xmlns="http://www.w3.org/2000/svg" style="margin-bottom:8px">
+        <rect width="80" height="80" rx="14" fill="#1e1e1e"/>
+        <path d="M16 14 L16 66 L38 66 C54 66 64 56 64 40 C64 24 54 14 38 14 Z M26 24 L37 24 C47 24 54 31 54 40 C54 49 47 56 37 56 L26 56 Z" fill="#8a8a8a"/>
+        <rect x="29" y="29" width="5" height="22" rx="1.5" fill="#2DBF8A" opacity="0.95"/>
+        <rect x="36" y="29" width="5" height="22" rx="1.5" fill="#2DBF8A" opacity="0.6"/>
+        <rect x="43" y="33" width="5" height="14" rx="1.5" fill="#2DBF8A" opacity="0.3"/>
+      </svg>
       <h1>DFD</h1>
       <p>Representações — Dashboard</p>
     </div>
@@ -263,9 +270,18 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
   </div>
 
   <div class="header">
-    <div>
-      <h1>DFD Representações</h1>
-      <div class="header-sub" id="data-hoje"></div>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <svg viewBox="0 0 64 64" width="40" height="40" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
+        <rect width="64" height="64" rx="10" fill="#1e1e1e"/>
+        <path d="M12 10 L12 54 L30 54 C42 54 52 46 52 32 C52 18 42 10 30 10 Z M20 18 L29 18 C39 18 44 24 44 32 C44 40 39 46 29 46 L20 46 Z" fill="#8a8a8a"/>
+        <rect x="23" y="22" width="4" height="20" rx="1" fill="#2DBF8A" opacity="0.95"/>
+        <rect x="29" y="22" width="4" height="20" rx="1" fill="#2DBF8A" opacity="0.6"/>
+        <rect x="35" y="26" width="4" height="12" rx="1" fill="#2DBF8A" opacity="0.3"/>
+      </svg>
+      <div>
+        <h1>DFD Representações</h1>
+        <div class="header-sub" id="data-hoje"></div>
+      </div>
     </div>
     <div class="header-right" id="hora-atual"></div>
   </div>

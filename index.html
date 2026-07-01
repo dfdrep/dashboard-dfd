@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard DFD Representações</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%231e1e1e'/%3E%3C!-- Letra D em cinza --%3E%3Cpath d='M14 12 L14 52 L30 52 C42 52 50 44 50 32 C50 20 42 12 30 12 Z M22 20 L29 20 C37 20 42 25 42 32 C42 39 37 44 29 44 L22 44 Z' fill='%238a8a8a'/%3E%3C!-- Listras verdes --%3E%3Crect x='24' y='24' width='4' height='16' rx='1' fill='%232DBF8A' opacity='0.9'/%3E%3Crect x='30' y='24' width='4' height='16' rx='1' fill='%232DBF8A' opacity='0.6'/%3E%3Crect x='36' y='27' width='4' height='10' rx='1' fill='%232DBF8A' opacity='0.35'/%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%231e1e1e'/%3E%3Crect x='10' y='8' width='9' height='48' rx='2' fill='%238a8a8a'/%3E%3Cpath d='M19 8 L32 8 Q52 8 52 32 Q52 56 32 56 L19 56' fill='none' stroke='%238a8a8a' stroke-width='9'/%3E%3Cpolygon points='23,14 29,14 25,50 19,50' fill='%232DBF8A'/%3E%3Cpolygon points='30,14 36,14 32,50 26,50' fill='%231a8060'/%3E%3Cpolygon points='37,18 43,18 40,46 34,46' fill='%230e4f38'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -228,12 +228,16 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
   <div class="login-box">
     <div class="login-logo">
       <svg viewBox="0 0 80 80" width="64" height="64" xmlns="http://www.w3.org/2000/svg" style="margin-bottom:8px">
-        <rect width="80" height="80" rx="14" fill="#1e1e1e"/>
-        <path d="M16 14 L16 66 L38 66 C54 66 64 56 64 40 C64 24 54 14 38 14 Z M26 24 L37 24 C47 24 54 31 54 40 C54 49 47 56 37 56 L26 56 Z" fill="#8a8a8a"/>
-        <rect x="29" y="29" width="5" height="22" rx="1.5" fill="#2DBF8A" opacity="0.95"/>
-        <rect x="36" y="29" width="5" height="22" rx="1.5" fill="#2DBF8A" opacity="0.6"/>
-        <rect x="43" y="33" width="5" height="14" rx="1.5" fill="#2DBF8A" opacity="0.3"/>
-      </svg>
+  <rect width="80" height="80" rx="12" fill="#1e1e1e"/>
+  <!-- Barra vertical esquerda do D -->
+  <rect x="12" y="10" width="11" height="60" rx="2" fill="#8a8a8a"/>
+  <!-- Arco superior aberto -->
+  <path d="M23 10 L38 10 Q65 10 65 40 Q65 70 38 70 L23 70" fill="none" stroke="#8a8a8a" stroke-width="11" stroke-linecap="butt"/>
+  <!-- Listras verdes inclinadas -->
+  <polygon points="28,16 36,16 31,64 23,64" fill="#2DBF8A"/>
+  <polygon points="37,16 45,16 40,64 32,64" fill="#1a8060"/>
+  <polygon points="46,22 54,22 50,58 42,58" fill="#0e4f38" opacity="0.9"/>
+</svg>
       <h1>DFD</h1>
       <p>Representações — Dashboard</p>
     </div>
@@ -272,12 +276,16 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
   <div class="header">
     <div style="display:flex;align-items:center;gap:12px;">
       <svg viewBox="0 0 64 64" width="40" height="40" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
-        <rect width="64" height="64" rx="10" fill="#1e1e1e"/>
-        <path d="M12 10 L12 54 L30 54 C42 54 52 46 52 32 C52 18 42 10 30 10 Z M20 18 L29 18 C39 18 44 24 44 32 C44 40 39 46 29 46 L20 46 Z" fill="#8a8a8a"/>
-        <rect x="23" y="22" width="4" height="20" rx="1" fill="#2DBF8A" opacity="0.95"/>
-        <rect x="29" y="22" width="4" height="20" rx="1" fill="#2DBF8A" opacity="0.6"/>
-        <rect x="35" y="26" width="4" height="12" rx="1" fill="#2DBF8A" opacity="0.3"/>
-      </svg>
+  <rect width="64" height="64" rx="10" fill="#1e1e1e"/>
+  <!-- Barra vertical esquerda do D -->
+  <rect x="10" y="8" width="9" height="56" rx="2" fill="#8a8a8a"/>
+  <!-- Arco superior -->
+  <path d="M19 8 L32 8 Q52 8 52 32 Q52 56 32 56 L19 56" fill="none" stroke="#8a8a8a" stroke-width="9" stroke-linecap="butt"/>
+  <!-- Listras verdes inclinadas -->
+  <polygon points="23,14 29,14 25,50 19,50" fill="#2DBF8A"/>
+  <polygon points="30,14 36,14 32,50 26,50" fill="#1a8060"/>
+  <polygon points="37,18 43,18 40,46 34,46" fill="#0e4f38" opacity="0.9"/>
+</svg>
       <div>
         <h1>DFD Representações</h1>
         <div class="header-sub" id="data-hoje"></div>
@@ -330,7 +338,7 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
       </div>
       <div style="overflow-x:auto;">
         <table class="nf-table">
-          <thead><tr><th>Fornecedor</th><th>Prazo envio</th><th>NF emitida</th><th>NF enviada</th><th>Comissão recebida</th><th></th></tr></thead>
+          <thead><tr><th>Fornecedor</th><th>Descrição</th><th>Prazo envio</th><th>NF emitida</th><th>NF enviada</th><th>Comissão recebida</th><th></th></tr></thead>
           <tbody id="lista-nf"></tbody>
         </table>
       </div>
@@ -413,6 +421,7 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
   <div class="modal">
     <h2 id="modal-nf-title">Nova nota fiscal de comissão</h2>
     <div class="form-group"><label>Fornecedor</label><select id="nf-forn"><option value="">— Selecione —</option></select></div>
+    <div class="form-group"><label>Descrição</label><input type="text" id="nf-desc" placeholder="Ex: Comissão referente ao mês de junho" /></div>
     <div class="form-group"><label>Prazo de envio</label><input type="date" id="nf-prazo" /></div>
     <div class="form-row">
       <div class="form-group"><label>NF emitida?</label><select id="nf-emitida"><option value="nao">Não</option><option value="sim">Sim</option></select></div>
@@ -763,15 +772,15 @@ function renderNotas(){
   if(filterNF==='pendEmit')  entriesNF=entriesNF.filter(([,n])=>n.emitida!=='sim');
   if(filterNF==='comReceb')  entriesNF=entriesNF.filter(([,n])=>n.comissao==='sim');
   const entries=entriesNF;
-  if(!entries.length){ tb.innerHTML=`<tr><td colspan="6"><div class="empty"><i class="ti ti-file-invoice"></i>Nenhuma NF cadastrada.</div></td></tr>`; }
-  else { tb.innerHTML=entries.map(([key,n])=>`<tr><td><strong>${n.fornecedor||'—'}</strong></td><td><span class="badge ${prazoColor(n.prazo)}">${fmtDate(n.prazo)||'—'}</span></td><td>${siIcon(n.emitida)}</td><td>${siIcon(n.enviada)}</td><td>${siIcon(n.comissao)}</td><td><div style="display:flex;gap:2px"><button class="icon-btn" onclick="openEditNF('${key}')"><i class="ti ti-edit"></i></button><button class="icon-btn del" onclick="deleteNF('${key}')"><i class="ti ti-trash"></i></button></div></td></tr>`).join(''); }
+  if(!entries.length){ tb.innerHTML=`<tr><td colspan="7"><div class="empty"><i class="ti ti-file-invoice"></i>Nenhuma NF cadastrada.</div></td></tr>`; }
+  else { tb.innerHTML=entries.map(([key,n])=>`<tr><td><strong>${n.fornecedor||'—'}</strong></td><td style="color:var(--text-2);font-size:12px">${n.descricao||'—'}</td><td><span class="badge ${prazoColor(n.prazo)}">${fmtDate(n.prazo)||'—'}</span></td><td>${siIcon(n.emitida)}</td><td>${siIcon(n.enviada)}</td><td>${siIcon(n.comissao)}</td><td><div style="display:flex;gap:2px"><button class="icon-btn" onclick="openEditNF('${key}')"><i class="ti ti-edit"></i></button><button class="icon-btn del" onclick="deleteNF('${key}')"><i class="ti ti-trash"></i></button></div></td></tr>`).join(''); }
   const nArr=Object.values(notas);
   const emitidas=nArr.filter(n=>n.emitida==='sim').length,pendEmit=nArr.filter(n=>n.emitida!=='sim').length,comReceb=nArr.filter(n=>n.comissao==='sim').length;
   const hoje=new Date(); hoje.setHours(0,0,0,0);
   const vencem=nArr.filter(n=>{ if(!n.prazo||n.emitida==='sim') return false; let dt; if(n.prazo.includes('-')) dt=new Date(n.prazo); else{const [d,m,y]=n.prazo.split('/'); dt=new Date(`${y}-${m}-${d}`);} return dt<=hoje; }).length;
   document.getElementById('metrics-nf').innerHTML=`
+    <div class="metric ${filterNF==='pendEmit'?'active-filter':''}" onclick="toggleFilterNF('pendEmit')"><div class="metric-label">Aguardando emissão</div><div class="metric-value">${pendEmit}</div><div class="metric-sub" style="color:${vencem>0?'var(--red)':'var(--text-2)'}">${vencem>0?vencem+' vence(m) hoje':'Em dia'}</div></div>
     <div class="metric ${filterNF==='emitidas'?'active-filter':''}" onclick="toggleFilterNF('emitidas')"><div class="metric-label">NFs emitidas</div><div class="metric-value">${emitidas}</div><div class="metric-sub">de ${nArr.length} no período</div></div>
-    <div class="metric ${filterNF==='pendEmit'?'active-filter':''}" onclick="toggleFilterNF('pendEmit')"><div class="metric-label">Ag. emissão</div><div class="metric-value">${pendEmit}</div><div class="metric-sub" style="color:${vencem>0?'var(--red)':'var(--text-2)'}">${vencem>0?vencem+' vence(m) hoje':'Em dia'}</div></div>
     <div class="metric ${filterNF==='comReceb'?'active-filter':''}" onclick="toggleFilterNF('comReceb')"><div class="metric-label">Comissões recebidas</div><div class="metric-value">${comReceb}</div><div class="metric-sub" style="color:var(--amber)">${nArr.length-comReceb} aguardando</div></div>
   `;
 }

@@ -9,12 +9,12 @@
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --bg: #0f0f1a; --surface: #16162a; --surface-2: #1e1e35;
-  --text: #e8e6f0; --text-2: #9b98b8; --text-3: #5c5a78;
-  --border: rgba(139,120,255,0.12); --border-2: rgba(139,120,255,0.22);
+  --bg: #141414; --surface: #1e1e1e; --surface-2: #2a2a2a;
+  --text: #f0f0f0; --text-2: #9a9a9a; --text-3: #5a5a5a;
+  --border: rgba(45,191,138,0.15); --border-2: rgba(45,191,138,0.28);
   --radius-md: 8px; --radius-lg: 12px; --radius-xl: 16px;
-  --accent: #7c5cfc; --accent-2: #9b7ffe;
-  --green: #2dd4a0; --green-bg: rgba(45,212,160,0.15);
+  --accent: #2DBF8A; --accent-2: #3dd9a0;
+  --green: #2DBF8A; --green-bg: rgba(45,191,138,0.15);
   --blue: #5ba3f5; --blue-bg: rgba(91,163,245,0.15);
   --amber: #f5a623; --amber-bg: rgba(245,166,35,0.15);
   --red: #f56565; --red-bg: rgba(245,101,101,0.15);
@@ -26,7 +26,7 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
 #login-screen { display:flex; align-items:center; justify-content:center; min-height:100vh; padding:1rem; }
 .login-box { background: var(--surface); border: 0.5px solid rgba(139,120,255,0.3); border-radius: var(--radius-xl); padding: 2.5rem 2rem; width:100%; max-width:360px; }
 .login-logo { text-align:center; margin-bottom:1.75rem; }
-.login-logo h1 { font-size:28px; font-weight:700; background: linear-gradient(135deg, #e8e6f0 30%, var(--accent-2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.login-logo h1 { font-size:28px; font-weight:700; background: linear-gradient(135deg, #ffffff 30%, var(--accent-2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
 .login-logo p { font-size:13px; color:var(--text-2); margin-top:4px; }
 .login-field { margin-bottom:1rem; }
 .login-field label { font-size:12px; color:var(--text-2); display:block; margin-bottom:5px; }
@@ -53,7 +53,7 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
 .logout-btn:hover { color:var(--red); border-color:var(--red); }
 
 .header { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:1.5rem; flex-wrap:wrap; gap:8px; }
-.header h1 { font-size:22px; font-weight:500; background: linear-gradient(135deg, #e8e6f0 30%, var(--accent-2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.header h1 { font-size:22px; font-weight:500; background: linear-gradient(135deg, #ffffff 30%, var(--accent-2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
 .header-sub { font-size:13px; color:var(--text-2); margin-top:3px; }
 .header-right { font-size:13px; color:var(--text-2); }
 
@@ -377,6 +377,7 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
       <div class="form-group"><label>Fornecedor</label><select id="o-forn"><option value="">— Selecione —</option></select></div>
       <div class="form-group"><label>Cliente / Atacadista</label><select id="o-cliente"><option value="">— Selecione —</option></select></div>
     </div>
+    <div class="form-group"><label>Data de emissão do pedido</label><input type="date" id="o-emissao" /></div>
     <div class="form-group"><label>Status atual</label>
       <select id="o-etapa" onchange="toggleDateFields()">
         <option value="0">Não faturado</option><option value="1">Precisa agendar</option>
@@ -638,7 +639,7 @@ window.openEditPedido=function(key){ const p=pedidos[key]; if(!p) return; editin
 window.savePedido=function(){
   const nome=document.getElementById('o-nome').value.trim();
   const etapa=Number(document.getElementById('o-etapa').value);
-  const data={ nome, fornecedor:document.getElementById('o-forn').value, cliente:document.getElementById('o-cliente').value, etapa, dataFaturamento:etapa>=1?document.getElementById('o-fat').value:'', dataAgendamento:etapa>=2?document.getElementById('o-agd').value:'' };
+  const data={ nome, fornecedor:document.getElementById('o-forn').value, cliente:document.getElementById('o-cliente').value, etapa, dataEmissao:document.getElementById('o-emissao').value||'', dataFaturamento:etapa>=1?document.getElementById('o-fat').value:'', dataAgendamento:etapa>=2?document.getElementById('o-agd').value:'' };
   if(editingPedKey){ update(ref(db,'pedidos/'+editingPedKey),data); }
   else { push(ref(db,'pedidos'),{...data,criadoEm:Date.now()}); addNotif(`📦 ${USERS[currentUser]?.label||currentUser} adicionou o pedido: "${nome||'Novo pedido'}"`); }
   window.closeModal('modal-pedido');
@@ -706,6 +707,9 @@ function renderPendencias(){
 function renderPedidos(){
   const el=document.getElementById('lista-pedidos');
   let entriesPed=Object.entries(pedidos).sort((a,b)=>(a[1].criadoEm||0)-(b[1].criadoEm||0));
+  if(filterPed==='total') entriesPed=entriesPed.sort((a,b)=>{
+    const order=[1,2,3,0]; return (order[a[1].etapa]??0)-(order[b[1].etapa]??0);
+  });
   if(filterPed==='naoFat')     entriesPed=entriesPed.filter(([,p])=>p.etapa===0);
   if(filterPed==='aguardAgend') entriesPed=entriesPed.filter(([,p])=>p.etapa===1);
   if(filterPed==='agendados'){  entriesPed=entriesPed.filter(([,p])=>p.etapa===2); entriesPed=entriesPed.sort((a,b)=>{ const toMs=d=>{ if(!d) return Infinity; if(d.includes('-')) return new Date(d).getTime(); const [dd,mm,yy]=d.split('/'); return new Date(`${yy}-${mm}-${dd}`).getTime(); }; return toMs(a[1].dataAgendamento)-toMs(b[1].dataAgendamento); }); }
@@ -720,7 +724,7 @@ function renderPedidos(){
         </div>
         <div class="order-actions">${etapaBadge(p.etapa||0)}<button class="icon-btn" onclick="openEditPedido('${key}')"><i class="ti ti-edit"></i></button><button class="icon-btn del" onclick="deletePedido('${key}')"><i class="ti ti-trash"></i></button></div>
       </div>
-      <div class="info-row">${p.dataFaturamento?`<div class="chip chip-green"><i class="ti ti-receipt"></i> Faturado em: ${fmtDate(p.dataFaturamento)}</div>`:(p.etapa===0?'<div class="chip chip-red"><i class="ti ti-receipt-off"></i> Faturamento pendente</div>':'')}${p.dataAgendamento?`<div class="chip chip-blue"><i class="ti ti-calendar-event"></i> Agendado para: ${fmtDate(p.dataAgendamento)}</div>`:''}</div>
+      <div class="info-row">${p.dataEmissao?`<div class="chip" style="background:rgba(90,90,90,0.25);color:#c0c0c0"><i class="ti ti-file-text"></i> Emitido em: ${fmtDate(p.dataEmissao)}</div>`:''} ${p.dataFaturamento?`<div class="chip chip-green"><i class="ti ti-receipt"></i> Faturado em: ${fmtDate(p.dataFaturamento)}</div>`:(p.etapa===0?'<div class="chip chip-red"><i class="ti ti-receipt-off"></i> Faturamento pendente</div>':'')}${p.dataAgendamento?`<div class="chip chip-blue"><i class="ti ti-calendar-event"></i> Agendado para: ${fmtDate(p.dataAgendamento)}</div>`:''}</div>
       <div class="steps">${[0,1,2,3].map(i=>`<div class="step ${stepCls(i,p.etapa||0)}"></div>`).join('')}</div>
       <div class="steps-labels">${['Faturamento','Agendamento','Agendado','Entregue'].map((l,i)=>`<div class="step-lbl ${i<(p.etapa||0)?'done-lbl':i===(p.etapa||0)?'active':''}">${l}</div>`).join('')}</div>
       <div class="order-footer"><div class="step-next">${(p.etapa||0)<3?'Próximo: '+ETAPA_LABELS[(p.etapa||0)+1]:'✓ Concluído'}</div>${(p.etapa||0)<3?`<button class="advance-btn" onclick="advancePedido('${key}')">Avançar →</button>`:''}</div>
@@ -772,9 +776,10 @@ function getEventsForDay(y,m,d) {
   });
   Object.values(pedidos).forEach(p=>{
     const fat=p.dataFaturamento; const agd=p.dataAgendamento;
+    const emi=p.dataEmissao;
+    if(emi&&(emi===isoStr||emi===dateStr)) events.push({type:'emissao',label:'Emissão do pedido',name:p.nome||'Sem nome',meta:p.fornecedor||'',color:'#9a9a9a'});
     if(fat&&(fat===isoStr||fat===dateStr)) events.push({type:'faturamento',label:'Faturamento',name:p.nome||'Sem nome',meta:p.fornecedor||'',color:'var(--blue)'});
     if(agd&&(agd===isoStr||agd===dateStr)) events.push({type:'agendamento',label:'Agendamento',name:p.nome||'Sem nome',meta:p.cliente||'',color:'var(--green)'});
-    if(p.criadoEm){ const cd=new Date(p.criadoEm); if(cd.getFullYear()===y&&cd.getMonth()===m&&cd.getDate()===d) events.push({type:'pedido',label:'Pedido criado',name:p.nome||'Sem nome',meta:p.fornecedor||'',color:'var(--accent-2)'}); }
   });
   return events;
 }

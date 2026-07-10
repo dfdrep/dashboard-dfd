@@ -244,7 +244,7 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
     </div>
     <div class="login-field">
       <label>Senha</label>
-      <input type="password" id="login-pass" placeholder="Sua senha" id="login-pass-field" />
+      <input type="password" id="login-pass" placeholder="Sua senha" />
     </div>
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.75rem;">
       <input type="checkbox" id="remember-me" style="width:15px;height:15px;accent-color:var(--accent);cursor:pointer;">
@@ -373,6 +373,18 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
         <div class="cal-detail-title"><i class="ti ti-calendar-event"></i> Selecione um dia</div>
         <div class="cal-empty">Clique em um dia para ver os eventos</div>
       </div>
+    </div>
+  </div>
+
+</div>
+
+  <!-- INATIVOS -->
+  <div class="tab-content" id="tab-inativos">
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title"><i class="ti ti-alert-triangle" style="color:var(--amber)"></i> Clientes inativos por representada</div>
+      </div>
+      <div id="lista-inativos"><div class="loading">Carregando...</div></div>
     </div>
   </div>
 
@@ -965,7 +977,7 @@ function renderInativos(){
 // Wire up buttons
 document.getElementById('btn-entrar').addEventListener('click', doLogin);
 document.getElementById('btn-sair').addEventListener('click', doLogout);
-document.getElementById('login-pass-field').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+document.getElementById('login-pass').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
 
 </script>
 </body>

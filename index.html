@@ -774,7 +774,7 @@ function renderPedidos(){
   const filtroAno=document.getElementById('filtro-ano-ped')?.value||'';
   let allEntries=Object.entries(pedidos);
   let naoConc=allEntries.filter(([,p])=>(p.etapa||0)<3).sort((a,b)=>(a[1].criadoEm||0)-(b[1].criadoEm||0));
-  let conc=allEntries.filter(([,p])==>(p.etapa||0)===3).sort((a,b)=>(b[1].criadoEm||0)-(a[1].criadoEm||0));
+  let conc=allEntries.filter(([,p])=>(p.etapa||0)===3).sort((a,b)=>(b[1].criadoEm||0)-(a[1].criadoEm||0));
   let entriesPed=[...conc,...naoConc];
   if(filterPed==='naoFat')      entriesPed=allEntries.filter(([,p])=>p.etapa===0);
   if(filterPed==='aguardAgend') entriesPed=allEntries.filter(([,p])=>p.etapa===1);

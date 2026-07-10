@@ -21,8 +21,6 @@
 }
 body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; background: linear-gradient(90deg, transparent, var(--accent), transparent); z-index:999; }
-
-/* ── LOGIN ── */
 #login-screen { display:flex; align-items:center; justify-content:center; min-height:100vh; padding:1rem; }
 .login-box { background: var(--surface); border: 0.5px solid rgba(0,178,122,0.3); border-radius: var(--radius-xl); padding: 2.5rem 2rem; width:100%; max-width:360px; }
 .login-logo { text-align:center; margin-bottom:1.75rem; }
@@ -35,11 +33,8 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
 .login-btn { width:100%; padding:10px; border-radius:var(--radius-md); border:none; background:var(--accent); color:#fff; font-size:14px; font-weight:500; cursor:pointer; font-family:inherit; margin-top:0.5rem; transition:opacity 0.15s; }
 .login-btn:hover { opacity:0.85; }
 .login-error { font-size:12px; color:var(--red); margin-top:8px; text-align:center; display:none; }
-
-/* ── APP ── */
 #app-screen { display:none; }
 .container { max-width:960px; margin:0 auto; padding:1.5rem 1rem; }
-
 .top-bar { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem; flex-wrap:wrap; gap:8px; }
 .top-bar-left { display:flex; align-items:center; gap:12px; }
 .status-bar { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--text-2); }
@@ -51,13 +46,10 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
 .user-badge i { font-size:14px; color:var(--accent-2); }
 .logout-btn { background:none; border:0.5px solid var(--border); border-radius:99px; color:var(--text-3); font-size:11px; padding:3px 10px; cursor:pointer; font-family:inherit; transition:all 0.15s; }
 .logout-btn:hover { color:var(--red); border-color:var(--red); }
-
 .header { display:flex; align-items:baseline; justify-content:space-between; margin-bottom:1.5rem; flex-wrap:wrap; gap:8px; }
 .header h1 { font-size:22px; font-weight:500; background: linear-gradient(135deg, #FFFFFF 40%, #00B27A); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
 .header-sub { font-size:13px; color:var(--text-2); margin-top:3px; }
 .header-right { font-size:13px; color:var(--text-2); }
-
-/* ── NOTIFICAÇÕES ── */
 .notif-section { margin-bottom:1.25rem; }
 .notif-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
 .notif-title { font-size:13px; font-weight:500; color:var(--text-2); display:flex; align-items:center; gap:6px; }
@@ -73,9 +65,6 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
 .notif-time { font-size:11px; color:var(--text-3); margin-top:2px; }
 .notif-del { background:none; border:none; cursor:pointer; color:var(--text-3); font-size:14px; padding:2px 4px; border-radius:4px; flex-shrink:0; }
 .notif-del:hover { color:var(--red); }
-.notif-empty { font-size:12px; color:var(--text-3); text-align:center; padding:12px 0; }
-
-/* ── MÉTRICAS ── */
 .metrics { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin-bottom:1.25rem; }
 #metrics-ped { grid-template-columns:repeat(5,minmax(0,1fr)); }
 @media (max-width:700px) { #metrics-ped { grid-template-columns:repeat(3,1fr); } }
@@ -88,24 +77,19 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
 .metric-label { font-size:12px; color:var(--text-2); margin-bottom:3px; }
 .metric-value { font-size:24px; font-weight:500; }
 .metric-sub { font-size:11px; margin-top:2px; color:var(--text-2); }
-
-/* ── ABAS ── */
 .tabs { display:flex; border-bottom:0.5px solid var(--border); margin-bottom:1.25rem; overflow-x:auto; }
 .tab { font-size:13px; font-weight:500; padding:9px 18px; cursor:pointer; color:var(--text-2); border-bottom:2px solid transparent; white-space:nowrap; background:none; border-top:none; border-left:none; border-right:none; font-family:inherit; transition:all 0.15s; display:flex; align-items:center; gap:6px; }
 .tab.active { color:var(--accent-2); border-bottom-color:var(--accent); }
 .tab:hover:not(.active) { color:var(--accent-2); background:var(--surface-2); }
+.tab-badge-count { background:var(--red); color:#fff; font-size:10px; font-weight:600; padding:1px 5px; border-radius:99px; margin-left:2px; }
 .tab-content { display:none; }
 .tab-content.active { display:block; }
-
-/* ── PANEL ── */
 .panel { background:var(--surface); border:0.5px solid var(--border); border-radius:var(--radius-lg); padding:1rem 1.25rem; }
 .panel-header { display:flex; align-items:center; justify-content:space-between; border-bottom:0.5px solid var(--border); padding-bottom:0.75rem; margin-bottom:1rem; flex-wrap:wrap; gap:8px; }
 .panel-title { font-size:15px; font-weight:500; display:flex; align-items:center; gap:7px; }
 .panel-title i { color:var(--text-2); font-size:16px; }
 .add-btn { font-size:12px; color:var(--text-2); cursor:pointer; border:0.5px solid var(--border); border-radius:var(--radius-md); padding:6px 12px; background:transparent; font-family:inherit; transition:background 0.15s; }
 .add-btn:hover { background:var(--surface-2); }
-
-/* ── BADGES ── */
 .badge { font-size:11px; padding:2px 8px; border-radius:99px; font-weight:500; white-space:nowrap; }
 .b-red { background:var(--red-bg); color:var(--red); }
 .b-amb { background:var(--amber-bg); color:var(--amber); }
@@ -113,8 +97,6 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
 .b-blue { background:var(--blue-bg); color:var(--blue); }
 .b-gray { background:var(--surface-2); color:var(--text-2); }
 .dot { width:3px; height:3px; border-radius:50%; background:var(--border-2); flex-shrink:0; }
-
-/* ── PENDÊNCIAS ── */
 .group-label { font-size:10px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-3); padding:8px 0 4px; border-bottom:0.5px solid var(--border); }
 .group-label:first-child { padding-top:0; }
 .item { display:flex; align-items:flex-start; gap:10px; padding:10px 0; border-bottom:0.5px solid var(--border); }
@@ -131,11 +113,11 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
 .icon-btn { background:none; border:none; cursor:pointer; color:var(--text-3); font-size:15px; padding:4px 5px; border-radius:4px; font-family:inherit; transition:all 0.15s; }
 .icon-btn:hover { color:var(--text); background:var(--surface-2); }
 .icon-btn.del:hover { color:var(--red); background:var(--red-bg); }
-
-/* ── PEDIDOS ── */
-.order-item { padding:12px 0; border-bottom:0.5px solid var(--border); }
+/* PEDIDOS */
+.order-item { padding:12px 0; border-bottom:0.5px solid var(--border); cursor:pointer; transition:background 0.1s; }
 .order-item:last-child { border-bottom:none; padding-bottom:0; }
 .order-item:first-child { padding-top:0; }
+.order-item:hover { background:rgba(255,255,255,0.02); border-radius:var(--radius-md); }
 .order-top { display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:5px; }
 .order-name { font-size:13px; font-weight:500; line-height:1.4; }
 .order-meta { font-size:11px; color:var(--text-2); margin-top:3px; display:flex; flex-wrap:wrap; gap:5px; align-items:center; }
@@ -158,9 +140,23 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
 .order-footer { display:flex; align-items:center; justify-content:space-between; margin-top:6px; flex-wrap:wrap; gap:6px; }
 .step-next { font-size:11px; color:var(--text-2); }
 .advance-btn { font-size:11px; padding:4px 10px; border:0.5px solid var(--border-2); border-radius:var(--radius-md); background:transparent; cursor:pointer; color:var(--accent-2); font-family:inherit; transition:all 0.15s; }
-.advance-btn:hover { background:rgba(124,92,252,0.12); border-color:var(--accent); }
-
-/* ── NF TABELA ── */
+.advance-btn:hover { background:rgba(0,178,122,0.1); border-color:var(--accent); }
+/* PAINEL DETALHE PEDIDO */
+.order-detail { display:none; background:var(--surface-2); border-radius:var(--radius-md); padding:12px 14px; margin-top:8px; border:0.5px solid var(--border-2); }
+.order-detail.open { display:block; }
+.detail-section-title { font-size:10px; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-3); margin-bottom:6px; font-weight:600; }
+.detail-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:10px; }
+.detail-item label { font-size:10px; color:var(--text-3); display:block; margin-bottom:2px; }
+.detail-item span { font-size:12px; color:var(--text); }
+.obs-box { background:var(--surface); border-left:2px solid var(--accent); border-radius:var(--radius-md); padding:8px 10px; font-size:12px; color:var(--text-2); margin-bottom:8px; }
+/* ANEXOS */
+.anexo-upload { border:1.5px dashed var(--border-2); border-radius:var(--radius-md); padding:12px; text-align:center; cursor:pointer; font-size:12px; color:var(--text-3); transition:all 0.15s; margin-bottom:8px; }
+.anexo-upload:hover { border-color:var(--accent); color:var(--accent); }
+.anexo-lista { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+.anexo-thumb { position:relative; width:72px; height:72px; border-radius:var(--radius-md); overflow:hidden; border:0.5px solid var(--border); cursor:pointer; }
+.anexo-thumb img { width:100%; height:100%; object-fit:cover; }
+.anexo-thumb-del { position:absolute; top:2px; right:2px; background:rgba(0,0,0,0.6); border:none; border-radius:50%; width:16px; height:16px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:#fff; font-size:10px; }
+/* NF */
 .nf-table { width:100%; border-collapse:collapse; font-size:12px; }
 .nf-table th { font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-3); padding:6px 10px; border-bottom:0.5px solid var(--border); text-align:left; white-space:nowrap; }
 .nf-table td { padding:10px; border-bottom:0.5px solid var(--border); vertical-align:middle; }
@@ -170,8 +166,7 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
 .si-ok { background:var(--green-bg); color:var(--green); }
 .si-no { background:var(--red-bg); color:var(--red); }
 .si-pend { background:var(--amber-bg); color:var(--amber); }
-
-/* ── CALENDÁRIO ── */
+/* CALENDÁRIO */
 .cal-wrap { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
 @media (max-width:640px) { .cal-wrap { grid-template-columns:1fr; } }
 .cal-grid { background:var(--surface); border:0.5px solid var(--border); border-radius:var(--radius-lg); padding:1rem 1.25rem; }
@@ -198,16 +193,30 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
 .cal-event-name { font-size:13px; color:var(--text); }
 .cal-event-meta { font-size:11px; color:var(--text-2); margin-top:2px; }
 .cal-empty { text-align:center; padding:2rem 0; color:var(--text-3); font-size:13px; }
-
-/* ── MODAL ── */
+/* FILTRO MÊS */
+.mes-filtro { display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap; align-items:center; }
+.mes-filtro select { background:var(--surface-2); border:0.5px solid var(--border-2); border-radius:var(--radius-md); color:var(--text); font-size:12px; padding:6px 10px; font-family:inherit; outline:none; cursor:pointer; }
+.mes-filtro select:focus { border-color:var(--accent); }
+.mes-resumo { background:var(--surface-2); border:0.5px solid var(--border-2); border-radius:var(--radius-md); padding:8px 14px; font-size:12px; color:var(--text-2); margin-bottom:12px; display:flex; gap:16px; flex-wrap:wrap; }
+.mes-resumo strong { color:var(--accent-2); }
+/* INATIVOS */
+.inativo-card { background:var(--surface); border:0.5px solid rgba(245,166,35,0.3); border-radius:var(--radius-lg); padding:14px 16px; margin-bottom:10px; }
+.inativo-card-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; }
+.inativo-cli-nome { font-size:14px; font-weight:500; color:var(--text); }
+.inativo-cli-info { font-size:11px; color:var(--text-2); margin-top:2px; }
+.inativo-forn-row { display:flex; align-items:center; justify-content:space-between; padding:7px 10px; background:var(--surface-2); border-radius:var(--radius-md); margin-bottom:5px; font-size:12px; border:0.5px solid var(--border); }
+.inativo-forn-row:last-child { margin-bottom:0; }
+.dias-badge { background:var(--red-bg); color:var(--red); font-size:11px; font-weight:600; padding:2px 8px; border-radius:99px; }
+/* MODAL */
 .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.55); display:flex; align-items:center; justify-content:center; z-index:100; padding:1rem; }
 .modal-overlay.hidden { display:none; }
 .modal { background:var(--surface); border-radius:var(--radius-xl); padding:1.5rem; width:100%; max-width:460px; border:0.5px solid rgba(139,120,255,0.3); max-height:90vh; overflow-y:auto; }
 .modal h2 { font-size:17px; font-weight:500; margin-bottom:1.25rem; }
 .form-group { margin-bottom:1rem; }
 .form-group label { font-size:12px; color:var(--text-2); display:block; margin-bottom:5px; }
-.form-group input,.form-group select { width:100%; padding:9px 10px; border:0.5px solid var(--border-2); border-radius:var(--radius-md); font-size:13px; background:var(--surface-2); color:var(--text); font-family:inherit; outline:none; }
-.form-group input:focus,.form-group select:focus { border-color:var(--accent); }
+.form-group input,.form-group select,.form-group textarea { width:100%; padding:9px 10px; border:0.5px solid var(--border-2); border-radius:var(--radius-md); font-size:13px; background:var(--surface-2); color:var(--text); font-family:inherit; outline:none; }
+.form-group textarea { resize:vertical; min-height:60px; }
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus { border-color:var(--accent); }
 .form-row { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
 .modal-footer { display:flex; gap:8px; justify-content:flex-end; margin-top:1.25rem; }
 .btn-cancel { padding:8px 16px; border-radius:var(--radius-md); border:0.5px solid var(--border-2); background:transparent; cursor:pointer; font-size:13px; color:var(--text-2); font-family:inherit; }
@@ -219,6 +228,11 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
 .date-field { display:none; }
 .date-field.show { display:block; }
 .loading { text-align:center; padding:2rem 0; color:var(--text-3); font-size:13px; }
+/* LIGHTBOX */
+.lightbox { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:200; align-items:center; justify-content:center; }
+.lightbox.open { display:flex; }
+.lightbox img { max-width:90vw; max-height:90vh; border-radius:var(--radius-lg); }
+.lightbox-close { position:absolute; top:16px; right:20px; background:none; border:none; color:#fff; font-size:28px; cursor:pointer; }
 </style>
 </head>
 <body>
@@ -228,13 +242,13 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
   <div class="login-box">
     <div class="login-logo">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" width="96" height="72" style="margin-bottom:8px">
-  <g transform="translate(118, 120)">
-    <path d="M -40,-96 L 86,-96 C 166,-96 166,-52 166,0 C 166,52 166,96 86,96 L -58,96 L -40,44 L 72,44 C 112,44 112,26 112,0 C 112,-26 112,-44 72,-44 L -22,-44 Z" fill="#A8A9AD"/>
-    <polygon points="2,-38 20,-38 8,38 -10,38" fill="#00B27A"/>
-    <polygon points="22,-38 40,-38 28,38 10,38" fill="#00B27A" opacity="0.55"/>
-    <polygon points="42,-38 60,-38 48,38 30,38" fill="#00B27A" opacity="0.22"/>
-  </g>
-</svg>
+        <g transform="translate(118, 120)">
+          <path d="M -40,-96 L 86,-96 C 166,-96 166,-52 166,0 C 166,52 166,96 86,96 L -58,96 L -40,44 L 72,44 C 112,44 112,26 112,0 C 112,-26 112,-44 72,-44 L -22,-44 Z" fill="#A8A9AD"/>
+          <polygon points="2,-38 20,-38 8,38 -10,38" fill="#00B27A"/>
+          <polygon points="22,-38 40,-38 28,38 10,38" fill="#00B27A" opacity="0.55"/>
+          <polygon points="42,-38 60,-38 48,38 30,38" fill="#00B27A" opacity="0.22"/>
+        </g>
+      </svg>
       <h1>DFD</h1>
       <p>Representações — Dashboard</p>
     </div>
@@ -258,7 +272,6 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
 <!-- APP -->
 <div id="app-screen">
 <div class="container">
-
   <div class="top-bar">
     <div class="top-bar-left">
       <div class="status-bar">
@@ -269,17 +282,16 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
     </div>
     <button class="logout-btn" onclick="doLogout()"><i class="ti ti-logout" style="font-size:12px"></i> Sair</button>
   </div>
-
   <div class="header">
     <div style="display:flex;align-items:center;gap:12px;">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" width="40" height="30" style="flex-shrink:0">
-  <g transform="translate(118, 120)">
-    <path d="M -40,-96 L 86,-96 C 166,-96 166,-52 166,0 C 166,52 166,96 86,96 L -58,96 L -40,44 L 72,44 C 112,44 112,26 112,0 C 112,-26 112,-44 72,-44 L -22,-44 Z" fill="#A8A9AD"/>
-    <polygon points="2,-38 20,-38 8,38 -10,38" fill="#00B27A"/>
-    <polygon points="22,-38 40,-38 28,38 10,38" fill="#00B27A" opacity="0.55"/>
-    <polygon points="42,-38 60,-38 48,38 30,38" fill="#00B27A" opacity="0.22"/>
-  </g>
-</svg>
+        <g transform="translate(118, 120)">
+          <path d="M -40,-96 L 86,-96 C 166,-96 166,-52 166,0 C 166,52 166,96 86,96 L -58,96 L -40,44 L 72,44 C 112,44 112,26 112,0 C 112,-26 112,-44 72,-44 L -22,-44 Z" fill="#A8A9AD"/>
+          <polygon points="2,-38 20,-38 8,38 -10,38" fill="#00B27A"/>
+          <polygon points="22,-38 40,-38 28,38 10,38" fill="#00B27A" opacity="0.55"/>
+          <polygon points="42,-38 60,-38 48,38 30,38" fill="#00B27A" opacity="0.22"/>
+        </g>
+      </svg>
       <div>
         <h1>DFD Representações</h1>
         <div class="header-sub" id="data-hoje"></div>
@@ -288,7 +300,6 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
     <div class="header-right" id="hora-atual"></div>
   </div>
 
-  <!-- NOTIFICAÇÕES -->
   <div class="notif-section" id="notif-section"></div>
 
   <div class="tabs">
@@ -296,6 +307,7 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
     <button class="tab" onclick="switchTab('pedidos')"><i class="ti ti-package"></i> Pedidos</button>
     <button class="tab" onclick="switchTab('notas')"><i class="ti ti-file-invoice"></i> Notas Fiscais de comissão</button>
     <button class="tab" onclick="switchTab('calendario')"><i class="ti ti-calendar"></i> Meu Calendário</button>
+    <button class="tab" id="tab-inativos-btn" onclick="switchTab('inativos')"><i class="ti ti-alert-triangle"></i> Inativos <span class="tab-badge-count" id="badge-inativos" style="display:none">0</span></button>
   </div>
 
   <!-- PENDÊNCIAS -->
@@ -318,6 +330,25 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
         <div class="panel-title"><i class="ti ti-package"></i> Pedidos acompanhados</div>
         <button class="add-btn" onclick="openNewPedido()">+ Adicionar</button>
       </div>
+      <div class="mes-filtro">
+        <select id="filtro-mes-ped" onchange="renderPedidos()">
+          <option value="">Todos os meses</option>
+          <option value="01">Janeiro</option><option value="02">Fevereiro</option>
+          <option value="03">Março</option><option value="04">Abril</option>
+          <option value="05">Maio</option><option value="06">Junho</option>
+          <option value="07">Julho</option><option value="08">Agosto</option>
+          <option value="09">Setembro</option><option value="10">Outubro</option>
+          <option value="11">Novembro</option><option value="12">Dezembro</option>
+        </select>
+        <select id="filtro-ano-ped" onchange="renderPedidos()">
+          <option value="">Todos os anos</option>
+          <option value="2025">2025</option><option value="2026">2026</option>
+        </select>
+        <select id="filtro-forn-ped" onchange="renderPedidos()">
+          <option value="">Todos os fornecedores</option>
+        </select>
+      </div>
+      <div id="mes-resumo-ped" style="display:none" class="mes-resumo"></div>
       <div id="lista-pedidos"><div class="loading">Carregando...</div></div>
     </div>
   </div>
@@ -361,10 +392,27 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
     </div>
   </div>
 
+  <!-- INATIVOS -->
+  <div class="tab-content" id="tab-inativos">
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title"><i class="ti ti-alert-triangle" style="color:var(--amber)"></i> Clientes inativos por representada</div>
+        <div style="font-size:12px;color:var(--text-3)">Clientes com compra anterior e 30+ dias sem novo pedido</div>
+      </div>
+      <div id="lista-inativos"><div class="loading">Carregando...</div></div>
+    </div>
+  </div>
+
 </div>
 </div>
 
-<!-- Modais -->
+<!-- LIGHTBOX -->
+<div class="lightbox" id="lightbox" onclick="fecharLightbox()">
+  <button class="lightbox-close" onclick="fecharLightbox()"><i class="ti ti-x"></i></button>
+  <img id="lightbox-img" src="" alt="">
+</div>
+
+<!-- MODAIS -->
 <div class="modal-overlay hidden" id="modal-pendencia">
   <div class="modal">
     <h2 id="modal-pend-title">Nova pendência</h2>
@@ -395,6 +443,7 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
       <div class="form-group"><label>Fornecedor</label><select id="o-forn"><option value="">— Selecione —</option></select></div>
       <div class="form-group"><label>Cliente / Atacadista</label><select id="o-cliente"><option value="">— Selecione —</option></select></div>
     </div>
+    <div class="form-group"><label>Valor do pedido (R$)</label><input type="number" id="o-valor" placeholder="0,00" min="0" step="0.01" /></div>
     <div class="form-group"><label>Data de emissão do pedido</label><input type="date" id="o-emissao" /></div>
     <div class="form-group"><label>Status atual</label>
       <select id="o-etapa" onchange="toggleDateFields()">
@@ -404,6 +453,16 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
     </div>
     <div class="form-group date-field" id="field-fat"><label>Data de faturamento</label><input type="date" id="o-fat" /></div>
     <div class="form-group date-field" id="field-agd"><label>Data de agendamento</label><input type="date" id="o-agd" /></div>
+    <div class="form-group"><label>Observações</label><textarea id="o-obs" placeholder="Detalhes do pedido..."></textarea></div>
+    <div class="form-group">
+      <label>Anexar imagem</label>
+      <div class="anexo-upload" onclick="document.getElementById('o-img-input').click()">
+        <i class="ti ti-photo" style="font-size:20px;display:block;margin-bottom:4px"></i>
+        Clique para anexar imagem
+      </div>
+      <input type="file" id="o-img-input" accept="image/*" style="display:none" onchange="handleImageUpload(event)" />
+      <div id="o-img-preview"></div>
+    </div>
     <div class="modal-footer">
       <button class="btn-cancel" onclick="closeModal('modal-pedido')">Cancelar</button>
       <button class="btn-save" id="btn-save-ped" onclick="savePedido()">Adicionar</button>
@@ -447,23 +506,17 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db  = getDatabase(app);
 
-// ── USUÁRIOS ──
 const USERS = {
   'breno':   { pass: 'dfd2026', label: 'Breno' },
   'roberto': { pass: 'dfd2026', label: 'Roberto' }
 };
 let currentUser = null;
-const INACTIVITY_LIMIT = 3 * 60 * 60 * 1000; // 3 horas
+const INACTIVITY_LIMIT = 3 * 60 * 60 * 1000;
 let inactivityTimer = null;
 
 function resetInactivityTimer() {
   clearTimeout(inactivityTimer);
-  inactivityTimer = setTimeout(() => {
-    if(currentUser) {
-      window.doLogout();
-      alert('Você foi deslogado por inatividade (3 horas).');
-    }
-  }, INACTIVITY_LIMIT);
+  inactivityTimer = setTimeout(() => { if(currentUser) { window.doLogout(); alert('Você foi deslogado por inatividade (3 horas).'); } }, INACTIVITY_LIMIT);
   localStorage.setItem('dfd_last_activity', Date.now().toString());
 }
 
@@ -477,24 +530,18 @@ function startSession(user) {
   ['click','keydown','mousemove','touchstart'].forEach(e => document.addEventListener(e, resetInactivityTimer, {passive:true}));
 }
 
-// Verificar sessão salva ao carregar
 (function checkSavedSession() {
   const savedUser = localStorage.getItem('dfd_user');
   const savedPass = localStorage.getItem('dfd_pass');
   const lastActivity = parseInt(localStorage.getItem('dfd_last_activity') || '0');
-  const now = Date.now();
   if(savedUser && savedPass && USERS[savedUser] && USERS[savedUser].pass === savedPass) {
-    if(now - lastActivity < INACTIVITY_LIMIT) {
+    if(Date.now() - lastActivity < INACTIVITY_LIMIT) {
       document.getElementById('login-user').value = savedUser;
       document.getElementById('login-pass').value = savedPass;
-      if(localStorage.getItem('dfd_remember') === '1') {
-        document.getElementById('remember-me').checked = true;
-      }
+      if(localStorage.getItem('dfd_remember') === '1') document.getElementById('remember-me').checked = true;
       startSession(savedUser);
     } else {
-      localStorage.removeItem('dfd_user');
-      localStorage.removeItem('dfd_pass');
-      localStorage.removeItem('dfd_last_activity');
+      localStorage.removeItem('dfd_user'); localStorage.removeItem('dfd_pass'); localStorage.removeItem('dfd_last_activity');
     }
   }
 })();
@@ -504,28 +551,15 @@ window.doLogin = function() {
   const p = document.getElementById('login-pass').value;
   const remember = document.getElementById('remember-me').checked;
   if(USERS[u] && USERS[u].pass === p) {
-    if(remember) {
-      localStorage.setItem('dfd_user', u);
-      localStorage.setItem('dfd_pass', p);
-      localStorage.setItem('dfd_remember', '1');
-    } else {
-      localStorage.setItem('dfd_user', u);
-      localStorage.setItem('dfd_pass', p);
-      localStorage.removeItem('dfd_remember');
-    }
+    localStorage.setItem('dfd_user', u); localStorage.setItem('dfd_pass', p);
+    if(remember) localStorage.setItem('dfd_remember', '1'); else localStorage.removeItem('dfd_remember');
     startSession(u);
-  } else {
-    document.getElementById('login-error').style.display = 'block';
-  }
+  } else { document.getElementById('login-error').style.display = 'block'; }
 };
 
 window.doLogout = function() {
-  currentUser = null;
-  clearTimeout(inactivityTimer);
-  localStorage.removeItem('dfd_user');
-  localStorage.removeItem('dfd_pass');
-  localStorage.removeItem('dfd_last_activity');
-  localStorage.removeItem('dfd_remember');
+  currentUser = null; clearTimeout(inactivityTimer);
+  ['dfd_user','dfd_pass','dfd_last_activity','dfd_remember'].forEach(k=>localStorage.removeItem(k));
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('app-screen').style.display = 'none';
   document.getElementById('login-user').value = '';
@@ -533,17 +567,20 @@ window.doLogout = function() {
   document.getElementById('remember-me').checked = false;
 };
 
-const FORNECEDORES = ['Agroindústria Real','Asa','Fugini Alimentos','Gaboardi','Global','Globopack','Godinho','Infinity','JPS','Master','Mundial','Nossa Distribuidora','Oderich','RTL','Superglobo'];
-const CLIENTES = ['Asa','Atacaforte','Estampa','Flex','G10','Global','Godinho','Hiper Opa','Infinity','JM','JPS','Master','MegaMinas','Multimix','Mundial','Nossa Distribuidora','Real','RTL','Somamix','Única','Upside'];
+const FORNECEDORES = ['Agroindústria Real','ASA INDUSTRIA E COMERCIO LTDA','Asa','Autêntica','Fugini','Fugini Alimentos','Gaboardi','Global','GLOBAL','Globopack','Godinho','Guarany','Infinity','JPS','JPS COMERCIO E DISTRIBUIÇÃO LTDA','LIMPÃO','Master','Mineirinho','Mundial','Mundial Comercio Atacadista','Nossa Distribuidora','Nutriway','Oderich','RTL','RTL LOGISTICA','Superglobo'];
+const CLIENTES = ['Asa','Atakaforte','Atakamix','Berola','CEVAROLI SUPERMERCADOS','Estampa','Flexx','G10','Global','GLOBAL','Godinho','Hiper Opa','Infinity','JM','JM CEREAIS','JPS','Master','MegaMinas','Mega Minas','Mineirinho','Multi Mix','Multimix','Mundial','Mundial Comercio Atacadista','Nossa Distribuidora','Real','RTL','Somamix','Soma Mix','Única','Unica','Up side','Upside','UP Side'];
 const ETAPA_LABELS = ['Não faturado','Precisa agendar','Foi agendado','Foi entregue'];
+const MESES_NOMES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 const PRIO_ORDER = { high:0, med:1, low:2 };
 
 let pendencias={}, pedidos={}, notas={}, notificacoes={};
 let editingPendKey=null, editingPedKey=null, editingNfKey=null;
 let filterPend=null, filterPed=null, filterNF=null;
 let calYear=new Date().getFullYear(), calMonth=new Date().getMonth(), calSelected=null;
+let openedPedidoKey = null;
+let pendingImageData = null;
 
-// ── FIREBASE LISTENERS ──
+// FIREBASE
 onValue(ref(db,'.info/connected'), snap=>{
   const online=snap.val();
   const dot=document.getElementById('status-dot'), txt=document.getElementById('status-text');
@@ -551,95 +588,78 @@ onValue(ref(db,'.info/connected'), snap=>{
   txt.textContent=online?'Sincronizado em tempo real':'Reconectando...';
 });
 onValue(ref(db,'pendencias'), snap=>{ pendencias=snap.val()||{}; renderPendencias(); renderCalendar(); });
-onValue(ref(db,'pedidos'),    snap=>{ pedidos=snap.val()||{};    renderPedidos();   renderCalendar(); });
+onValue(ref(db,'pedidos'),    snap=>{ pedidos=snap.val()||{};    renderPedidos(); renderCalendar(); renderInativos(); atualizarBadgeInativos(); });
 onValue(ref(db,'notas'),      snap=>{ notas=snap.val()||{};      renderNotas(); });
 onValue(ref(db,'notificacoes'), snap=>{ notificacoes=snap.val()||{}; renderNotifs(); });
 
-// ── NOTIFICAÇÕES ──
-function addNotif(texto) {
-  push(ref(db,'notificacoes'), { texto, ts: Date.now(), lido: {} });
-}
+// NOTIFICAÇÕES
+function addNotif(texto) { push(ref(db,'notificacoes'), { texto, ts: Date.now(), lido: {} }); }
 function renderNotifs() {
   const sec = document.getElementById('notif-section');
   const now24 = Date.now();
   const all = Object.entries(notificacoes).sort((a,b)=>b[1].ts-a[1].ts);
-  const visiveis = all.filter(([k,n])=>{
-    if(n.lido && n.lido[currentUser]) return false;
-    if(n.ts && (now24 - n.ts) > 24*60*60*1000) return false;
-    return true;
-  });
+  const visiveis = all.filter(([k,n])=>{ if(n.lido&&n.lido[currentUser]) return false; if(n.ts&&(now24-n.ts)>24*60*60*1000) return false; return true; });
   if(!visiveis.length) { sec.innerHTML=''; return; }
-  sec.innerHTML=`
-    <div class="notif-header">
-      <div class="notif-title"><i class="ti ti-bell" style="font-size:15px;color:var(--accent-2)"></i> Notificações <span class="notif-badge">${visiveis.length}</span></div>
-      <button class="notif-clear-all" onclick="clearAllNotifs()">Limpar todas</button>
-    </div>
-    <div class="notif-list">
-      ${visiveis.map(([k,n])=>`
-        <div class="notif-item new">
-          <div class="notif-dot"></div>
-          <div class="notif-body">
-            <div class="notif-text">${n.texto}</div>
-            <div class="notif-time">${fmtTs(n.ts)}</div>
-          </div>
-          <button class="notif-del" onclick="dismissNotif('${k}')" title="Dispensar"><i class="ti ti-x"></i></button>
-        </div>
-      `).join('')}
-    </div>
-  `;
+  sec.innerHTML=`<div class="notif-header"><div class="notif-title"><i class="ti ti-bell" style="font-size:15px;color:var(--accent-2)"></i> Notificações <span class="notif-badge">${visiveis.length}</span></div><button class="notif-clear-all" onclick="clearAllNotifs()">Limpar todas</button></div>
+    <div class="notif-list">${visiveis.map(([k,n])=>`<div class="notif-item new"><div class="notif-dot"></div><div class="notif-body"><div class="notif-text">${n.texto}</div><div class="notif-time">${fmtTs(n.ts)}</div></div><button class="notif-del" onclick="dismissNotif('${k}')"><i class="ti ti-x"></i></button></div>`).join('')}</div>`;
 }
-window.dismissNotif = function(key) {
-  if(!currentUser) return;
-  const n = notificacoes[key]; if(!n) return;
-  const lido = n.lido ? {...n.lido} : {};
-  lido[currentUser] = true;
-  update(ref(db, 'notificacoes/' + key + '/lido'), { [currentUser]: true });
-};
-window.clearAllNotifs = function() {
-  if(!currentUser) return;
-  const all = Object.entries(notificacoes).filter(([k,n])=>!(n.lido&&n.lido[currentUser]));
-  all.forEach(([k])=>{
-    update(ref(db, 'notificacoes/' + k + '/lido'), { [currentUser]: true });
-  });
-};
-function fmtTs(ts) {
-  if(!ts) return '';
-  const d=new Date(ts);
-  return d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
-}
+window.dismissNotif = function(key) { if(!currentUser) return; update(ref(db,'notificacoes/'+key+'/lido'),{[currentUser]:true}); };
+window.clearAllNotifs = function() { if(!currentUser) return; Object.keys(notificacoes).forEach(k=>update(ref(db,'notificacoes/'+k+'/lido'),{[currentUser]:true})); };
+function fmtTs(ts) { if(!ts) return ''; const d=new Date(ts); return d.toLocaleDateString('pt-BR')+' '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}); }
 
-// ── ABAS ──
+// ABAS
 window.switchTab=function(id){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
   document.getElementById('tab-'+id).classList.add('active');
-  ['pendencias','pedidos','notas','calendario'].forEach((n,i)=>{ if(n===id) document.querySelectorAll('.tab')[i].classList.add('active'); });
+  const tabIndex = {'pendencias':0,'pedidos':1,'notas':2,'calendario':3,'inativos':4};
+  document.querySelectorAll('.tab')[tabIndex[id]]?.classList.add('active');
   if(id==='calendario') renderCalendar();
+  if(id==='inativos') renderInativos();
 };
 
-// ── MODAIS ──
+// MODAIS
 window.closeModal=function(id){
   document.getElementById(id).classList.add('hidden');
-  document.getElementById(id).querySelectorAll('input').forEach(i=>i.value='');
+  document.getElementById(id).querySelectorAll('input:not([type=file])').forEach(i=>i.value='');
   document.getElementById(id).querySelectorAll('select').forEach(s=>s.selectedIndex=0);
+  document.getElementById(id).querySelectorAll('textarea').forEach(t=>t.value='');
   document.querySelectorAll('.date-field').forEach(d=>d.classList.remove('show'));
   editingPendKey=null; editingPedKey=null; editingNfKey=null;
+  pendingImageData=null;
+  const prev=document.getElementById('o-img-preview'); if(prev) prev.innerHTML='';
 };
-function openModal(id) {
-  fillSelects();
-  document.getElementById(id).classList.remove('hidden');
-  setTimeout(()=>{ const f=document.querySelector('#'+id+' input'); if(f) f.focus(); },50);
-}
+function openModal(id) { fillSelects(); document.getElementById(id).classList.remove('hidden'); setTimeout(()=>{ const f=document.querySelector('#'+id+' input:not([type=file])'); if(f) f.focus(); },50); }
 document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{ if(e.target===o) window.closeModal(o.id); }));
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') document.querySelectorAll('.modal-overlay:not(.hidden)').forEach(o=>window.closeModal(o.id)); });
 window.toggleDateFields=function(){ const v=Number(document.getElementById('o-etapa').value); document.getElementById('field-fat').classList.toggle('show',v>=1); document.getElementById('field-agd').classList.toggle('show',v>=2); };
 
 function fillSelects() {
-  ['p-forn','o-forn','nf-forn'].forEach(id=>{ const el=document.getElementById(id),cur=el.value; el.innerHTML='<option value="">— Selecione —</option>'+FORNECEDORES.map(f=>`<option value="${f}">${f}</option>`).join(''); el.value=cur; });
-  ['p-cliente','o-cliente'].forEach(id=>{ const el=document.getElementById(id),cur=el.value; el.innerHTML='<option value="">— Selecione —</option>'+CLIENTES.map(c=>`<option value="${c}">${c}</option>`).join(''); el.value=cur; });
+  const forns = [...new Set([...FORNECEDORES, ...Object.values(pedidos).map(p=>p.fornecedor).filter(Boolean)])].sort();
+  const clis = [...new Set([...CLIENTES, ...Object.values(pedidos).map(p=>p.cliente).filter(Boolean)])].sort();
+  ['p-forn','o-forn','nf-forn'].forEach(id=>{ const el=document.getElementById(id),cur=el.value; el.innerHTML='<option value="">— Selecione —</option>'+forns.map(f=>`<option value="${f}">${f}</option>`).join(''); el.value=cur; });
+  ['p-cliente','o-cliente'].forEach(id=>{ const el=document.getElementById(id),cur=el.value; el.innerHTML='<option value="">— Selecione —</option>'+clis.map(c=>`<option value="${c}">${c}</option>`).join(''); el.value=cur; });
+  // filtro fornecedor pedidos
+  const selForn = document.getElementById('filtro-forn-ped');
+  if(selForn){ const cur=selForn.value; selForn.innerHTML='<option value="">Todos os fornecedores</option>'+forns.map(f=>`<option value="${f}" ${f===cur?'selected':''}>${f}</option>`).join(''); }
 }
 
-// ── PENDÊNCIAS ──
+// IMAGEM
+window.handleImageUpload = function(e) {
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    pendingImageData = ev.target.result;
+    const prev = document.getElementById('o-img-preview');
+    prev.innerHTML = `<div class="anexo-lista" style="margin-top:8px"><div class="anexo-thumb" onclick="abrirLightbox('${pendingImageData}')"><img src="${pendingImageData}"><button class="anexo-thumb-del" onclick="event.stopPropagation();removerImagem()"><i class="ti ti-x" style="font-size:9px"></i></button></div></div>`;
+  };
+  reader.readAsDataURL(file);
+};
+window.removerImagem = function() { pendingImageData=null; document.getElementById('o-img-preview').innerHTML=''; document.getElementById('o-img-input').value=''; };
+window.abrirLightbox = function(src) { document.getElementById('lightbox-img').src=src; document.getElementById('lightbox').classList.add('open'); };
+window.fecharLightbox = function() { document.getElementById('lightbox').classList.remove('open'); };
+
+// PENDÊNCIAS
 window.openNewPendencia=function(){ editingPendKey=null; document.getElementById('modal-pend-title').textContent='Nova pendência'; document.getElementById('btn-save-pend').textContent='Adicionar'; openModal('modal-pendencia'); };
 window.openEditPendencia=function(key){ const p=pendencias[key]; if(!p) return; editingPendKey=key; document.getElementById('modal-pend-title').textContent='Editar pendência'; document.getElementById('btn-save-pend').textContent='Salvar'; openModal('modal-pendencia'); document.getElementById('p-titulo').value=p.titulo||''; document.getElementById('p-forn').value=p.fornecedor||''; document.getElementById('p-cliente').value=p.cliente||''; document.getElementById('p-prazo').value=p.prazo||''; document.getElementById('p-resp').value=p.responsavel||''; document.getElementById('p-prio').value=p.prioridade||'med'; };
 window.savePendencia=function(){
@@ -652,41 +672,45 @@ window.savePendencia=function(){
 window.toggleDone=function(key){ const p=pendencias[key]; if(p) update(ref(db,'pendencias/'+key),{done:!p.done}); };
 window.deletePendencia=function(key){ if(!confirm('Remover esta pendência?')) return; remove(ref(db,'pendencias/'+key)); };
 
-// ── PEDIDOS ──
+// PEDIDOS
 window.openNewPedido=function(){ editingPedKey=null; document.getElementById('modal-ped-title').textContent='Novo pedido'; document.getElementById('btn-save-ped').textContent='Adicionar'; openModal('modal-pedido'); };
-window.openEditPedido=function(key){ const p=pedidos[key]; if(!p) return; editingPedKey=key; document.getElementById('modal-ped-title').textContent='Editar pedido'; document.getElementById('btn-save-ped').textContent='Salvar'; openModal('modal-pedido'); document.getElementById('o-nome').value=p.nome||''; document.getElementById('o-forn').value=p.fornecedor||''; document.getElementById('o-cliente').value=p.cliente||''; document.getElementById('o-etapa').value=p.etapa||0; window.toggleDateFields(); if(p.dataFaturamento) document.getElementById('o-fat').value=toInputDate(p.dataFaturamento); if(p.dataAgendamento) document.getElementById('o-agd').value=toInputDate(p.dataAgendamento); };
+window.openEditPedido=function(key){ const p=pedidos[key]; if(!p) return; editingPedKey=key; document.getElementById('modal-ped-title').textContent='Editar pedido'; document.getElementById('btn-save-ped').textContent='Salvar'; openModal('modal-pedido'); document.getElementById('o-nome').value=p.nome||''; document.getElementById('o-forn').value=p.fornecedor||''; document.getElementById('o-cliente').value=p.cliente||''; document.getElementById('o-etapa').value=p.etapa||0; document.getElementById('o-valor').value=p.valor||''; document.getElementById('o-obs').value=p.obs||''; window.toggleDateFields(); if(p.dataFaturamento) document.getElementById('o-fat').value=toInputDate(p.dataFaturamento); if(p.dataAgendamento) document.getElementById('o-agd').value=toInputDate(p.dataAgendamento); if(p.dataEmissao) document.getElementById('o-emissao').value=toInputDate(p.dataEmissao); if(p.imagemBase64){ pendingImageData=p.imagemBase64; document.getElementById('o-img-preview').innerHTML=`<div class="anexo-lista" style="margin-top:8px"><div class="anexo-thumb" onclick="abrirLightbox('${p.imagemBase64}')"><img src="${p.imagemBase64}"><button class="anexo-thumb-del" onclick="event.stopPropagation();removerImagem()"><i class="ti ti-x" style="font-size:9px"></i></button></div></div>`; } };
 window.savePedido=function(){
   const nome=document.getElementById('o-nome').value.trim();
   const etapa=Number(document.getElementById('o-etapa').value);
-  const data={ nome, fornecedor:document.getElementById('o-forn').value, cliente:document.getElementById('o-cliente').value, etapa, dataEmissao:document.getElementById('o-emissao').value||'', dataFaturamento:etapa>=1?document.getElementById('o-fat').value:'', dataAgendamento:etapa>=2?document.getElementById('o-agd').value:'' };
+  const data={ nome, fornecedor:document.getElementById('o-forn').value, cliente:document.getElementById('o-cliente').value, etapa, valor:parseFloat(document.getElementById('o-valor').value)||0, obs:document.getElementById('o-obs').value.trim(), dataEmissao:document.getElementById('o-emissao').value||'', dataFaturamento:etapa>=1?document.getElementById('o-fat').value:'', dataAgendamento:etapa>=2?document.getElementById('o-agd').value:'', imagemBase64:pendingImageData||'' };
   if(editingPedKey){ update(ref(db,'pedidos/'+editingPedKey),data); }
   else { push(ref(db,'pedidos'),{...data,criadoEm:Date.now()}); addNotif(`📦 ${USERS[currentUser]?.label||currentUser} adicionou o pedido: "${nome||'Novo pedido'}"`); }
   window.closeModal('modal-pedido');
 };
-window.advancePedido=function(key){ const p=pedidos[key]; if(!p||p.etapa>=3) return; const upd={etapa:p.etapa+1}; if(p.etapa===0){const d=prompt('Data de faturamento (DD/MM/AAAA):'); upd.dataFaturamento=d||'';} if(p.etapa===1){const d=prompt('Data de agendamento (DD/MM/AAAA):'); upd.dataAgendamento=d||'';} update(ref(db,'pedidos/'+key),upd); };
-window.deletePedido=function(key){ if(!confirm('Remover este pedido?')) return; remove(ref(db,'pedidos/'+key)); };
+window.advancePedido=function(key,e){ e.stopPropagation(); const p=pedidos[key]; if(!p||p.etapa>=3) return; const upd={etapa:p.etapa+1}; if(p.etapa===0){const d=prompt('Data de faturamento (DD/MM/AAAA):'); upd.dataFaturamento=d||'';} if(p.etapa===1){const d=prompt('Data de agendamento (DD/MM/AAAA):'); upd.dataAgendamento=d||'';} update(ref(db,'pedidos/'+key),upd); };
+window.deletePedido=function(key,e){ e.stopPropagation(); if(!confirm('Remover este pedido?')) return; remove(ref(db,'pedidos/'+key)); if(openedPedidoKey===key) openedPedidoKey=null; };
+window.togglePedidoDetail=function(key){ openedPedidoKey = openedPedidoKey===key ? null : key; renderPedidos(); };
 
-// ── NOTAS FISCAIS ──
+// NF
 window.openNewNF=function(){ editingNfKey=null; document.getElementById('modal-nf-title').textContent='Nova nota fiscal de comissão'; document.getElementById('btn-save-nf').textContent='Adicionar'; openModal('modal-nf'); };
 window.openEditNF=function(key){ const n=notas[key]; if(!n) return; editingNfKey=key; document.getElementById('modal-nf-title').textContent='Editar nota fiscal'; document.getElementById('btn-save-nf').textContent='Salvar'; openModal('modal-nf'); document.getElementById('nf-forn').value=n.fornecedor||''; document.getElementById('nf-desc').value=n.descricao||''; document.getElementById('nf-prazo').value=toInputDate(n.prazo)||''; document.getElementById('nf-emitida').value=n.emitida||'nao'; document.getElementById('nf-enviada').value=n.enviada||'nao'; document.getElementById('nf-comissao').value=n.comissao||'nao'; };
 window.saveNF=function(){ const data={fornecedor:document.getElementById('nf-forn').value, descricao:document.getElementById('nf-desc').value.trim(), prazo:document.getElementById('nf-prazo').value, emitida:document.getElementById('nf-emitida').value, enviada:document.getElementById('nf-enviada').value, comissao:document.getElementById('nf-comissao').value}; if(editingNfKey){update(ref(db,'notas/'+editingNfKey),data);}else{push(ref(db,'notas'),{...data,criadoEm:Date.now()});} window.closeModal('modal-nf'); };
 window.deleteNF=function(key){ if(!confirm('Remover esta NF?')) return; remove(ref(db,'notas/'+key)); };
 
-// ── FILTROS ──
+// FILTROS
 window.toggleFilterPend=function(f){ filterPend=filterPend===f?null:f; renderPendencias(); };
 window.toggleFilterPed=function(f){ filterPed=filterPed===f?null:f; renderPedidos(); };
 window.toggleFilterNF=function(f){ filterNF=filterNF===f?null:f; renderNotas(); };
 
-// ── HELPERS ──
+// HELPERS
 function toInputDate(d){ if(!d) return ''; if(d.includes('-')) return d; const [dd,mm,yy]=d.split('/'); return `${yy}-${mm}-${dd}`; }
 function fmtDate(d){ if(!d) return ''; if(d.includes('-')){const [y,m,dd]=d.split('-'); return `${dd}/${m}/${y}`;} return d; }
-function prazoColor(d){ if(!d) return 'b-gray'; const today=new Date(); today.setHours(0,0,0,0); let dt; if(d.includes('-')) dt=new Date(d); else{const [dd,mm,yy]=d.split('/'); dt=new Date(`${yy}-${mm}-${dd}`);} const diff=(dt-today)/(1000*60*60*24); if(diff<=0) return 'b-red'; if(diff<=7) return 'b-amb'; return 'b-grn'; }
+function prazoColor(d){ if(!d) return 'b-gray'; const today=new Date(); today.setHours(0,0,0,0); let dt; if(d.includes('-')) dt=new Date(d+'T00:00:00'); else{const [dd,mm,yy]=d.split('/'); dt=new Date(`${yy}-${mm}-${dd}T00:00:00`);} const diff=(dt-today)/(1000*60*60*24); if(diff<=0) return 'b-red'; if(diff<=7) return 'b-amb'; return 'b-grn'; }
 function prioBadge(p){ if(p==='high') return '<span class="badge b-red">Urgente</span>'; if(p==='med') return '<span class="badge b-amb">Média</span>'; return '<span class="badge b-gray">Baixa</span>'; }
 function etapaBadge(e){ return `<span class="badge ${['b-gray','b-amb','b-blue','b-grn'][e]}">${ETAPA_LABELS[e]}</span>`; }
 function stepCls(i,e){ return i<e?'done':i===e?'act':'pend'; }
 function siIcon(v){ if(v==='sim') return '<span class="si si-ok"><i class="ti ti-check" style="font-size:11px"></i></span>'; if(v==='aguardando') return '<span class="si si-pend"><i class="ti ti-clock" style="font-size:11px"></i></span>'; return '<span class="si si-no"><i class="ti ti-x" style="font-size:11px"></i></span>'; }
+function fmtVal(v){ return 'R$ '+Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function getMesFromPedido(p){ const d=p.dataEmissao||p.dataFaturamento||''; if(!d) return ''; if(d.includes('-')) return d.slice(5,7); if(d.includes('/')) return d.split('/')[1]; return ''; }
+function getAnoFromPedido(p){ const d=p.dataEmissao||p.dataFaturamento||''; if(!d) return ''; if(d.includes('-')) return d.slice(0,4); if(d.includes('/')) return d.split('/')[2]; return ''; }
 
-// ── RENDERS ──
+// ── RENDER PENDÊNCIAS ──
 function renderPendencias(){
   const el=document.getElementById('lista-pendencias');
   let entries=Object.entries(pendencias).sort((a,b)=>(b[1].criadoEm||0)-(a[1].criadoEm||0));
@@ -695,59 +719,88 @@ function renderPendencias(){
   if(!entries.length){ el.innerHTML='<div class="empty"><i class="ti ti-clipboard-list"></i>Nenhuma pendência ainda.<br>Clique em "+ Adicionar".</div>'; }
   else {
     const sorted=[...entries].sort((a,b)=>{ if(a[1].done!==b[1].done) return a[1].done?1:-1; return (PRIO_ORDER[a[1].prioridade]??2)-(PRIO_ORDER[b[1].prioridade]??2); });
-    const groups=[
-      {label:'🔴 Urgente', items:sorted.filter(([,p])=>!p.done&&p.prioridade==='high')},
-      {label:'🟡 Média',   items:sorted.filter(([,p])=>!p.done&&p.prioridade==='med')},
-      {label:'🟢 Baixa',   items:sorted.filter(([,p])=>!p.done&&p.prioridade==='low')},
-      {label:'✓ Concluídas', items:sorted.filter(([,p])=>p.done)},
-    ].filter(g=>g.items.length>0);
-    el.innerHTML=groups.map(g=>`<div class="group-label">${g.label}</div>${g.items.map(([key,p])=>`
-      <div class="item">
-        <div class="checkbox ${p.done?'done':''}" onclick="toggleDone('${key}')">${p.done?'<i class="ti ti-check"></i>':''}</div>
-        <div class="item-body" onclick="toggleDone('${key}')">
-          <div class="item-title ${p.done?'done':''}">${p.titulo||'Sem título'}</div>
-          <div class="item-meta">${prioBadge(p.prioridade)}${p.fornecedor?`<span class="dot"></span><i class="ti ti-building-store" style="font-size:11px"></i> ${p.fornecedor}`:''} ${p.cliente?`<span class="dot"></span><i class="ti ti-users" style="font-size:11px"></i> ${p.cliente}`:''} ${p.prazo?`<span class="dot"></span><i class="ti ti-clock" style="font-size:11px"></i> ${p.prazo}`:''} ${p.responsavel?`<span class="dot"></span><i class="ti ti-user" style="font-size:11px"></i> ${p.responsavel}`:''}</div>
-        </div>
-        <div class="item-actions">
-          <button class="icon-btn" onclick="openEditPendencia('${key}')"><i class="ti ti-edit"></i></button>
-          <button class="icon-btn del" onclick="deletePendencia('${key}')"><i class="ti ti-trash"></i></button>
-        </div>
-      </div>`).join('')}`).join('');
+    const groups=[{label:'🔴 Urgente',items:sorted.filter(([,p])=>!p.done&&p.prioridade==='high')},{label:'🟡 Média',items:sorted.filter(([,p])=>!p.done&&p.prioridade==='med')},{label:'🟢 Baixa',items:sorted.filter(([,p])=>!p.done&&p.prioridade==='low')},{label:'✓ Concluídas',items:sorted.filter(([,p])=>p.done)}].filter(g=>g.items.length>0);
+    el.innerHTML=groups.map(g=>`<div class="group-label">${g.label}</div>${g.items.map(([key,p])=>`<div class="item"><div class="checkbox ${p.done?'done':''}" onclick="toggleDone('${key}')">${p.done?'<i class="ti ti-check"></i>':''}</div><div class="item-body" onclick="toggleDone('${key}')"><div class="item-title ${p.done?'done':''}">${p.titulo||'Sem título'}</div><div class="item-meta">${prioBadge(p.prioridade)}${p.fornecedor?`<span class="dot"></span><i class="ti ti-building-store" style="font-size:11px"></i> ${p.fornecedor}`:''} ${p.cliente?`<span class="dot"></span><i class="ti ti-users" style="font-size:11px"></i> ${p.cliente}`:''} ${p.prazo?`<span class="dot"></span><i class="ti ti-clock" style="font-size:11px"></i> ${p.prazo}`:''} ${p.responsavel?`<span class="dot"></span><i class="ti ti-user" style="font-size:11px"></i> ${p.responsavel}`:''}</div></div><div class="item-actions"><button class="icon-btn" onclick="openEditPendencia('${key}')"><i class="ti ti-edit"></i></button><button class="icon-btn del" onclick="deletePendencia('${key}')"><i class="ti ti-trash"></i></button></div></div>`).join('')}`).join('');
   }
   const pArr=Object.values(pendencias);
-  const abertas=pArr.filter(p=>!p.done).length, urgentes=pArr.filter(p=>!p.done&&p.prioridade==='high').length;
-  const hoje=pArr.filter(p=>!p.done&&p.prazo&&p.prazo.toLowerCase().includes('hoje')).length;
-  document.getElementById('metrics-pend').innerHTML=`
-    <div class="metric ${filterPend==='abertas'?'active-filter':''}" onclick="toggleFilterPend('abertas')"><div class="metric-label">Abertas</div><div class="metric-value">${abertas}</div><div class="metric-sub" style="color:var(--red)">${urgentes} urgente(s)</div></div>
-    <div class="metric ${filterPend==='hoje'?'active-filter':''}" onclick="toggleFilterPend('hoje')"><div class="metric-label">Vence hoje</div><div class="metric-value">${hoje}</div><div class="metric-sub" style="color:${hoje>0?'var(--red)':'var(--text-2)'}">${hoje>0?'Atenção':'Ok'}</div></div>
-  `;
+  const abertas=pArr.filter(p=>!p.done).length, urgentes=pArr.filter(p=>!p.done&&p.prioridade==='high').length, hoje=pArr.filter(p=>!p.done&&p.prazo&&p.prazo.toLowerCase().includes('hoje')).length;
+  document.getElementById('metrics-pend').innerHTML=`<div class="metric ${filterPend==='abertas'?'active-filter':''}" onclick="toggleFilterPend('abertas')"><div class="metric-label">Abertas</div><div class="metric-value">${abertas}</div><div class="metric-sub" style="color:var(--red)">${urgentes} urgente(s)</div></div><div class="metric ${filterPend==='hoje'?'active-filter':''}" onclick="toggleFilterPend('hoje')"><div class="metric-label">Vence hoje</div><div class="metric-value">${hoje}</div><div class="metric-sub" style="color:${hoje>0?'var(--red)':'var(--text-2)'}">${hoje>0?'Atenção':'Ok'}</div></div>`;
 }
 
+// ── RENDER PEDIDOS ──
 function renderPedidos(){
+  fillSelects();
   const el=document.getElementById('lista-pedidos');
-  let entriesPed=Object.entries(pedidos).sort((a,b)=>(a[1].criadoEm||0)-(b[1].criadoEm||0));
-  if(filterPed==='total') entriesPed=entriesPed.sort((a,b)=>{
-    const order=[0,1,2,3]; return (order[a[1].etapa]??0)-(order[b[1].etapa]??0);
-  });
-  if(filterPed==='naoFat')     entriesPed=entriesPed.filter(([,p])=>p.etapa===0);
-  if(filterPed==='aguardAgend') entriesPed=entriesPed.filter(([,p])=>p.etapa===1);
-  if(filterPed==='agendados'){  entriesPed=entriesPed.filter(([,p])=>p.etapa===2); entriesPed=entriesPed.sort((a,b)=>{ const toMs=d=>{ if(!d) return Infinity; if(d.includes('-')) return new Date(d).getTime(); const [dd,mm,yy]=d.split('/'); return new Date(`${yy}-${mm}-${dd}`).getTime(); }; return toMs(a[1].dataAgendamento)-toMs(b[1].dataAgendamento); }); }
-  if(filterPed==='entregues')  entriesPed=entriesPed.filter(([,p])=>p.etapa===3);
-  const entries=entriesPed;
-  if(!entries.length){ el.innerHTML='<div class="empty"><i class="ti ti-package"></i>Nenhum pedido ainda.<br>Clique em "+ Adicionar".</div>'; }
-  else { el.innerHTML=entries.map(([key,p])=>`
-    <div class="order-item">
-      <div class="order-top">
-        <div><div class="order-name">${p.nome||'Sem nome'}</div>
-          <div class="order-meta">${p.fornecedor?`<i class="ti ti-building-store" style="font-size:11px"></i> ${p.fornecedor}`:''}${p.fornecedor&&p.cliente?'<span class="dot"></span>':''}${p.cliente?`<i class="ti ti-users" style="font-size:11px"></i> ${p.cliente}`:''}</div>
+  const filtroMes=document.getElementById('filtro-mes-ped')?.value||'';
+  const filtroAno=document.getElementById('filtro-ano-ped')?.value||'';
+  const filtroForn=document.getElementById('filtro-forn-ped')?.value||'';
+
+  let allEntries=Object.entries(pedidos);
+
+  // Separar concluídos e não concluídos
+  let naoConc = allEntries.filter(([,p])=>(p.etapa||0)<3);
+  let conc = allEntries.filter(([,p])=>(p.etapa||0)===3);
+
+  // Ordenação: não concluídos por criadoEm asc, concluídos por criadoEm desc (mais recente no topo)
+  naoConc.sort((a,b)=>(a[1].criadoEm||0)-(b[1].criadoEm||0));
+  conc.sort((a,b)=>(b[1].criadoEm||0)-(a[1].criadoEm||0));
+
+  let entriesPed = [...naoConc, ...conc];
+
+  // Filtros de métrica
+  if(filterPed==='naoFat')      entriesPed=allEntries.filter(([,p])=>p.etapa===0);
+  if(filterPed==='aguardAgend') entriesPed=allEntries.filter(([,p])=>p.etapa===1);
+  if(filterPed==='agendados')   entriesPed=allEntries.filter(([,p])=>p.etapa===2).sort((a,b)=>{ const toMs=d=>{ if(!d) return Infinity; const iso=d.includes('-')?d:`${d.split('/')[2]}-${d.split('/')[1]}-${d.split('/')[0]}`; return new Date(iso).getTime(); }; return toMs(a[1].dataAgendamento)-toMs(b[1].dataAgendamento); });
+  if(filterPed==='entregues')   entriesPed=conc;
+
+  // Filtro por mês/ano/fornecedor (aplicado sobre resultado atual)
+  if(filtroMes) entriesPed=entriesPed.filter(([,p])=>getMesFromPedido(p)===filtroMes);
+  if(filtroAno) entriesPed=entriesPed.filter(([,p])=>getAnoFromPedido(p)===filtroAno);
+  if(filtroForn) entriesPed=entriesPed.filter(([,p])=>p.fornecedor===filtroForn);
+
+  // Resumo do mês
+  const resumoEl=document.getElementById('mes-resumo-ped');
+  if(filtroMes||filtroAno){
+    const totalVal=entriesPed.reduce((s,[,p])=>s+(p.valor||0),0);
+    const label=(filtroMes?MESES_NOMES[parseInt(filtroMes)-1]+' ':'')+(filtroAno||'');
+    resumoEl.style.display='flex';
+    resumoEl.innerHTML=`📅 <strong>${label}</strong> &nbsp;·&nbsp; Pedidos: <strong>${entriesPed.length}</strong> &nbsp;·&nbsp; Faturamento: <strong>${fmtVal(totalVal)}</strong>`;
+  } else { resumoEl.style.display='none'; }
+
+  if(!entriesPed.length){ el.innerHTML='<div class="empty"><i class="ti ti-package"></i>Nenhum pedido encontrado.</div>'; }
+  else {
+    el.innerHTML=entriesPed.map(([key,p])=>{
+      const isOpen = openedPedidoKey===key;
+      const temImagem = p.imagemBase64 && p.imagemBase64.length > 0;
+      const detailHtml = isOpen ? `
+        <div class="order-detail open">
+          <div class="detail-section-title">Detalhes do pedido</div>
+          <div class="detail-grid">
+            ${p.valor?`<div class="detail-item"><label>Valor</label><span>${fmtVal(p.valor)}</span></div>`:''}
+            ${p.dataEmissao?`<div class="detail-item"><label>Data emissão</label><span>${fmtDate(p.dataEmissao)}</span></div>`:''}
+            ${p.dataFaturamento?`<div class="detail-item"><label>Faturamento</label><span>${fmtDate(p.dataFaturamento)}</span></div>`:''}
+            ${p.dataAgendamento?`<div class="detail-item"><label>Agendamento</label><span>${fmtDate(p.dataAgendamento)}</span></div>`:''}
+          </div>
+          ${p.obs?`<div class="obs-box">📝 ${p.obs}</div>`:''}
+          ${temImagem?`<div class="detail-section-title" style="margin-top:8px">Imagem anexada</div><div class="anexo-lista"><div class="anexo-thumb" onclick="abrirLightbox('${p.imagemBase64}')"><img src="${p.imagemBase64}" alt="anexo"></div></div>`:''}
+        </div>` : '';
+      return `
+      <div class="order-item" onclick="togglePedidoDetail('${key}')">
+        <div class="order-top">
+          <div><div class="order-name">${p.nome||'Sem nome'} ${temImagem?'<i class="ti ti-photo" style="font-size:11px;color:var(--accent-2);margin-left:4px"></i>':''}</div>
+            <div class="order-meta">${p.fornecedor?`<i class="ti ti-building-store" style="font-size:11px"></i> ${p.fornecedor}`:''}${p.fornecedor&&p.cliente?'<span class="dot"></span>':''}${p.cliente?`<i class="ti ti-users" style="font-size:11px"></i> ${p.cliente}`:''}</div>
+          </div>
+          <div class="order-actions">${etapaBadge(p.etapa||0)}<button class="icon-btn" onclick="event.stopPropagation();openEditPedido('${key}')"><i class="ti ti-edit"></i></button><button class="icon-btn del" onclick="deletePedido('${key}',event)"><i class="ti ti-trash"></i></button></div>
         </div>
-        <div class="order-actions">${etapaBadge(p.etapa||0)}<button class="icon-btn" onclick="openEditPedido('${key}')"><i class="ti ti-edit"></i></button><button class="icon-btn del" onclick="deletePedido('${key}')"><i class="ti ti-trash"></i></button></div>
-      </div>
-      <div class="info-row">${p.dataEmissao?`<div class="chip" style="background:rgba(90,90,90,0.25);color:#c0c0c0"><i class="ti ti-file-text"></i> Emitido em: ${fmtDate(p.dataEmissao)}</div>`:''} ${p.dataFaturamento?`<div class="chip chip-green"><i class="ti ti-receipt"></i> Faturado em: ${fmtDate(p.dataFaturamento)}</div>`:(p.etapa===0?'<div class="chip chip-red"><i class="ti ti-receipt-off"></i> Faturamento pendente</div>':'')}${p.dataAgendamento?`<div class="chip chip-blue"><i class="ti ti-calendar-event"></i> Agendado para: ${fmtDate(p.dataAgendamento)}</div>`:''}</div>
-      <div class="steps">${[0,1,2,3].map(i=>`<div class="step ${stepCls(i,p.etapa||0)}"></div>`).join('')}</div>
-      <div class="steps-labels">${['Faturamento','Agendamento','Agendado','Entregue'].map((l,i)=>`<div class="step-lbl ${i<(p.etapa||0)?'done-lbl':i===(p.etapa||0)?'active':''}">${l}</div>`).join('')}</div>
-      <div class="order-footer"><div class="step-next">${(p.etapa||0)<3?'Próximo: '+ETAPA_LABELS[(p.etapa||0)+1]:'✓ Concluído'}</div>${(p.etapa||0)<3?`<button class="advance-btn" onclick="advancePedido('${key}')">Avançar →</button>`:''}</div>
-    </div>`).join(''); }
+        <div class="info-row">${p.dataEmissao?`<div class="chip" style="background:rgba(90,90,90,0.25);color:#c0c0c0"><i class="ti ti-file-text"></i> Emitido: ${fmtDate(p.dataEmissao)}</div>`:''} ${p.dataFaturamento?`<div class="chip chip-green"><i class="ti ti-receipt"></i> Faturado: ${fmtDate(p.dataFaturamento)}</div>`:(p.etapa===0?'<div class="chip chip-red"><i class="ti ti-receipt-off"></i> Faturamento pendente</div>':'')}${p.dataAgendamento?`<div class="chip chip-blue"><i class="ti ti-calendar-event"></i> Agendado: ${fmtDate(p.dataAgendamento)}</div>`:''}</div>
+        <div class="steps">${[0,1,2,3].map(i=>`<div class="step ${stepCls(i,p.etapa||0)}"></div>`).join('')}</div>
+        <div class="steps-labels">${['Faturamento','Agendamento','Agendado','Entregue'].map((l,i)=>`<div class="step-lbl ${i<(p.etapa||0)?'done-lbl':i===(p.etapa||0)?'active':''}">${l}</div>`).join('')}</div>
+        <div class="order-footer"><div class="step-next">${(p.etapa||0)<3?'Próximo: '+ETAPA_LABELS[(p.etapa||0)+1]:'✓ Concluído'}</div>${(p.etapa||0)<3?`<button class="advance-btn" onclick="advancePedido('${key}',event)">Avançar →</button>`:''}</div>
+        ${detailHtml}
+      </div>`;
+    }).join('');
+  }
+
   const oArr=Object.values(pedidos);
   const total=oArr.length,naoFat=oArr.filter(p=>p.etapa===0).length,aguardAgend=oArr.filter(p=>p.etapa===1).length,agendados=oArr.filter(p=>p.etapa===2).length,entregues=oArr.filter(p=>p.etapa===3).length;
   document.getElementById('metrics-ped').innerHTML=`
@@ -759,94 +812,10 @@ function renderPedidos(){
   `;
 }
 
+// ── RENDER NOTAS ──
 function renderNotas(){
   const tb=document.getElementById('lista-nf');
   let entriesNF=Object.entries(notas).sort((a,b)=>(a[1].criadoEm||0)-(b[1].criadoEm||0));
   if(filterNF==='emitidas')  entriesNF=entriesNF.filter(([,n])=>n.emitida==='sim');
   if(filterNF==='pendEmit')  entriesNF=entriesNF.filter(([,n])=>n.emitida!=='sim');
-  if(filterNF==='comReceb')  entriesNF=entriesNF.filter(([,n])=>n.comissao==='sim');
-  const entries=entriesNF;
-  if(!entries.length){ tb.innerHTML=`<tr><td colspan="7"><div class="empty"><i class="ti ti-file-invoice"></i>Nenhuma NF cadastrada.</div></td></tr>`; }
-  else { tb.innerHTML=entries.map(([key,n])=>`<tr><td><strong>${n.fornecedor||'—'}</strong></td><td style="color:var(--text-2);font-size:12px">${n.descricao||'—'}</td><td><span class="badge ${prazoColor(n.prazo)}">${fmtDate(n.prazo)||'—'}</span></td><td>${siIcon(n.emitida)}</td><td>${siIcon(n.enviada)}</td><td>${siIcon(n.comissao)}</td><td><div style="display:flex;gap:2px"><button class="icon-btn" onclick="openEditNF('${key}')"><i class="ti ti-edit"></i></button><button class="icon-btn del" onclick="deleteNF('${key}')"><i class="ti ti-trash"></i></button></div></td></tr>`).join(''); }
-  const nArr=Object.values(notas);
-  const emitidas=nArr.filter(n=>n.emitida==='sim').length,pendEmit=nArr.filter(n=>n.emitida!=='sim').length,comReceb=nArr.filter(n=>n.comissao==='sim').length;
-  const hoje=new Date(); hoje.setHours(0,0,0,0);
-  const vencem=nArr.filter(n=>{ if(!n.prazo||n.emitida==='sim') return false; let dt; if(n.prazo.includes('-')) dt=new Date(n.prazo); else{const [d,m,y]=n.prazo.split('/'); dt=new Date(`${y}-${m}-${d}`);} return dt<=hoje; }).length;
-  document.getElementById('metrics-nf').innerHTML=`
-    <div class="metric ${filterNF==='pendEmit'?'active-filter':''}" onclick="toggleFilterNF('pendEmit')"><div class="metric-label">Aguardando emissão</div><div class="metric-value">${pendEmit}</div><div class="metric-sub" style="color:${vencem>0?'var(--red)':'var(--text-2)'}">${vencem>0?vencem+' vence(m) hoje':'Em dia'}</div></div>
-    <div class="metric ${filterNF==='emitidas'?'active-filter':''}" onclick="toggleFilterNF('emitidas')"><div class="metric-label">NFs emitidas</div><div class="metric-value">${emitidas}</div><div class="metric-sub">de ${nArr.length} no período</div></div>
-    <div class="metric ${filterNF==='comReceb'?'active-filter':''}" onclick="toggleFilterNF('comReceb')"><div class="metric-label">Comissões recebidas</div><div class="metric-value">${comReceb}</div><div class="metric-sub" style="color:var(--amber)">${nArr.length-comReceb} aguardando</div></div>
-  `;
-}
-
-// ── CALENDÁRIO ──
-window.calPrev=function(){ calMonth--; if(calMonth<0){calMonth=11;calYear--;} renderCalendar(); };
-window.calNext=function(){ calMonth++; if(calMonth>11){calMonth=0;calYear++;} renderCalendar(); };
-window.calSelectDay=function(day){ calSelected={year:calYear,month:calMonth,day}; renderCalendar(); renderCalDetail(); };
-
-function getEventsForDay(y,m,d) {
-  const events=[];
-  const dateStr=`${String(d).padStart(2,'0')}/${String(m+1).padStart(2,'0')}/${y}`;
-  const isoStr=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-
-  Object.values(pendencias).forEach(p=>{
-    if(p.prazo&&(p.prazo===dateStr||p.prazo.toLowerCase().includes(isoStr)))
-      events.push({type:'pendencia',label:'Pendência',name:p.titulo||'Sem título',meta:p.prioridade==='high'?'Urgente':p.prioridade==='med'?'Média':'Baixa',color:'var(--amber)'});
-  });
-  Object.values(pedidos).forEach(p=>{
-    const fat=p.dataFaturamento; const agd=p.dataAgendamento;
-    const emi=p.dataEmissao;
-    if(emi&&(emi===isoStr||emi===dateStr)) events.push({type:'emissao',label:'Emissão do pedido',name:p.nome||'Sem nome',meta:p.fornecedor||'',color:'#9a9a9a'});
-    if(fat&&(fat===isoStr||fat===dateStr)) events.push({type:'faturamento',label:'Faturamento',name:p.nome||'Sem nome',meta:p.fornecedor||'',color:'var(--blue)'});
-    if(agd&&(agd===isoStr||agd===dateStr)) events.push({type:'agendamento',label:'Agendamento',name:p.nome||'Sem nome',meta:p.cliente||'',color:'var(--green)'});
-  });
-  return events;
-}
-
-function renderCalendar(){
-  const meses=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-  document.getElementById('cal-month-label').textContent=`${meses[calMonth]} ${calYear}`;
-  const firstDay=new Date(calYear,calMonth,1).getDay();
-  const daysInMonth=new Date(calYear,calMonth+1,0).getDate();
-  const today=new Date(); const todayY=today.getFullYear(),todayM=today.getMonth(),todayD=today.getDate();
-  let html='';
-  for(let i=0;i<firstDay;i++) html+=`<div class="cal-day empty"></div>`;
-  for(let d=1;d<=daysInMonth;d++){
-    const isToday=calYear===todayY&&calMonth===todayM&&d===todayD;
-    const isSel=calSelected&&calSelected.year===calYear&&calSelected.month===calMonth&&calSelected.day===d;
-    const hasEv=getEventsForDay(calYear,calMonth,d).length>0;
-    html+=`<div class="cal-day ${isToday?'today':''} ${isSel?'selected':''} ${hasEv?'has-events':''}" onclick="calSelectDay(${d})">${d}</div>`;
-  }
-  document.getElementById('cal-days').innerHTML=html;
-  if(calSelected) renderCalDetail();
-}
-
-function renderCalDetail(){
-  const det=document.getElementById('cal-detail');
-  if(!calSelected){ det.innerHTML='<div class="cal-detail-title"><i class="ti ti-calendar-event"></i> Selecione um dia</div><div class="cal-empty">Clique em um dia para ver os eventos</div>'; return; }
-  const {year,month,day}=calSelected;
-  const events=getEventsForDay(year,month,day);
-  const dateLabel=`${String(day).padStart(2,'0')}/${String(month+1).padStart(2,'0')}/${year}`;
-  det.innerHTML=`
-    <div class="cal-detail-title"><i class="ti ti-calendar-event"></i> ${dateLabel}</div>
-    ${events.length?events.map(e=>`
-      <div class="cal-event">
-        <div class="cal-event-type" style="color:${e.color}">${e.label}</div>
-        <div class="cal-event-name">${e.name}</div>
-        ${e.meta?`<div class="cal-event-meta">${e.meta}</div>`:''}
-      </div>`).join(''):`<div class="cal-empty">Nenhum evento neste dia</div>`}
-  `;
-}
-
-function updateTime(){
-  const now=new Date();
-  const dias=['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'];
-  const meses=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
-  document.getElementById('data-hoje').textContent=dias[now.getDay()]+', '+now.getDate()+' de '+meses[now.getMonth()]+' de '+now.getFullYear();
-  document.getElementById('hora-atual').textContent=now.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
-}
-updateTime();
-setInterval(updateTime,30000);
-</script>
-</body>
-</html>
+  if(filterNF==='comReceb')  entriesNF=entriesNF.filter(([,n])=>n.

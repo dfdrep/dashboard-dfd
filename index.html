@@ -935,12 +935,14 @@ window.removerImagem = function(){ pendingImageData=null; document.getElementByI
 // Inativos
 function calcInativos(){
   const pares={};
+  const INICIO = new Date('2026-07-01').getTime(); // só conta pedidos a partir de julho/2026
   Object.values(pedidos).forEach(p=>{
     if(!p.cliente||!p.fornecedor) return;
     const key=`${p.cliente}|||${p.fornecedor}`;
     const data=p.dataEmissao||p.dataFaturamento||p.dataAgendamento||'';
     let ts=0;
     if(data){ try{ const iso=data.includes('-')?data:`${data.split('/')[2]}-${data.split('/')[1]}-${data.split('/')[0]}`; ts=new Date(iso).getTime(); }catch(e){} }
+    if(ts < INICIO) return; // ignora pedidos anteriores a julho/2026
     if(!pares[key]||ts>pares[key].ts) pares[key]={cliente:p.cliente,fornecedor:p.fornecedor,ts,data};
   });
   const agora=Date.now(), resultado=[];
@@ -954,23 +956,69 @@ function atualizarBadgeInativos(){
   if(badge){ badge.textContent=n; badge.style.display=n>0?'inline-block':'none'; }
 }
 
+// Inativos ignorados (por sessão)
+let inativosIgnorados = JSON.parse(localStorage.getItem('dfd_inativos_ignorados')||'[]');
+
+function ignorarInativo(cliente, fornecedor){
+  const key = cliente+'|||'+fornecedor;
+  if(!inativosIgnorados.includes(key)) inativosIgnorados.push(key);
+  localStorage.setItem('dfd_inativos_ignorados', JSON.stringify(inativosIgnorados));
+  renderInativos();
+  atualizarBadgeInativos();
+}
+window.ignorarInativo = ignorarInativo;
+
+function ignorarTodosInativos(){
+  if(!confirm('Dispensar todos os inativos da lista?')) return;
+  const lista = calcInativos();
+  lista.forEach(x => {
+    const key = x.cliente+'|||'+x.fornecedor;
+    if(!inativosIgnorados.includes(key)) inativosIgnorados.push(key);
+  });
+  localStorage.setItem('dfd_inativos_ignorados', JSON.stringify(inativosIgnorados));
+  renderInativos();
+  atualizarBadgeInativos();
+}
+window.ignorarTodosInativos = ignorarTodosInativos;
+
+function restaurarInativos(){
+  if(!confirm('Restaurar todos os inativos dispensados?')) return;
+  inativosIgnorados = [];
+  localStorage.removeItem('dfd_inativos_ignorados');
+  renderInativos();
+  atualizarBadgeInativos();
+}
+window.restaurarInativos = restaurarInativos;
+
 function renderInativos(){
-  const lista=calcInativos();
+  const lista=calcInativos().filter(x=>!inativosIgnorados.includes(x.cliente+'|||'+x.fornecedor));
   const el=document.getElementById('lista-inativos');
   if(!el) return;
-  if(!lista.length){ el.innerHTML='<div class="empty"><i class="ti ti-circle-check" style="color:var(--green)"></i>Nenhum cliente inativo!<br>Todos compraram nos últimos 30 dias.</div>'; return; }
+  if(!lista.length){
+    el.innerHTML=`<div class="empty"><i class="ti ti-circle-check" style="color:var(--green)"></i>Nenhum cliente inativo!<br>Todos compraram nos últimos 30 dias.</div>
+    ${inativosIgnorados.length?`<div style="margin-top:12px"><button onclick="restaurarInativos()" style="background:none;border:0.5px solid var(--border);border-radius:8px;padding:6px 12px;font-size:12px;color:var(--text-3);cursor:pointer;font-family:inherit">↩ Restaurar ${inativosIgnorados.length} dispensado(s)</button></div>`:''}`;
+    return;
+  }
   const porCliente={};
   lista.forEach(x=>{ if(!porCliente[x.cliente]) porCliente[x.cliente]={cliente:x.cliente,itens:[]}; porCliente[x.cliente].itens.push(x); });
-  el.innerHTML=Object.values(porCliente).map(g=>`
+  el.innerHTML=`<div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:12px;">
+    ${inativosIgnorados.length?`<button onclick="restaurarInativos()" style="background:none;border:0.5px solid var(--border);border-radius:8px;padding:5px 12px;font-size:12px;color:var(--text-3);cursor:pointer;font-family:inherit">↩ Restaurar (${inativosIgnorados.length})</button>`:''}
+    <button onclick="ignorarTodosInativos()" style="background:none;border:0.5px solid var(--border);border-radius:8px;padding:5px 12px;font-size:12px;color:var(--text-3);cursor:pointer;font-family:inherit">🗑 Dispensar todos</button>
+  </div>`+
+  Object.values(porCliente).map(g=>`
     <div style="background:var(--surface);border:0.5px solid rgba(245,166,35,0.3);border-radius:12px;padding:14px 16px;margin-bottom:10px;">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
         <div><div style="font-size:14px;font-weight:500">👤 ${g.cliente}</div><div style="font-size:11px;color:var(--text-2);margin-top:2px">${g.itens.length} representada(s) inativa(s)</div></div>
         <button class="add-btn" onclick="openNewPedido()">+ Novo pedido</button>
       </div>
-      ${g.itens.map(x=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:var(--surface-2);border-radius:8px;margin-bottom:5px;font-size:12px;border:0.5px solid var(--border)">
-        <span>🏭 <strong>${x.fornecedor}</strong> — sem compra há <strong style="color:var(--red)">${x.dias} dias</strong></span>
-        <span style="background:var(--red-bg);color:var(--red);font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px">${x.dias}d</span>
-      </div>`).join('')}
+      ${g.itens.map(x=>`
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:var(--surface-2);border-radius:8px;margin-bottom:5px;font-size:12px;border:0.5px solid var(--border)">
+          <span>🏭 <strong>${x.fornecedor}</strong> — sem compra há <strong style="color:var(--red)">${x.dias} dias</strong></span>
+          <div style="display:flex;align-items:center;gap:6px">
+            <span style="background:var(--red-bg);color:var(--red);font-size:11px;font-weight:600;padding:2px 8px;border-radius:99px">${x.dias}d</span>
+            <button onclick="ignorarInativo('${x.cliente.replace(/'/g,"\'")}','${x.fornecedor.replace(/'/g,"\'")}'')" title="Dispensar" style="background:none;border:0.5px solid var(--border);border-radius:6px;padding:3px 7px;cursor:pointer;color:var(--text-3);font-size:12px;font-family:inherit">✕</button>
+          </div>
+        </div>`).join('')}
     </div>`).join('');
 }
 

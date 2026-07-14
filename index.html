@@ -44,7 +44,7 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
 
 /* ── APP ── */
 #app-screen { display:none; }
-.container { max-width:960px; margin:0 auto; padding:1.5rem 1rem; }
+.container { max-width:100%; margin:0; padding:1.5rem 2rem; }
 
 .top-bar { display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem; flex-wrap:wrap; gap:8px; }
 .top-bar-left { display:flex; align-items:center; gap:12px; }
@@ -300,7 +300,7 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
   <div class="tabs">
     <button class="tab active" onclick="switchTab('pendencias')"><i class="ti ti-alert-circle"></i> Pendências</button>
     <button class="tab" onclick="switchTab('pedidos')"><i class="ti ti-package"></i> Pedidos</button>
-    <button class="tab" onclick="switchTab('notas')"><i class="ti ti-file-invoice"></i> Notas Fiscais de comissão</button>
+    <button class="tab" onclick="switchTab('notas')"><i class="ti ti-currency-dollar"></i> Comissões</button>
     <button class="tab" onclick="switchTab('calendario')"><i class="ti ti-calendar"></i> Meu Calendário</button>
     <button class="tab" onclick="switchTab('inativos')"><i class="ti ti-alert-triangle"></i> Inativos <span id="badge-inativos" style="display:none;background:#f56565;color:#fff;font-size:10px;font-weight:600;padding:1px 5px;border-radius:99px;margin-left:2px">0</span></button>
   </div>
@@ -326,18 +326,18 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
         <button class="add-btn" onclick="openNewPedido()">+ Adicionar</button>
       </div>
       <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
-        <select id="filtro-mes-ped" onchange="renderPedidos()" style="background:var(--surface-2);border:0.5px solid rgba(0,178,122,0.28);border-radius:8px;color:var(--text);font-size:12px;padding:6px 10px;font-family:inherit;outline:none;cursor:pointer">
+        <select id="filtro-mes-ped" onchange="filterPed=null;renderPedidos()" style="background:var(--surface-2);border:0.5px solid rgba(0,178,122,0.28);border-radius:8px;color:var(--text);font-size:12px;padding:6px 10px;font-family:inherit;outline:none;cursor:pointer">
           <option value="">Todos os meses</option>
           <option value="01">Janeiro</option><option value="02">Fevereiro</option><option value="03">Março</option>
           <option value="04">Abril</option><option value="05">Maio</option><option value="06">Junho</option>
           <option value="07">Julho</option><option value="08">Agosto</option><option value="09">Setembro</option>
           <option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option>
         </select>
-        <select id="filtro-ano-ped" onchange="renderPedidos()" style="background:var(--surface-2);border:0.5px solid rgba(0,178,122,0.28);border-radius:8px;color:var(--text);font-size:12px;padding:6px 10px;font-family:inherit;outline:none;cursor:pointer">
+        <select id="filtro-ano-ped" onchange="filterPed=null;renderPedidos()" style="background:var(--surface-2);border:0.5px solid rgba(0,178,122,0.28);border-radius:8px;color:var(--text);font-size:12px;padding:6px 10px;font-family:inherit;outline:none;cursor:pointer">
           <option value="">Todos os anos</option>
           <option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option>
         </select>
-        <select id="filtro-rep-ped" onchange="renderPedidos()" style="background:var(--surface-2);border:0.5px solid rgba(0,178,122,0.28);border-radius:8px;color:var(--text);font-size:12px;padding:6px 10px;font-family:inherit;outline:none;cursor:pointer">
+        <select id="filtro-rep-ped" onchange="filterPed=null;renderPedidos()" style="background:var(--surface-2);border:0.5px solid rgba(0,178,122,0.28);border-radius:8px;color:var(--text);font-size:12px;padding:6px 10px;font-family:inherit;outline:none;cursor:pointer">
           <option value="">Todas as representadas</option>
         </select>
       </div>
@@ -346,17 +346,18 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
     </div>
   </div>
 
-  <!-- NOTAS FISCAIS -->
+  <!-- COMISSÕES -->
   <div class="tab-content" id="tab-notas">
-    <div class="metrics-3" id="metrics-nf"></div>
-    <div class="panel">
+    <div style="font-size:15px;font-weight:500;margin-bottom:14px;display:flex;align-items:center;gap:7px;"><i class="ti ti-currency-dollar" style="color:var(--accent-2)"></i> Comissões</div>
+    <div class="metrics-3" id="metrics-nf" style="grid-template-columns:repeat(4,minmax(0,1fr))"></div>
+    <div class="panel" style="margin-top:14px;">
       <div class="panel-header">
         <div class="panel-title"><i class="ti ti-file-invoice"></i> Notas Fiscais de comissão</div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-          <select id="filtro-forn-nf" onchange="renderNotas()" style="background:var(--surface-2);border:0.5px solid rgba(0,178,122,0.28);border-radius:8px;color:var(--text);font-size:12px;padding:6px 10px;font-family:inherit;outline:none;cursor:pointer">
+          <select id="filtro-forn-nf" onchange="filterNF=null;renderNotas()" style="background:var(--surface-2);border:0.5px solid rgba(0,178,122,0.28);border-radius:8px;color:var(--text);font-size:12px;padding:6px 10px;font-family:inherit;outline:none;cursor:pointer">
             <option value="">Todos os fornecedores</option>
           </select>
-          <select id="filtro-mes-nf" onchange="renderNotas()" style="background:var(--surface-2);border:0.5px solid rgba(0,178,122,0.28);border-radius:8px;color:var(--text);font-size:12px;padding:6px 10px;font-family:inherit;outline:none;cursor:pointer">
+          <select id="filtro-mes-nf" onchange="filterNF=null;renderNotas()" style="background:var(--surface-2);border:0.5px solid rgba(0,178,122,0.28);border-radius:8px;color:var(--text);font-size:12px;padding:6px 10px;font-family:inherit;outline:none;cursor:pointer">
             <option value="">Todos os meses</option>
             <option value="01">Janeiro</option><option value="02">Fevereiro</option><option value="03">Março</option>
             <option value="04">Abril</option><option value="05">Maio</option><option value="06">Junho</option>
@@ -807,7 +808,7 @@ function renderPedidos(){
   const filtroMes=document.getElementById('filtro-mes-ped')?.value||'';
   const filtroAno=document.getElementById('filtro-ano-ped')?.value||'';
   let allEntries=Object.entries(pedidos);
-  let naoConc=allEntries.filter(([,p])=>(p.etapa||0)<3).sort((a,b)=>(a[1].criadoEm||0)-(b[1].criadoEm||0));
+  let naoConc=allEntries.filter(([,p])=>(p.etapa||0)<3).sort((a,b)=>(b[1].criadoEm||0)-(a[1].criadoEm||0));
   let conc=allEntries.filter(([,p])=>(p.etapa||0)===3).sort((a,b)=>(b[1].criadoEm||0)-(a[1].criadoEm||0));
   let entriesPed=[...conc,...naoConc];
   if(filterPed==='naoFat')      entriesPed=allEntries.filter(([,p])=>p.etapa===0);
@@ -860,7 +861,6 @@ function renderPedidos(){
   const oArr=Object.values(pedidos);
   const total=oArr.length,naoFat=oArr.filter(p=>p.etapa===0).length,aguardAgend=oArr.filter(p=>p.etapa===1).length,agendados=oArr.filter(p=>p.etapa===2).length,entregues=oArr.filter(p=>p.etapa===3).length;
   document.getElementById('metrics-ped').innerHTML=`
-    <div class="metric ${filterPed==='total'?'active-filter':''}" onclick="toggleFilterPed('total')"><div class="metric-label">Total</div><div class="metric-value">${total}</div><div class="metric-sub">em acompanhamento</div></div>
     <div class="metric ${filterPed==='naoFat'?'active-filter':''}" onclick="toggleFilterPed('naoFat')"><div class="metric-label">Não faturados</div><div class="metric-value">${naoFat}</div><div class="metric-sub" style="color:${naoFat>0?'var(--red)':'var(--text-2)'}">${naoFat>0?'Pendente':'Ok'}</div></div>
     <div class="metric ${filterPed==='aguardAgend'?'active-filter':''}" onclick="toggleFilterPed('aguardAgend')"><div class="metric-label">Ag. agendamento</div><div class="metric-value">${aguardAgend}</div><div class="metric-sub" style="color:var(--amber)">${aguardAgend} pedido(s)</div></div>
     <div class="metric ${filterPed==='agendados'?'active-filter':''}" onclick="toggleFilterPed('agendados')"><div class="metric-label">Ag. entrega</div><div class="metric-value">${agendados}</div><div class="metric-sub" style="color:var(--blue)">${agendados} agendado(s)</div></div>
@@ -878,7 +878,7 @@ function renderNotas(){
   const filtroFornNF=selFornNF?.value||'';
   const filtroMesNF=document.getElementById('filtro-mes-nf')?.value||'';
 
-  let entriesNF=Object.entries(notas).sort((a,b)=>(a[1].criadoEm||0)-(b[1].criadoEm||0));
+  let entriesNF=Object.entries(notas).sort((a,b)=>(b[1].criadoEm||0)-(a[1].criadoEm||0));
   if(filtroFornNF) entriesNF=entriesNF.filter(([,n])=>n.fornecedor===filtroFornNF);
   if(filtroMesNF) entriesNF=entriesNF.filter(([,n])=>getNfMes(n)===filtroMesNF);
   if(filterNF==='emitidas')  entriesNF=entriesNF.filter(([,n])=>n.emitida==='sim');

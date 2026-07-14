@@ -326,18 +326,18 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
         <button class="add-btn" onclick="openNewPedido()">+ Adicionar</button>
       </div>
       <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
-        <select id="filtro-mes-ped" onchange="filterPed=null;renderPedidos()" style="background:var(--surface-2);border:0.5px solid rgba(0,178,122,0.28);border-radius:8px;color:var(--text);font-size:12px;padding:6px 10px;font-family:inherit;outline:none;cursor:pointer">
+        <select id="filtro-mes-ped" onchange="filterPed=null;setTimeout(renderPedidos,50)" style="background:var(--surface-2);border:0.5px solid rgba(0,178,122,0.28);border-radius:8px;color:var(--text);font-size:12px;padding:6px 10px;font-family:inherit;outline:none;cursor:pointer">
           <option value="">Todos os meses</option>
           <option value="01">Janeiro</option><option value="02">Fevereiro</option><option value="03">Março</option>
           <option value="04">Abril</option><option value="05">Maio</option><option value="06">Junho</option>
           <option value="07">Julho</option><option value="08">Agosto</option><option value="09">Setembro</option>
           <option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option>
         </select>
-        <select id="filtro-ano-ped" onchange="filterPed=null;renderPedidos()" style="background:var(--surface-2);border:0.5px solid rgba(0,178,122,0.28);border-radius:8px;color:var(--text);font-size:12px;padding:6px 10px;font-family:inherit;outline:none;cursor:pointer">
+        <select id="filtro-ano-ped" onchange="filterPed=null;setTimeout(renderPedidos,50)" style="background:var(--surface-2);border:0.5px solid rgba(0,178,122,0.28);border-radius:8px;color:var(--text);font-size:12px;padding:6px 10px;font-family:inherit;outline:none;cursor:pointer">
           <option value="">Todos os anos</option>
           <option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option>
         </select>
-        <select id="filtro-rep-ped" onchange="filterPed=null;renderPedidos()" style="background:var(--surface-2);border:0.5px solid rgba(0,178,122,0.28);border-radius:8px;color:var(--text);font-size:12px;padding:6px 10px;font-family:inherit;outline:none;cursor:pointer">
+        <select id="filtro-rep-ped" onchange="filterPed=null;setTimeout(renderPedidos,50)" style="background:var(--surface-2);border:0.5px solid rgba(0,178,122,0.28);border-radius:8px;color:var(--text);font-size:12px;padding:6px 10px;font-family:inherit;outline:none;cursor:pointer">
           <option value="">Todas as representadas</option>
           <option value="Agroindústria Real">Agroindústria Real</option>
           <option value="Asa">Asa</option>
@@ -370,7 +370,7 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
       <div class="panel-header">
         <div class="panel-title"><i class="ti ti-file-invoice"></i> Notas Fiscais de comissão</div>
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-          <select id="filtro-forn-nf" onchange="filterNF=null;renderNotas()" style="background:var(--surface-2);border:0.5px solid rgba(0,178,122,0.28);border-radius:8px;color:var(--text);font-size:12px;padding:6px 10px;font-family:inherit;outline:none;cursor:pointer">
+          <select id="filtro-forn-nf" onchange="filterNF=null;setTimeout(renderNotas,50)" style="background:var(--surface-2);border:0.5px solid rgba(0,178,122,0.28);border-radius:8px;color:var(--text);font-size:12px;padding:6px 10px;font-family:inherit;outline:none;cursor:pointer">
             <option value="">Todos os fornecedores</option>
             <option value="Agroindústria Real">Agroindústria Real</option>
             <option value="Asa">Asa</option>
@@ -389,7 +389,7 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
             <option value="Superglobo">Superglobo</option>
             <option value="Tradição Real">Tradição Real</option>
           </select>
-          <select id="filtro-mes-nf" onchange="filterNF=null;renderNotas()" style="background:var(--surface-2);border:0.5px solid rgba(0,178,122,0.28);border-radius:8px;color:var(--text);font-size:12px;padding:6px 10px;font-family:inherit;outline:none;cursor:pointer">
+          <select id="filtro-mes-nf" onchange="filterNF=null;setTimeout(renderNotas,50)" style="background:var(--surface-2);border:0.5px solid rgba(0,178,122,0.28);border-radius:8px;color:var(--text);font-size:12px;padding:6px 10px;font-family:inherit;outline:none;cursor:pointer">
             <option value="">Todos os meses</option>
             <option value="01">Janeiro</option><option value="02">Fevereiro</option><option value="03">Março</option>
             <option value="04">Abril</option><option value="05">Maio</option><option value="06">Junho</option>

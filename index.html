@@ -808,25 +808,41 @@ function renderPedidos(){
   const filtroMes=document.getElementById('filtro-mes-ped')?.value||'';
   const filtroAno=document.getElementById('filtro-ano-ped')?.value||'';
   let allEntries=Object.entries(pedidos);
-  let naoConc=allEntries.filter(([,p])=>(p.etapa||0)<3).sort((a,b)=>(b[1].criadoEm||0)-(a[1].criadoEm||0));
-  let conc=allEntries.filter(([,p])=>(p.etapa||0)===3).sort((a,b)=>(b[1].criadoEm||0)-(a[1].criadoEm||0));
-  let entriesPed=[...conc,...naoConc];
-  if(filterPed==='naoFat')      entriesPed=allEntries.filter(([,p])=>p.etapa===0);
-  if(filterPed==='aguardAgend') entriesPed=allEntries.filter(([,p])=>p.etapa===1);
-  if(filterPed==='agendados')   entriesPed=allEntries.filter(([,p])=>p.etapa===2).sort((a,b)=>{ const toMs=d=>{ if(!d) return Infinity; const iso=d.includes('-')?d:`${d.split('/')[2]}-${d.split('/')[1]}-${d.split('/')[0]}`; return new Date(iso).getTime(); }; return toMs(a[1].dataAgendamento)-toMs(b[1].dataAgendamento); });
-  if(filterPed==='entregues')   entriesPed=conc;
   // popula filtro representada pedidos
   const selRepPed=document.getElementById('filtro-rep-ped');
   if(selRepPed){ const cur=selRepPed.value; selRepPed.innerHTML='<option value="">Todas as representadas</option>'+FORNECEDORES.map(f=>`<option value="${f}" ${f===cur?'selected':''}>${f}</option>`).join(''); }
   const filtroRep=selRepPed?.value||'';
+
+  // Começa sempre com todos os pedidos e aplica filtros em cascata
+  let entriesPed = allEntries;
+
+  // Filtro por representada
   if(filtroRep) entriesPed=entriesPed.filter(([,p])=>p.fornecedor===filtroRep);
 
-  // Se filtrou por mês/ano, aplica sobre TODOS os pedidos independente do card ativo
+  // Filtro por mês e ano — tem prioridade, ignora filtro de card
   if(filtroMes||filtroAno){
-    let base=filtroRep?allEntries.filter(([,p])=>p.fornecedor===filtroRep):allEntries;
-    if(filtroMes) base=base.filter(([,p])=>getMesFromPedido(p)===filtroMes);
-    if(filtroAno) base=base.filter(([,p])=>getAnoFromPedido(p)===filtroAno);
-    entriesPed=base;
+    filterPed=null;
+    if(filtroMes) entriesPed=entriesPed.filter(([,p])=>getMesFromPedido(p)===filtroMes);
+    if(filtroAno) entriesPed=entriesPed.filter(([,p])=>getAnoFromPedido(p)===filtroAno);
+  } else {
+    // Sem filtro de mês/ano — aplica filtro de card
+    if(filterPed==='naoFat')      entriesPed=entriesPed.filter(([,p])=>p.etapa===0);
+    else if(filterPed==='aguardAgend') entriesPed=entriesPed.filter(([,p])=>p.etapa===1);
+    else if(filterPed==='agendados')   entriesPed=entriesPed.filter(([,p])=>p.etapa===2).sort((a,b)=>{ const toMs=d=>{ if(!d) return Infinity; const iso=d.includes('-')?d:`${d.split('/')[2]}-${d.split('/')[1]}-${d.split('/')[0]}`; return new Date(iso).getTime(); }; return toMs(a[1].dataAgendamento)-toMs(b[1].dataAgendamento); });
+    else if(filterPed==='entregues')   entriesPed=entriesPed.filter(([,p])=>(p.etapa||0)===3);
+    else {
+      // Sem filtro — mostra concluídos no topo
+      const conc=entriesPed.filter(([,p])=>(p.etapa||0)===3).sort((a,b)=>(b[1].criadoEm||0)-(a[1].criadoEm||0));
+      const naoConc=entriesPed.filter(([,p])=>(p.etapa||0)<3).sort((a,b)=>(b[1].criadoEm||0)-(a[1].criadoEm||0));
+      entriesPed=[...conc,...naoConc];
+    }
+  }
+
+  // Ordena por mais recente (exceto agendados que já tem ordenação própria)
+  if(filterPed!=='agendados' && !filtroMes && !filtroAno){
+    // já ordenado acima
+  } else if(filtroMes||filtroAno){
+    entriesPed=entriesPed.sort((a,b)=>(b[1].criadoEm||0)-(a[1].criadoEm||0));
   }
   const resumoEl=document.getElementById('mes-resumo-ped');
   if(resumoEl&&(filtroMes||filtroAno)){ const totalVal=entriesPed.reduce((s,[,p])=>s+(p.valor||0),0); const label=(filtroMes?MESES_NOMES[parseInt(filtroMes)-1]+' ':'')+(filtroAno||''); resumoEl.style.display='flex'; resumoEl.innerHTML=`📅 <strong>${label}</strong> &nbsp;·&nbsp; Pedidos: <strong>${entriesPed.length}</strong> &nbsp;·&nbsp; Faturamento: <strong style="color:var(--accent-2)">${fmtVal(totalVal)}</strong>`; } else if(resumoEl) { resumoEl.style.display='none'; }

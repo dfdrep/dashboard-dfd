@@ -537,6 +537,12 @@ function startSession(user) {
   document.getElementById('login-error').style.display = 'none';
   resetInactivityTimer();
   ['click','keydown','mousemove','touchstart'].forEach(e => document.addEventListener(e, resetInactivityTimer, {passive:true}));
+  // Inicia PWA notificações
+  setTimeout(() => {
+    solicitarPermissaoNotif();
+    checarNotificacoes();
+  }, 2000);
+  setInterval(checarNotificacoes, 60*60*1000);
 }
 
 // Verificar sessão salva ao carregar
@@ -1162,16 +1168,7 @@ function checarNotificacoes() {
   }
 }
 
-// Inicia checagem quando loga
-const _startSession = startSession;
-function startSession(user) {
-  _startSession(user);
-  setTimeout(() => {
-    solicitarPermissaoNotif();
-    checarNotificacoes();
-  }, 2000);
-  setInterval(checarNotificacoes, 60*60*1000);
-}
+// Notificações iniciadas dentro de startSession
 
 </script>
 </body>

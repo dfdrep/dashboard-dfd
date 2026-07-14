@@ -339,6 +339,22 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
         </select>
         <select id="filtro-rep-ped" onchange="filterPed=null;renderPedidos()" style="background:var(--surface-2);border:0.5px solid rgba(0,178,122,0.28);border-radius:8px;color:var(--text);font-size:12px;padding:6px 10px;font-family:inherit;outline:none;cursor:pointer">
           <option value="">Todas as representadas</option>
+          <option value="Agroindústria Real">Agroindústria Real</option>
+          <option value="Asa">Asa</option>
+          <option value="Fugini Alimentos">Fugini Alimentos</option>
+          <option value="Gaboardi">Gaboardi</option>
+          <option value="Global">Global</option>
+          <option value="Globopack">Globopack</option>
+          <option value="Godinho">Godinho</option>
+          <option value="Infinity">Infinity</option>
+          <option value="JPS">JPS</option>
+          <option value="Master">Master</option>
+          <option value="Mundial">Mundial</option>
+          <option value="Nossa Distribuidora">Nossa Distribuidora</option>
+          <option value="Oderich">Oderich</option>
+          <option value="RTL">RTL</option>
+          <option value="Superglobo">Superglobo</option>
+          <option value="Tradição Real">Tradição Real</option>
         </select>
       </div>
       <div id="mes-resumo-ped" style="display:none;background:var(--surface-2);border:0.5px solid rgba(0,178,122,0.28);border-radius:8px;padding:8px 14px;font-size:12px;color:var(--text-2);margin-bottom:12px;display:flex;gap:16px;flex-wrap:wrap"></div>
@@ -356,6 +372,22 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
         <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
           <select id="filtro-forn-nf" onchange="filterNF=null;renderNotas()" style="background:var(--surface-2);border:0.5px solid rgba(0,178,122,0.28);border-radius:8px;color:var(--text);font-size:12px;padding:6px 10px;font-family:inherit;outline:none;cursor:pointer">
             <option value="">Todos os fornecedores</option>
+            <option value="Agroindústria Real">Agroindústria Real</option>
+            <option value="Asa">Asa</option>
+            <option value="Fugini Alimentos">Fugini Alimentos</option>
+            <option value="Gaboardi">Gaboardi</option>
+            <option value="Global">Global</option>
+            <option value="Globopack">Globopack</option>
+            <option value="Godinho">Godinho</option>
+            <option value="Infinity">Infinity</option>
+            <option value="JPS">JPS</option>
+            <option value="Master">Master</option>
+            <option value="Mundial">Mundial</option>
+            <option value="Nossa Distribuidora">Nossa Distribuidora</option>
+            <option value="Oderich">Oderich</option>
+            <option value="RTL">RTL</option>
+            <option value="Superglobo">Superglobo</option>
+            <option value="Tradição Real">Tradição Real</option>
           </select>
           <select id="filtro-mes-nf" onchange="filterNF=null;renderNotas()" style="background:var(--surface-2);border:0.5px solid rgba(0,178,122,0.28);border-radius:8px;color:var(--text);font-size:12px;padding:6px 10px;font-family:inherit;outline:none;cursor:pointer">
             <option value="">Todos os meses</option>
@@ -808,10 +840,7 @@ function renderPedidos(){
   const filtroMes=document.getElementById('filtro-mes-ped')?.value||'';
   const filtroAno=document.getElementById('filtro-ano-ped')?.value||'';
   let allEntries=Object.entries(pedidos);
-  // popula filtro representada pedidos
-  const selRepPed=document.getElementById('filtro-rep-ped');
-  if(selRepPed){ const cur=selRepPed.value; selRepPed.innerHTML='<option value="">Todas as representadas</option>'+FORNECEDORES.map(f=>`<option value="${f}" ${f===cur?'selected':''}>${f}</option>`).join(''); }
-  const filtroRep=selRepPed?.value||'';
+  const filtroRep=document.getElementById('filtro-rep-ped')?.value||'';
 
   // Começa sempre com todos os pedidos e aplica filtros em cascata
   let entriesPed = allEntries;
@@ -889,9 +918,7 @@ function getNfMes(n){ const d=n.prazo||''; if(!d) return ''; if(d.includes('-'))
 function renderNotas(){
   const tb=document.getElementById('lista-nf');
   // popula filtro fornecedor NF
-  const selFornNF=document.getElementById('filtro-forn-nf');
-  if(selFornNF){ const cur=selFornNF.value; const forns=[...new Set(Object.values(notas).map(n=>n.fornecedor).filter(Boolean))].sort(); selFornNF.innerHTML='<option value="">Todos os fornecedores</option>'+forns.map(f=>`<option value="${f}" ${f===cur?'selected':''}>${f}</option>`).join(''); }
-  const filtroFornNF=selFornNF?.value||'';
+  const filtroFornNF=document.getElementById('filtro-forn-nf')?.value||'';
   const filtroMesNF=document.getElementById('filtro-mes-nf')?.value||'';
 
   let entriesNF=Object.entries(notas).sort((a,b)=>(b[1].criadoEm||0)-(a[1].criadoEm||0));

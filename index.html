@@ -6,6 +6,12 @@
 <title>Dashboard DFD Representações</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 240'%3E%3Cg transform='translate(118, 120)'%3E%3Cpath d='M -40,-96 L 86,-96 C 166,-96 166,-52 166,0 C 166,52 166,96 86,96 L -58,96 L -40,44 L 72,44 C 112,44 112,26 112,0 C 112,-26 112,-44 72,-44 L -22,-44 Z' fill='%23A8A9AD'/%3E%3Cpolygon points='2,-38 20,-38 8,38 -10,38' fill='%2300B27A'/%3E%3Cpolygon points='22,-38 40,-38 28,38 10,38' fill='%2300B27A' opacity='0.55'/%3E%3Cpolygon points='42,-38 60,-38 48,38 30,38' fill='%2300B27A' opacity='0.22'/%3E%3C/g%3E%3C/svg%3E">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#00B27A">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="DFD">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 240'%3E%3Crect width='320' height='240' fill='%232C2C2A'/%3E%3Cg transform='translate(118, 120)'%3E%3Cpath d='M -40,-96 L 86,-96 C 166,-96 166,-52 166,0 C 166,52 166,96 86,96 L -58,96 L -40,44 L 72,44 C 112,44 112,26 112,0 C 112,-26 112,-44 72,-44 L -22,-44 Z' fill='%23A8A9AD'/%3E%3Cpolygon points='2,-38 20,-38 8,38 -10,38' fill='%2300B27A'/%3E%3Cpolygon points='22,-38 40,-38 28,38 10,38' fill='%2300B27A' opacity='0.55'/%3E%3Cpolygon points='42,-38 60,-38 48,38 30,38' fill='%2300B27A' opacity='0.22'/%3E%3C/g%3E%3C/svg%3E">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
@@ -331,6 +337,9 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
           <option value="">Todos os anos</option>
           <option value="2024">2024</option><option value="2025">2025</option><option value="2026">2026</option>
         </select>
+        <select id="filtro-rep-ped" onchange="renderPedidos()" style="background:var(--surface-2);border:0.5px solid rgba(0,178,122,0.28);border-radius:8px;color:var(--text);font-size:12px;padding:6px 10px;font-family:inherit;outline:none;cursor:pointer">
+          <option value="">Todas as representadas</option>
+        </select>
       </div>
       <div id="mes-resumo-ped" style="display:none;background:var(--surface-2);border:0.5px solid rgba(0,178,122,0.28);border-radius:8px;padding:8px 14px;font-size:12px;color:var(--text-2);margin-bottom:12px;display:flex;gap:16px;flex-wrap:wrap"></div>
       <div id="lista-pedidos"><div class="loading">Carregando...</div></div>
@@ -343,11 +352,16 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
     <div class="panel">
       <div class="panel-header">
         <div class="panel-title"><i class="ti ti-file-invoice"></i> Notas Fiscais de comissão</div>
-        <button class="add-btn" onclick="openNewNF()">+ Adicionar NF</button>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+          <select id="filtro-forn-nf" onchange="renderNotas()" style="background:var(--surface-2);border:0.5px solid rgba(0,178,122,0.28);border-radius:8px;color:var(--text);font-size:12px;padding:6px 10px;font-family:inherit;outline:none;cursor:pointer">
+            <option value="">Todos os fornecedores</option>
+          </select>
+          <button class="add-btn" onclick="openNewNF()">+ Adicionar NF</button>
+        </div>
       </div>
       <div style="overflow-x:auto;">
         <table class="nf-table">
-          <thead><tr><th>Fornecedor</th><th>Descrição</th><th>Prazo envio</th><th>NF emitida</th><th>NF enviada</th><th>Comissão recebida</th><th></th></tr></thead>
+          <thead><tr><th>Fornecedor</th><th>Descrição</th><th>Prazo envio</th><th>Valor Comissão</th><th>NF emitida</th><th>NF enviada</th><th>Comissão recebida</th><th></th></tr></thead>
           <tbody id="lista-nf"></tbody>
         </table>
       </div>
@@ -461,7 +475,10 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
     <h2 id="modal-nf-title">Nova nota fiscal de comissão</h2>
     <div class="form-group"><label>Fornecedor</label><select id="nf-forn"><option value="">— Selecione —</option></select></div>
     <div class="form-group"><label>Descrição</label><input type="text" id="nf-desc" placeholder="Ex: Comissão referente ao mês de junho" /></div>
-    <div class="form-group"><label>Prazo de envio</label><input type="date" id="nf-prazo" /></div>
+    <div class="form-row">
+      <div class="form-group"><label>Prazo de envio</label><input type="date" id="nf-prazo" /></div>
+      <div class="form-group"><label>Valor da Comissão (R$)</label><input type="number" id="nf-valor" placeholder="0,00" min="0" step="0.01" /></div>
+    </div>
     <div class="form-row">
       <div class="form-group"><label>NF emitida?</label><select id="nf-emitida"><option value="nao">Não</option><option value="sim">Sim</option></select></div>
       <div class="form-group"><label>NF enviada?</label><select id="nf-enviada"><option value="nao">Não</option><option value="sim">Sim</option></select></div>
@@ -578,7 +595,7 @@ window.doLogout = function() {
   document.getElementById('remember-me').checked = false;
 };
 
-const FORNECEDORES = ['Agroindústria Real','Asa','Fugini Alimentos','Gaboardi','Global','Globopack','Godinho','Infinity','JPS','Master','Mundial','Nossa Distribuidora','Oderich','RTL','Superglobo'];
+const FORNECEDORES = ['Agroindústria Real','Asa','Fugini Alimentos','Gaboardi','Global','Globopack','Godinho','Infinity','JPS','Master','Mundial','Nossa Distribuidora','Oderich','RTL','Superglobo','Tradição Real'];
 const CLIENTES = ['Asa','Atacaforte','Estampa','Flex','G10','Global','Godinho','Hiper Opa','Infinity','JM','JPS','Master','MegaMinas','Multimix','Mundial','Nossa Distribuidora','Real','RTL','Somamix','Única','Upside'];
 const ETAPA_LABELS = ['Não faturado','Precisa agendar','Foi agendado','Foi entregue'];
 const PRIO_ORDER = { high:0, med:1, low:2 };
@@ -691,7 +708,11 @@ window.savePendencia=function(){
   const titulo=document.getElementById('p-titulo').value.trim();
   const data={ titulo, fornecedor:document.getElementById('p-forn').value, cliente:document.getElementById('p-cliente').value, prazo:document.getElementById('p-prazo').value.trim()||'Sem prazo', responsavel:document.getElementById('p-resp').value.trim(), prioridade:document.getElementById('p-prio').value };
   if(editingPendKey){ update(ref(db,'pendencias/'+editingPendKey),data); }
-  else { push(ref(db,'pendencias'),{...data,done:false,criadoEm:Date.now()}); addNotif(`📋 ${USERS[currentUser]?.label||currentUser} adicionou a pendência: "${titulo||'Nova pendência'}"`); }
+  else { 
+    push(ref(db,'pendencias'),{...data,done:false,criadoEm:Date.now()}); 
+    addNotif(`📋 ${USERS[currentUser]?.label||currentUser} adicionou a pendência: "${titulo||'Nova pendência'}"`);
+    enviarNotif('📋 Nova pendência', `${titulo||'Nova pendência'}${data.fornecedor?' — '+data.fornecedor:''}${data.prazo?' · '+data.prazo:''}`, '📋');
+  }
   window.closeModal('modal-pendencia');
 };
 window.toggleDone=function(key){ const p=pendencias[key]; if(p) update(ref(db,'pendencias/'+key),{done:!p.done}); };
@@ -713,8 +734,8 @@ window.deletePedido=function(key,e){ if(e) e.stopPropagation(); if(!confirm('Rem
 
 // ── NOTAS FISCAIS ──
 window.openNewNF=function(){ editingNfKey=null; document.getElementById('modal-nf-title').textContent='Nova nota fiscal de comissão'; document.getElementById('btn-save-nf').textContent='Adicionar'; openModal('modal-nf'); };
-window.openEditNF=function(key){ const n=notas[key]; if(!n) return; editingNfKey=key; document.getElementById('modal-nf-title').textContent='Editar nota fiscal'; document.getElementById('btn-save-nf').textContent='Salvar'; openModal('modal-nf'); document.getElementById('nf-forn').value=n.fornecedor||''; document.getElementById('nf-desc').value=n.descricao||''; document.getElementById('nf-prazo').value=toInputDate(n.prazo)||''; document.getElementById('nf-emitida').value=n.emitida||'nao'; document.getElementById('nf-enviada').value=n.enviada||'nao'; document.getElementById('nf-comissao').value=n.comissao||'nao'; };
-window.saveNF=function(){ const data={fornecedor:document.getElementById('nf-forn').value, descricao:document.getElementById('nf-desc').value.trim(), prazo:document.getElementById('nf-prazo').value, emitida:document.getElementById('nf-emitida').value, enviada:document.getElementById('nf-enviada').value, comissao:document.getElementById('nf-comissao').value}; if(editingNfKey){update(ref(db,'notas/'+editingNfKey),data);}else{push(ref(db,'notas'),{...data,criadoEm:Date.now()});} window.closeModal('modal-nf'); };
+window.openEditNF=function(key){ const n=notas[key]; if(!n) return; editingNfKey=key; document.getElementById('modal-nf-title').textContent='Editar nota fiscal'; document.getElementById('btn-save-nf').textContent='Salvar'; openModal('modal-nf'); document.getElementById('nf-forn').value=n.fornecedor||''; document.getElementById('nf-desc').value=n.descricao||''; document.getElementById('nf-prazo').value=toInputDate(n.prazo)||''; document.getElementById('nf-valor').value=n.valor||''; document.getElementById('nf-emitida').value=n.emitida||'nao'; document.getElementById('nf-enviada').value=n.enviada||'nao'; document.getElementById('nf-comissao').value=n.comissao||'nao'; };
+window.saveNF=function(){ const data={fornecedor:document.getElementById('nf-forn').value, descricao:document.getElementById('nf-desc').value.trim(), prazo:document.getElementById('nf-prazo').value, valor:parseFloat(document.getElementById('nf-valor').value)||0, emitida:document.getElementById('nf-emitida').value, enviada:document.getElementById('nf-enviada').value, comissao:document.getElementById('nf-comissao').value}; if(editingNfKey){update(ref(db,'notas/'+editingNfKey),data);}else{push(ref(db,'notas'),{...data,criadoEm:Date.now()});} window.closeModal('modal-nf'); };
 window.deleteNF=function(key){ if(!confirm('Remover esta NF?')) return; remove(ref(db,'notas/'+key)); };
 
 // ── FILTROS ──
@@ -780,8 +801,19 @@ function renderPedidos(){
   if(filterPed==='aguardAgend') entriesPed=allEntries.filter(([,p])=>p.etapa===1);
   if(filterPed==='agendados')   entriesPed=allEntries.filter(([,p])=>p.etapa===2).sort((a,b)=>{ const toMs=d=>{ if(!d) return Infinity; const iso=d.includes('-')?d:`${d.split('/')[2]}-${d.split('/')[1]}-${d.split('/')[0]}`; return new Date(iso).getTime(); }; return toMs(a[1].dataAgendamento)-toMs(b[1].dataAgendamento); });
   if(filterPed==='entregues')   entriesPed=conc;
-  if(filtroMes) entriesPed=entriesPed.filter(([,p])=>getMesFromPedido(p)===filtroMes);
-  if(filtroAno) entriesPed=entriesPed.filter(([,p])=>getAnoFromPedido(p)===filtroAno);
+  // popula filtro representada pedidos
+  const selRepPed=document.getElementById('filtro-rep-ped');
+  if(selRepPed){ const cur=selRepPed.value; selRepPed.innerHTML='<option value="">Todas as representadas</option>'+FORNECEDORES.map(f=>`<option value="${f}" ${f===cur?'selected':''}>${f}</option>`).join(''); }
+  const filtroRep=selRepPed?.value||'';
+  if(filtroRep) entriesPed=entriesPed.filter(([,p])=>p.fornecedor===filtroRep);
+
+  // Se filtrou por mês/ano, aplica sobre TODOS os pedidos independente do card ativo
+  if(filtroMes||filtroAno){
+    let base=filtroRep?allEntries.filter(([,p])=>p.fornecedor===filtroRep):allEntries;
+    if(filtroMes) base=base.filter(([,p])=>getMesFromPedido(p)===filtroMes);
+    if(filtroAno) base=base.filter(([,p])=>getAnoFromPedido(p)===filtroAno);
+    entriesPed=base;
+  }
   const resumoEl=document.getElementById('mes-resumo-ped');
   if(resumoEl&&(filtroMes||filtroAno)){ const totalVal=entriesPed.reduce((s,[,p])=>s+(p.valor||0),0); const label=(filtroMes?MESES_NOMES[parseInt(filtroMes)-1]+' ':'')+(filtroAno||''); resumoEl.style.display='flex'; resumoEl.innerHTML=`📅 <strong>${label}</strong> &nbsp;·&nbsp; Pedidos: <strong>${entriesPed.length}</strong> &nbsp;·&nbsp; Faturamento: <strong style="color:var(--accent-2)">${fmtVal(totalVal)}</strong>`; } else if(resumoEl) { resumoEl.style.display='none'; }
   const entries=entriesPed;
@@ -825,21 +857,41 @@ function renderPedidos(){
 
 function renderNotas(){
   const tb=document.getElementById('lista-nf');
+  // popula filtro fornecedor NF
+  const selFornNF=document.getElementById('filtro-forn-nf');
+  if(selFornNF){ const cur=selFornNF.value; const forns=[...new Set(Object.values(notas).map(n=>n.fornecedor).filter(Boolean))].sort(); selFornNF.innerHTML='<option value="">Todos os fornecedores</option>'+forns.map(f=>`<option value="${f}" ${f===cur?'selected':''}>${f}</option>`).join(''); }
+  const filtroFornNF=selFornNF?.value||'';
   let entriesNF=Object.entries(notas).sort((a,b)=>(a[1].criadoEm||0)-(b[1].criadoEm||0));
+  if(filtroFornNF) entriesNF=entriesNF.filter(([,n])=>n.fornecedor===filtroFornNF);
   if(filterNF==='emitidas')  entriesNF=entriesNF.filter(([,n])=>n.emitida==='sim');
   if(filterNF==='pendEmit')  entriesNF=entriesNF.filter(([,n])=>n.emitida!=='sim');
   if(filterNF==='comReceb')  entriesNF=entriesNF.filter(([,n])=>n.comissao==='sim');
   const entries=entriesNF;
-  if(!entries.length){ tb.innerHTML=`<tr><td colspan="7"><div class="empty"><i class="ti ti-file-invoice"></i>Nenhuma NF cadastrada.</div></td></tr>`; }
-  else { tb.innerHTML=entries.map(([key,n])=>`<tr><td><strong>${n.fornecedor||'—'}</strong></td><td style="color:var(--text-2);font-size:12px">${n.descricao||'—'}</td><td><span class="badge ${prazoColor(n.prazo)}">${fmtDate(n.prazo)||'—'}</span></td><td>${siIcon(n.emitida)}</td><td>${siIcon(n.enviada)}</td><td>${siIcon(n.comissao)}</td><td><div style="display:flex;gap:2px"><button class="icon-btn" onclick="openEditNF('${key}')"><i class="ti ti-edit"></i></button><button class="icon-btn del" onclick="deleteNF('${key}')"><i class="ti ti-trash"></i></button></div></td></tr>`).join(''); }
+  if(!entries.length){ tb.innerHTML=`<tr><td colspan="8"><div class="empty"><i class="ti ti-file-invoice"></i>Nenhuma NF cadastrada.</div></td></tr>`; }
+  else { tb.innerHTML=entries.map(([key,n])=>`<tr>
+    <td><strong>${n.fornecedor||'—'}</strong></td>
+    <td style="color:var(--text-2);font-size:12px">${n.descricao||'—'}</td>
+    <td><span class="badge ${prazoColor(n.prazo)}">${fmtDate(n.prazo)||'—'}</span></td>
+    <td style="font-weight:600;color:var(--accent-2)">${n.valor?fmtVal(n.valor):'—'}</td>
+    <td>${siIcon(n.emitida)}</td>
+    <td>${siIcon(n.enviada)}</td>
+    <td>${siIcon(n.comissao)}</td>
+    <td><div style="display:flex;gap:2px"><button class="icon-btn" onclick="openEditNF('${key}')"><i class="ti ti-edit"></i></button><button class="icon-btn del" onclick="deleteNF('${key}')"><i class="ti ti-trash"></i></button></div></td>
+  </tr>`).join(''); }
   const nArr=Object.values(notas);
-  const emitidas=nArr.filter(n=>n.emitida==='sim').length,pendEmit=nArr.filter(n=>n.emitida!=='sim').length,comReceb=nArr.filter(n=>n.comissao==='sim').length;
+  const filtrado=filtroFornNF?nArr.filter(n=>n.fornecedor===filtroFornNF):nArr;
+  const emitidas=filtrado.filter(n=>n.emitida==='sim').length;
+  const pendEmit=filtrado.filter(n=>n.emitida!=='sim').length;
+  const comReceb=filtrado.filter(n=>n.comissao==='sim').length;
+  const totalValor=filtrado.reduce((s,n)=>s+(n.valor||0),0);
+  const recebidoValor=filtrado.filter(n=>n.comissao==='sim').reduce((s,n)=>s+(n.valor||0),0);
   const hoje=new Date(); hoje.setHours(0,0,0,0);
-  const vencem=nArr.filter(n=>{ if(!n.prazo||n.emitida==='sim') return false; let dt; if(n.prazo.includes('-')) dt=new Date(n.prazo); else{const [d,m,y]=n.prazo.split('/'); dt=new Date(`${y}-${m}-${d}`);} return dt<=hoje; }).length;
+  const vencem=filtrado.filter(n=>{ if(!n.prazo||n.emitida==='sim') return false; let dt; if(n.prazo.includes('-')) dt=new Date(n.prazo); else{const [d,m,y]=n.prazo.split('/'); dt=new Date(`${y}-${m}-${d}`);} return dt<=hoje; }).length;
   document.getElementById('metrics-nf').innerHTML=`
     <div class="metric ${filterNF==='pendEmit'?'active-filter':''}" onclick="toggleFilterNF('pendEmit')"><div class="metric-label">Aguardando emissão</div><div class="metric-value">${pendEmit}</div><div class="metric-sub" style="color:${vencem>0?'var(--red)':'var(--text-2)'}">${vencem>0?vencem+' vence(m) hoje':'Em dia'}</div></div>
-    <div class="metric ${filterNF==='emitidas'?'active-filter':''}" onclick="toggleFilterNF('emitidas')"><div class="metric-label">NFs emitidas</div><div class="metric-value">${emitidas}</div><div class="metric-sub">de ${nArr.length} no período</div></div>
-    <div class="metric ${filterNF==='comReceb'?'active-filter':''}" onclick="toggleFilterNF('comReceb')"><div class="metric-label">Comissões recebidas</div><div class="metric-value">${comReceb}</div><div class="metric-sub" style="color:var(--amber)">${nArr.length-comReceb} aguardando</div></div>
+    <div class="metric ${filterNF==='emitidas'?'active-filter':''}" onclick="toggleFilterNF('emitidas')"><div class="metric-label">NFs emitidas</div><div class="metric-value">${emitidas}</div><div class="metric-sub">de ${filtrado.length} no período</div></div>
+    <div class="metric ${filterNF==='comReceb'?'active-filter':''}" onclick="toggleFilterNF('comReceb')"><div class="metric-label">Comissões recebidas</div><div class="metric-value">${comReceb}</div><div class="metric-sub" style="color:var(--amber)">${filtrado.length-comReceb} aguardando</div></div>
+    ${totalValor?`<div class="metric"><div class="metric-label">💰 Total comissões</div><div class="metric-value" style="font-size:16px;color:var(--accent-2)">${fmtVal(totalValor)}</div><div class="metric-sub" style="color:var(--green)">Recebido: ${fmtVal(recebidoValor)}</div></div>`:''}
   `;
 }
 
@@ -1026,6 +1078,100 @@ function renderInativos(){
 document.getElementById('btn-entrar').addEventListener('click', doLogin);
 document.getElementById('btn-sair').addEventListener('click', doLogout);
 document.getElementById('login-pass').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+
+// ── PWA + NOTIFICAÇÕES ──────────────────────────────────
+// Registra Service Worker
+if('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').then(reg => {
+    console.log('SW registrado:', reg.scope);
+  }).catch(err => console.log('SW erro:', err));
+}
+
+// Solicita permissão de notificação após login
+function solicitarPermissaoNotif() {
+  if('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission().then(perm => {
+      if(perm === 'granted') {
+        enviarNotif('DFD Representações', 'Notificações ativadas! ✅', '📋');
+      }
+    });
+  }
+}
+
+// Envia notificação
+function enviarNotif(titulo, corpo, icone) {
+  if(!('Notification' in window) || Notification.permission !== 'granted') return;
+  const options = { body: corpo, icon: 'data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%232C2C2A'/%3E%3Ccircle cx='50' cy='50' r='30' fill='%2300B27A'/%3E%3C/svg%3E', badge: 'data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%2300B27A'/%3E%3C/svg%3E', tag: titulo };
+  if(navigator.serviceWorker.controller) {
+    navigator.serviceWorker.ready.then(reg => reg.showNotification(titulo, options));
+  } else {
+    new Notification(titulo, options);
+  }
+}
+
+// Checa inativos e pedidos atrasados — roda a cada 1 hora
+let ultimoCheckInativos = 0;
+let ultimoCheckAtrasados = 0;
+let inativosJaNotificados = JSON.parse(localStorage.getItem('dfd_notif_inativos')||'[]');
+let atrasadosJaNotificados = JSON.parse(localStorage.getItem('dfd_notif_atrasados')||'[]');
+
+function checarNotificacoes() {
+  const agora = Date.now();
+
+  // Checa inativos (a cada 1 hora)
+  if(agora - ultimoCheckInativos > 60*60*1000) {
+    ultimoCheckInativos = agora;
+    const inativos = calcInativos().filter(x=>!inativosIgnorados.includes(x.cliente+'|||'+x.fornecedor));
+    inativos.forEach(x => {
+      const key = x.cliente+'|||'+x.fornecedor;
+      if(!inativosJaNotificados.includes(key)) {
+        inativosJaNotificados.push(key);
+        localStorage.setItem('dfd_notif_inativos', JSON.stringify(inativosJaNotificados));
+        enviarNotif(
+          '⚠️ Cliente inativo',
+          `${x.cliente} — ${x.fornecedor} sem compra há ${x.dias} dias`,
+          '⚠️'
+        );
+      }
+    });
+    // Remove da lista de notificados clientes que voltaram a comprar
+    inativosJaNotificados = inativosJaNotificados.filter(k => inativos.some(x => x.cliente+'|||'+x.fornecedor === k));
+    localStorage.setItem('dfd_notif_inativos', JSON.stringify(inativosJaNotificados));
+  }
+
+  // Checa pedidos atrasados (a cada 1 hora)
+  if(agora - ultimoCheckAtrasados > 60*60*1000) {
+    ultimoCheckAtrasados = agora;
+    const hoje = new Date().toISOString().slice(0,10);
+    Object.entries(pedidos).forEach(([key, p]) => {
+      if(!p.dataAgendamento || ['Foi entregue'].includes(ETAPA_LABELS[p.etapa])) return;
+      const previsao = p.dataAgendamento.includes('-') ? p.dataAgendamento : `${p.dataAgendamento.split('/')[2]}-${p.dataAgendamento.split('/')[1]}-${p.dataAgendamento.split('/')[0]}`;
+      if(previsao < hoje && !atrasadosJaNotificados.includes(key)) {
+        atrasadosJaNotificados.push(key);
+        localStorage.setItem('dfd_notif_atrasados', JSON.stringify(atrasadosJaNotificados));
+        enviarNotif(
+          '📦 Pedido atrasado',
+          `${p.nome||'Pedido'} — ${p.fornecedor||''} está com entrega atrasada`,
+          '📦'
+        );
+      }
+    });
+    // Remove pedidos já entregues da lista
+    atrasadosJaNotificados = atrasadosJaNotificados.filter(k => pedidos[k] && ETAPA_LABELS[pedidos[k].etapa] !== 'Foi entregue');
+    localStorage.setItem('dfd_notif_atrasados', JSON.stringify(atrasadosJaNotificados));
+  }
+}
+
+// Inicia checagem quando loga
+const _startSession = startSession;
+function startSession(user) {
+  _startSession(user);
+  setTimeout(() => {
+    solicitarPermissaoNotif();
+    checarNotificacoes();
+  }, 2000);
+  setInterval(checarNotificacoes, 60*60*1000);
+}
 
 </script>
 </body>

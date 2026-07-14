@@ -356,6 +356,13 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
           <select id="filtro-forn-nf" onchange="renderNotas()" style="background:var(--surface-2);border:0.5px solid rgba(0,178,122,0.28);border-radius:8px;color:var(--text);font-size:12px;padding:6px 10px;font-family:inherit;outline:none;cursor:pointer">
             <option value="">Todos os fornecedores</option>
           </select>
+          <select id="filtro-mes-nf" onchange="renderNotas()" style="background:var(--surface-2);border:0.5px solid rgba(0,178,122,0.28);border-radius:8px;color:var(--text);font-size:12px;padding:6px 10px;font-family:inherit;outline:none;cursor:pointer">
+            <option value="">Todos os meses</option>
+            <option value="01">Janeiro</option><option value="02">Fevereiro</option><option value="03">Março</option>
+            <option value="04">Abril</option><option value="05">Maio</option><option value="06">Junho</option>
+            <option value="07">Julho</option><option value="08">Agosto</option><option value="09">Setembro</option>
+            <option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option>
+          </select>
           <button class="add-btn" onclick="openNewNF()">+ Adicionar NF</button>
         </div>
       </div>
@@ -861,17 +868,24 @@ function renderPedidos(){
   `;
 }
 
+function getNfMes(n){ const d=n.prazo||''; if(!d) return ''; if(d.includes('-')) return d.slice(5,7); if(d.includes('/')) return d.split('/')[1]; return ''; }
+
 function renderNotas(){
   const tb=document.getElementById('lista-nf');
   // popula filtro fornecedor NF
   const selFornNF=document.getElementById('filtro-forn-nf');
   if(selFornNF){ const cur=selFornNF.value; const forns=[...new Set(Object.values(notas).map(n=>n.fornecedor).filter(Boolean))].sort(); selFornNF.innerHTML='<option value="">Todos os fornecedores</option>'+forns.map(f=>`<option value="${f}" ${f===cur?'selected':''}>${f}</option>`).join(''); }
   const filtroFornNF=selFornNF?.value||'';
+  const filtroMesNF=document.getElementById('filtro-mes-nf')?.value||'';
+
   let entriesNF=Object.entries(notas).sort((a,b)=>(a[1].criadoEm||0)-(b[1].criadoEm||0));
   if(filtroFornNF) entriesNF=entriesNF.filter(([,n])=>n.fornecedor===filtroFornNF);
+  if(filtroMesNF) entriesNF=entriesNF.filter(([,n])=>getNfMes(n)===filtroMesNF);
   if(filterNF==='emitidas')  entriesNF=entriesNF.filter(([,n])=>n.emitida==='sim');
   if(filterNF==='pendEmit')  entriesNF=entriesNF.filter(([,n])=>n.emitida!=='sim');
   if(filterNF==='comReceb')  entriesNF=entriesNF.filter(([,n])=>n.comissao==='sim');
+  if(filterNF==='totalVal')  entriesNF=entriesNF.filter(([,n])=>n.valor>0);
+
   const entries=entriesNF;
   if(!entries.length){ tb.innerHTML=`<tr><td colspan="8"><div class="empty"><i class="ti ti-file-invoice"></i>Nenhuma NF cadastrada.</div></td></tr>`; }
   else { tb.innerHTML=entries.map(([key,n])=>`<tr>
@@ -884,20 +898,42 @@ function renderNotas(){
     <td>${siIcon(n.comissao)}</td>
     <td><div style="display:flex;gap:2px"><button class="icon-btn" onclick="openEditNF('${key}')"><i class="ti ti-edit"></i></button><button class="icon-btn del" onclick="deleteNF('${key}')"><i class="ti ti-trash"></i></button></div></td>
   </tr>`).join(''); }
-  const nArr=Object.values(notas);
-  const filtrado=filtroFornNF?nArr.filter(n=>n.fornecedor===filtroFornNF):nArr;
-  const emitidas=filtrado.filter(n=>n.emitida==='sim').length;
-  const pendEmit=filtrado.filter(n=>n.emitida!=='sim').length;
-  const comReceb=filtrado.filter(n=>n.comissao==='sim').length;
-  const totalValor=filtrado.reduce((s,n)=>s+(n.valor||0),0);
-  const recebidoValor=filtrado.filter(n=>n.comissao==='sim').reduce((s,n)=>s+(n.valor||0),0);
+
+  // calcula sobre todos (sem filtro de card) para os cards
+  let base=Object.values(notas);
+  if(filtroFornNF) base=base.filter(n=>n.fornecedor===filtroFornNF);
+  if(filtroMesNF) base=base.filter(n=>getNfMes(n)===filtroMesNF);
+
+  const emitidas=base.filter(n=>n.emitida==='sim').length;
+  const pendEmit=base.filter(n=>n.emitida!=='sim').length;
+  const comReceb=base.filter(n=>n.comissao==='sim').length;
+  const totalValor=base.reduce((s,n)=>s+(n.valor||0),0);
+  const recebidoValor=base.filter(n=>n.comissao==='sim').reduce((s,n)=>s+(n.valor||0),0);
+  const pendValor=base.filter(n=>n.comissao!=='sim').reduce((s,n)=>s+(n.valor||0),0);
   const hoje=new Date(); hoje.setHours(0,0,0,0);
-  const vencem=filtrado.filter(n=>{ if(!n.prazo||n.emitida==='sim') return false; let dt; if(n.prazo.includes('-')) dt=new Date(n.prazo); else{const [d,m,y]=n.prazo.split('/'); dt=new Date(`${y}-${m}-${d}`);} return dt<=hoje; }).length;
+  const vencem=base.filter(n=>{ if(!n.prazo||n.emitida==='sim') return false; let dt; if(n.prazo.includes('-')) dt=new Date(n.prazo); else{const [d,m,y]=n.prazo.split('/'); dt=new Date(`${y}-${m}-${d}`);} return dt<=hoje; }).length;
+
   document.getElementById('metrics-nf').innerHTML=`
-    <div class="metric ${filterNF==='pendEmit'?'active-filter':''}" onclick="toggleFilterNF('pendEmit')"><div class="metric-label">Aguardando emissão</div><div class="metric-value">${pendEmit}</div><div class="metric-sub" style="color:${vencem>0?'var(--red)':'var(--text-2)'}">${vencem>0?vencem+' vence(m) hoje':'Em dia'}</div></div>
-    <div class="metric ${filterNF==='emitidas'?'active-filter':''}" onclick="toggleFilterNF('emitidas')"><div class="metric-label">NFs emitidas</div><div class="metric-value">${emitidas}</div><div class="metric-sub">de ${filtrado.length} no período</div></div>
-    <div class="metric ${filterNF==='comReceb'?'active-filter':''}" onclick="toggleFilterNF('comReceb')"><div class="metric-label">Comissões recebidas</div><div class="metric-value">${comReceb}</div><div class="metric-sub" style="color:var(--amber)">${filtrado.length-comReceb} aguardando</div></div>
-    ${totalValor?`<div class="metric"><div class="metric-label">💰 Total comissões</div><div class="metric-value" style="font-size:16px;color:var(--accent-2)">${fmtVal(totalValor)}</div><div class="metric-sub" style="color:var(--green)">Recebido: ${fmtVal(recebidoValor)}</div></div>`:''}
+    <div class="metric ${filterNF==='pendEmit'?'active-filter':''}" onclick="toggleFilterNF('pendEmit')">
+      <div class="metric-label">Aguardando emissão</div>
+      <div class="metric-value">${pendEmit}</div>
+      <div class="metric-sub" style="color:${vencem>0?'var(--red)':'var(--text-2)'}">${vencem>0?vencem+' vence(m) hoje':'Em dia'}</div>
+    </div>
+    <div class="metric ${filterNF==='emitidas'?'active-filter':''}" onclick="toggleFilterNF('emitidas')">
+      <div class="metric-label">NFs emitidas</div>
+      <div class="metric-value">${emitidas}</div>
+      <div class="metric-sub">de ${base.length} no período</div>
+    </div>
+    <div class="metric ${filterNF==='comReceb'?'active-filter':''}" onclick="toggleFilterNF('comReceb')">
+      <div class="metric-label">Comissões recebidas</div>
+      <div class="metric-value">${comReceb}</div>
+      <div class="metric-sub" style="color:var(--amber)">${base.length-comReceb} aguardando</div>
+    </div>
+    <div class="metric ${filterNF==='totalVal'?'active-filter':''}" onclick="toggleFilterNF('totalVal')" style="cursor:pointer">
+      <div class="metric-label">💰 Total comissões</div>
+      <div class="metric-value" style="font-size:16px;color:var(--accent-2)">${fmtVal(totalValor)}</div>
+      <div class="metric-sub" style="color:var(--green)">✅ ${fmtVal(recebidoValor)} &nbsp;·&nbsp; <span style="color:var(--amber)">⏳ ${fmtVal(pendValor)}</span></div>
+    </div>
   `;
 }
 

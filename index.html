@@ -325,7 +325,8 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
         <div class="panel-title"><i class="ti ti-package"></i> Pedidos acompanhados</div>
         <button class="add-btn" onclick="openNewPedido()">+ Adicionar</button>
       </div>
-      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;align-items:center;">
+        <input type="text" id="busca-ped" placeholder="🔍 Pesquisar pedido..." style="background:var(--surface-2);border:0.5px solid rgba(0,178,122,0.28);border-radius:8px;color:var(--text);font-size:15px;padding:7px 12px;font-family:inherit;outline:none;min-width:200px;" />
         <select id="filtro-mes-ped" style="background:var(--surface-2);border:0.5px solid rgba(0,178,122,0.28);border-radius:8px;color:var(--text);font-size:14px;padding:6px 10px;font-family:inherit;outline:none;cursor:pointer">
           <option value="">Todos os meses</option>
           <option value="01">Janeiro</option><option value="02">Fevereiro</option><option value="03">Março</option>
@@ -357,6 +358,7 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
           <option value="Tradição Real">Tradição Real</option>
         </select>
       </div>
+      <div id="grafico-pedidos" style="margin-bottom:14px;display:none;"></div>
       <div id="mes-resumo-ped" style="display:none;background:var(--surface-2);border:0.5px solid rgba(0,178,122,0.28);border-radius:8px;padding:8px 14px;font-size:14px;color:var(--text-2);margin-bottom:12px;display:flex;gap:16px;flex-wrap:wrap"></div>
       <div id="lista-pedidos"><div class="loading">Carregando...</div></div>
     </div>
@@ -366,6 +368,7 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
   <div class="tab-content" id="tab-notas">
     <div style="font-size:18px;font-weight:500;margin-bottom:14px;display:flex;align-items:center;gap:7px;"><i class="ti ti-currency-dollar" style="color:var(--accent-2)"></i> Comissões</div>
     <div class="metrics-3" id="metrics-nf" style="grid-template-columns:repeat(4,minmax(0,1fr))"></div>
+    <div id="grafico-comissoes" style="margin-bottom:14px;"></div>
     <div class="panel" style="margin-top:14px;">
       <div class="panel-header">
         <div class="panel-title"><i class="ti ti-file-invoice"></i> Notas Fiscais de comissão</div>
@@ -648,7 +651,7 @@ const PRIO_ORDER = { high:0, med:1, low:2 };
 
 let pendencias={}, pedidos={}, notas={}, notificacoes={};
 // Filtros globais — atualizados pelos event listeners dos selects
-let gMesPed='', gAnoPed='', gRepPed='', gFornNF='', gMesNF='';
+let gMesPed='', gAnoPed='', gRepPed='', gFornNF='', gMesNF='', gBuscaPed='';
 let editingPendKey=null, editingPedKey=null, editingNfKey=null;
 let filterPend=null, filterPed=null, filterNF=null;
 let calYear=new Date().getFullYear(), calMonth=new Date().getMonth(), calSelected=null;
@@ -852,6 +855,8 @@ function renderPedidos(){
 
   // Filtro por representada
   if(filtroRep) entriesPed=entriesPed.filter(([,p])=>p.fornecedor===filtroRep);
+  // Filtro por busca de nome
+  if(gBuscaPed) entriesPed=entriesPed.filter(([,p])=>(p.nome||'').toLowerCase().includes(gBuscaPed)||(p.cliente||'').toLowerCase().includes(gBuscaPed)||(p.fornecedor||'').toLowerCase().includes(gBuscaPed));
 
   // Filtro por mês e ano — tem prioridade, ignora filtro de card
   if(filtroMes||filtroAno){
@@ -960,6 +965,7 @@ function renderNotas(){
   const hoje=new Date(); hoje.setHours(0,0,0,0);
   const vencem=base.filter(n=>{ if(!n.prazo||n.emitida==='sim') return false; let dt; if(n.prazo.includes('-')) dt=new Date(n.prazo); else{const [d,m,y]=n.prazo.split('/'); dt=new Date(`${y}-${m}-${d}`);} return dt<=hoje; }).length;
 
+  gerarGraficoComissoes();
   document.getElementById('metrics-nf').innerHTML=`
     <div class="metric ${filterNF==='pendEmit'?'active-filter':''}" onclick="toggleFilterNF('pendEmit')">
       <div class="metric-label">Aguardando emissão</div>
@@ -1164,11 +1170,115 @@ function renderInativos(){
 }
 
 // Wire up buttons
+
+// ── GRÁFICOS ────────────────────────────────────────────────
+function gerarGraficoPedidos() {
+  const el = document.getElementById('grafico-pedidos');
+  if(!el) return;
+
+  // Agrupa pedidos concluídos por mês/ano
+  const dados = {};
+  Object.values(pedidos).filter(p => p.etapa === 3).forEach(p => {
+    const mes = getMesFromPedido(p);
+    const ano = getAnoFromPedido(p);
+    if(!mes || !ano) return;
+    const key = `${ano}-${mes}`;
+    if(!dados[key]) dados[key] = { label: MESES_NOMES[parseInt(mes)-1].slice(0,3)+'/'+ano.slice(2), valor: 0, count: 0 };
+    dados[key].valor += p.valor || 0;
+    dados[key].count++;
+  });
+
+  const sorted = Object.entries(dados).sort((a,b) => a[0].localeCompare(b[0])).slice(-12);
+  if(sorted.length < 2) { el.style.display='none'; return; }
+
+  const maxVal = Math.max(...sorted.map(([,d]) => d.valor));
+  const barW = Math.max(40, Math.floor((Math.min(window.innerWidth - 80, 1400)) / sorted.length) - 8);
+
+  el.style.display = 'block';
+  el.innerHTML = `
+    <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:16px 20px;">
+      <div style="font-size:16px;font-weight:500;margin-bottom:4px;display:flex;align-items:center;gap:8px;"><i class="ti ti-chart-bar" style="color:var(--accent-2)"></i> Faturamento mensal — Pedidos concluídos</div>
+      <div style="font-size:13px;color:var(--text-2);margin-bottom:16px;">Últimos ${sorted.length} meses</div>
+      <div style="overflow-x:auto;">
+        <div style="display:flex;align-items:flex-end;gap:8px;min-height:160px;padding-bottom:8px;min-width:${sorted.length * (barW+8)}px">
+          ${sorted.map(([key, d]) => {
+            const h = maxVal > 0 ? Math.max(8, Math.round((d.valor / maxVal) * 140)) : 8;
+            const isCur = key === `${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2,'0')}`;
+            return `<div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;min-width:${barW}px;">
+              <div style="font-size:12px;color:var(--accent-2);font-weight:500;white-space:nowrap">${fmtValShort(d.valor)}</div>
+              <div style="font-size:11px;color:var(--text-3)">${d.count}p</div>
+              <div style="width:100%;height:${h}px;background:${isCur?'var(--accent)':'rgba(0,178,122,0.35)'};border-radius:6px 6px 0 0;transition:height 0.3s;cursor:pointer;border:0.5px solid ${isCur?'var(--accent)':'rgba(0,178,122,0.5)'}" title="${d.label}: ${fmtVal(d.valor)}"></div>
+              <div style="font-size:11px;color:var(--text-2);white-space:nowrap;font-weight:${isCur?'600':'400'}">${d.label}</div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+    </div>`;
+}
+
+function gerarGraficoComissoes() {
+  const el = document.getElementById('grafico-comissoes');
+  if(!el) return;
+
+  // Agrupa NFs por mês/ano
+  const dados = {};
+  Object.values(notas).filter(n => n.valor > 0).forEach(n => {
+    const mes = getNfMes(n);
+    const prazo = n.prazo || '';
+    let ano = '';
+    if(prazo.includes('-')) ano = prazo.slice(0,4);
+    else if(prazo.includes('/')) ano = prazo.split('/')[2];
+    if(!mes || !ano) return;
+    const key = `${ano}-${mes}`;
+    if(!dados[key]) dados[key] = { label: MESES_NOMES[parseInt(mes)-1].slice(0,3)+'/'+ano.slice(2), total: 0, recebido: 0 };
+    dados[key].total += n.valor || 0;
+    if(n.comissao === 'sim') dados[key].recebido += n.valor || 0;
+  });
+
+  const sorted = Object.entries(dados).sort((a,b) => a[0].localeCompare(b[0]));
+  if(sorted.length < 1) { el.style.display='none'; return; }
+
+  const maxVal = Math.max(...sorted.map(([,d]) => d.total));
+  const barW = Math.max(40, Math.floor((Math.min(window.innerWidth - 80, 1400)) / sorted.length) - 8);
+
+  el.style.display = 'block';
+  el.innerHTML = `
+    <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:16px 20px;">
+      <div style="font-size:16px;font-weight:500;margin-bottom:4px;display:flex;align-items:center;gap:8px;"><i class="ti ti-chart-line" style="color:var(--accent-2)"></i> Evolução de comissões por mês</div>
+      <div style="display:flex;gap:16px;font-size:12px;color:var(--text-2);margin-bottom:16px;">
+        <span><span style="display:inline-block;width:10px;height:10px;background:rgba(0,178,122,0.4);border-radius:2px;margin-right:4px"></span>Total</span>
+        <span><span style="display:inline-block;width:10px;height:10px;background:var(--accent);border-radius:2px;margin-right:4px"></span>Recebido</span>
+      </div>
+      <div style="overflow-x:auto;">
+        <div style="display:flex;align-items:flex-end;gap:8px;min-height:160px;padding-bottom:8px;min-width:${sorted.length * (barW+8)}px">
+          ${sorted.map(([key, d]) => {
+            const hTotal = maxVal > 0 ? Math.max(8, Math.round((d.total / maxVal) * 140)) : 8;
+            const hReceb = maxVal > 0 ? Math.max(0, Math.round((d.recebido / maxVal) * 140)) : 0;
+            return `<div style="display:flex;flex-direction:column;align-items:center;gap:4px;flex:1;min-width:${barW}px;">
+              <div style="font-size:12px;color:var(--accent-2);font-weight:500;white-space:nowrap">${fmtValShort(d.total)}</div>
+              <div style="width:100%;position:relative;height:${hTotal}px;background:rgba(0,178,122,0.25);border-radius:6px 6px 0 0;border:0.5px solid rgba(0,178,122,0.4)">
+                <div style="position:absolute;bottom:0;width:100%;height:${hReceb}px;background:var(--accent);border-radius:${hReceb===hTotal?'6px 6px':'0'} 0 0;"></div>
+              </div>
+              <div style="font-size:11px;color:var(--text-2);white-space:nowrap">${d.label}</div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+    </div>`;
+}
+
+function fmtValShort(v) {
+  if(v >= 1000000) return 'R$ '+(v/1000000).toFixed(1)+'M';
+  if(v >= 1000) return 'R$ '+(v/1000).toFixed(0)+'k';
+  return fmtVal(v);
+}
+
 document.getElementById('btn-entrar').addEventListener('click', doLogin);
 document.getElementById('btn-sair').addEventListener('click', doLogout);
 document.getElementById('login-pass').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
 
 // Event listeners dos filtros — atualizam variável global e re-renderizam
+document.getElementById('busca-ped').addEventListener('input', function(){ gBuscaPed=this.value.toLowerCase().trim(); filterPed=null; renderPedidos(); });
 document.getElementById('filtro-mes-ped').addEventListener('change', function(){ gMesPed=this.value; filterPed=null; renderPedidos(); });
 document.getElementById('filtro-ano-ped').addEventListener('change', function(){ gAnoPed=this.value; filterPed=null; renderPedidos(); });
 document.getElementById('filtro-rep-ped').addEventListener('change', function(){ gRepPed=this.value; filterPed=null; renderPedidos(); });

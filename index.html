@@ -358,7 +358,7 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
           <option value="Tradição Real">Tradição Real</option>
         </select>
       </div>
-      <div id="grafico-pedidos" style="margin-bottom:0;"></div>
+      <div id="grafico-pedidos" style="display:none;margin-bottom:14px;"></div>
       <div id="mes-resumo-ped" style="display:none;background:var(--surface-2);border:0.5px solid rgba(0,178,122,0.28);border-radius:8px;padding:8px 14px;font-size:14px;color:var(--text-2);margin-bottom:12px;display:flex;gap:16px;flex-wrap:wrap"></div>
       <div id="lista-pedidos"><div class="loading">Carregando...</div></div>
     </div>
@@ -368,7 +368,7 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
   <div class="tab-content" id="tab-notas">
     <div style="font-size:18px;font-weight:500;margin-bottom:14px;display:flex;align-items:center;gap:7px;"><i class="ti ti-currency-dollar" style="color:var(--accent-2)"></i> Comissões</div>
     <div class="metrics-3" id="metrics-nf" style="grid-template-columns:repeat(4,minmax(0,1fr))"></div>
-    <div id="grafico-comissoes" style="margin-bottom:14px;"></div>
+    <div id="grafico-comissoes" style="display:none;margin-bottom:14px;"></div>
     <div class="panel" style="margin-top:14px;">
       <div class="panel-header">
         <div class="panel-title"><i class="ti ti-file-invoice"></i> Notas Fiscais de comissão</div>
@@ -791,8 +791,20 @@ window.deleteNF=function(key){ if(!confirm('Remover esta NF?')) return; remove(r
 
 // ── FILTROS ──
 window.toggleFilterPend=function(f){ filterPend=filterPend===f?null:f; renderPendencias(); };
-window.toggleFilterPed=function(f){ filterPed=filterPed===f?null:f; renderPedidos(); };
-window.toggleFilterNF=function(f){ filterNF=filterNF===f?null:f; renderNotas(); };
+window.toggleFilterPed=function(f){
+  filterPed=filterPed===f?null:f;
+  const g=document.getElementById('grafico-pedidos');
+  if(filterPed==='grafico'){ gerarGraficoPedidos(); if(g) g.style.display='block'; }
+  else { if(g) g.style.display='none'; }
+  renderPedidos();
+};
+window.toggleFilterNF=function(f){
+  filterNF=filterNF===f?null:f;
+  const g=document.getElementById('grafico-comissoes');
+  if(filterNF==='grafico'){ gerarGraficoComissoes(); if(g) g.style.display='block'; }
+  else { if(g) g.style.display='none'; }
+  renderNotas();
+};
 
 // ── HELPERS ──
 function toInputDate(d){ if(!d) return ''; if(d.includes('-')) return d; const [dd,mm,yy]=d.split('/'); return `${yy}-${mm}-${dd}`; }
@@ -882,7 +894,6 @@ function renderPedidos(){
   } else if(filtroMes||filtroAno){
     entriesPed=entriesPed.sort((a,b)=>(b[1].criadoEm||0)-(a[1].criadoEm||0));
   }
-  gerarGraficoPedidos();
   const resumoEl=document.getElementById('mes-resumo-ped');
   if(resumoEl&&(filtroMes||filtroAno)){ const totalVal=entriesPed.reduce((s,[,p])=>s+(p.valor||0),0); const label=(filtroMes?MESES_NOMES[parseInt(filtroMes)-1]+' ':'')+(filtroAno||''); resumoEl.style.display='flex'; resumoEl.innerHTML=`📅 <strong>${label}</strong> &nbsp;·&nbsp; Pedidos: <strong>${entriesPed.length}</strong> &nbsp;·&nbsp; Faturamento: <strong style="color:var(--accent-2)">${fmtVal(totalVal)}</strong>`; } else if(resumoEl) { resumoEl.style.display='none'; }
   const entries=entriesPed;
@@ -916,6 +927,11 @@ function renderPedidos(){
   const oArr=Object.values(pedidos);
   const total=oArr.length,naoFat=oArr.filter(p=>p.etapa===0).length,aguardAgend=oArr.filter(p=>p.etapa===1).length,agendados=oArr.filter(p=>p.etapa===2).length,entregues=oArr.filter(p=>p.etapa===3).length;
   document.getElementById('metrics-ped').innerHTML=`
+    <div class="metric ${filterPed==='grafico'?'active-filter':''}" onclick="toggleFilterPed('grafico')" style="cursor:pointer;">
+      <div class="metric-label">📊 Evolução mensal</div>
+      <div class="metric-value" style="font-size:16px;">Ver gráfico</div>
+      <div class="metric-sub">Faturamento por mês</div>
+    </div>
     <div class="metric ${filterPed==='naoFat'?'active-filter':''}" onclick="toggleFilterPed('naoFat')"><div class="metric-label">Não faturados</div><div class="metric-value">${naoFat}</div><div class="metric-sub" style="color:${naoFat>0?'var(--red)':'var(--text-2)'}">${naoFat>0?'Pendente':'Ok'}</div></div>
     <div class="metric ${filterPed==='aguardAgend'?'active-filter':''}" onclick="toggleFilterPed('aguardAgend')"><div class="metric-label">Ag. agendamento</div><div class="metric-value">${aguardAgend}</div><div class="metric-sub" style="color:var(--amber)">${aguardAgend} pedido(s)</div></div>
     <div class="metric ${filterPed==='agendados'?'active-filter':''}" onclick="toggleFilterPed('agendados')"><div class="metric-label">Ag. entrega</div><div class="metric-value">${agendados}</div><div class="metric-sub" style="color:var(--blue)">${agendados} agendado(s)</div></div>
@@ -966,7 +982,6 @@ function renderNotas(){
   const hoje=new Date(); hoje.setHours(0,0,0,0);
   const vencem=base.filter(n=>{ if(!n.prazo||n.emitida==='sim') return false; let dt; if(n.prazo.includes('-')) dt=new Date(n.prazo); else{const [d,m,y]=n.prazo.split('/'); dt=new Date(`${y}-${m}-${d}`);} return dt<=hoje; }).length;
 
-  gerarGraficoComissoes();
   document.getElementById('metrics-nf').innerHTML=`
     <div class="metric ${filterNF==='pendEmit'?'active-filter':''}" onclick="toggleFilterNF('pendEmit')">
       <div class="metric-label">Aguardando emissão</div>

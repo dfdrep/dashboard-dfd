@@ -503,7 +503,7 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
       <div onclick="document.getElementById('o-img-input').click()" style="border:1.5px dashed rgba(0,178,122,0.28);border-radius:8px;padding:12px;text-align:center;cursor:pointer;font-size:14px;color:var(--text-3)">
         📷 Clique para anexar imagem do pedido
       </div>
-      <input type="file" id="o-img-input" accept="image/*" style="display:none" onchange="handleImageUpload(event)" />
+      <input type="file" id="o-img-input" accept="image/*" multiple style="display:none" onchange="handleImageUpload(event)" />
       <div id="o-img-preview"></div>
     </div>
     <div class="modal-footer">
@@ -650,6 +650,7 @@ const ETAPA_LABELS = ['Não faturado','Precisa agendar','Foi agendado','Foi entr
 const PRIO_ORDER = { high:0, med:1, low:2 };
 
 let pendencias={}, pedidos={}, notas={}, notificacoes={};
+let pendingImagens = [];
 // Filtros globais — atualizados pelos event listeners dos selects
 let gMesPed='', gAnoPed='', gRepPed='', gFornNF='', gMesNF='', gBuscaPed='';
 let editingPendKey=null, editingPedKey=null, editingNfKey=null;
@@ -736,7 +737,7 @@ window.closeModal=function(id){
   document.getElementById(id).querySelectorAll('input').forEach(i=>i.value='');
   document.getElementById(id).querySelectorAll('select').forEach(s=>s.selectedIndex=0);
   document.querySelectorAll('.date-field').forEach(d=>d.classList.remove('show'));
-  editingPendKey=null; editingPedKey=null; editingNfKey=null; pendingImageData=null; const prev=document.getElementById('o-img-preview'); if(prev) prev.innerHTML='';
+  editingPendKey=null; editingPedKey=null; editingNfKey=null; pendingImagens=[]; const prev=document.getElementById('o-img-preview'); if(prev) prev.innerHTML='';
 };
 function openModal(id) {
   fillSelects();
@@ -771,11 +772,11 @@ window.deletePendencia=function(key){ if(!confirm('Remover esta pendência?')) r
 
 // ── PEDIDOS ──
 window.openNewPedido=function(){ editingPedKey=null; document.getElementById('modal-ped-title').textContent='Novo pedido'; document.getElementById('btn-save-ped').textContent='Adicionar'; openModal('modal-pedido'); };
-window.openEditPedido=function(key){ const p=pedidos[key]; if(!p) return; editingPedKey=key; document.getElementById('modal-ped-title').textContent='Editar pedido'; document.getElementById('btn-save-ped').textContent='Salvar'; openModal('modal-pedido'); document.getElementById('o-nome').value=p.nome||''; document.getElementById('o-forn').value=p.fornecedor||''; document.getElementById('o-cliente').value=p.cliente||''; document.getElementById('o-etapa').value=p.etapa||0; document.getElementById('o-valor').value=p.valor||''; if(document.getElementById('o-obs')) document.getElementById('o-obs').value=p.obs||''; window.toggleDateFields(); if(p.dataFaturamento) document.getElementById('o-fat').value=toInputDate(p.dataFaturamento); if(p.dataAgendamento) document.getElementById('o-agd').value=toInputDate(p.dataAgendamento); if(p.dataEmissao) document.getElementById('o-emissao').value=toInputDate(p.dataEmissao); pendingImageData=p.imagemBase64||null; if(p.imagemBase64){document.getElementById('o-img-preview').innerHTML=`<div style='margin-top:8px;display:flex;gap:6px'><div style='position:relative;width:72px;height:72px;border-radius:8px;overflow:hidden;border:0.5px solid rgba(0,178,122,0.28);cursor:pointer' onclick='abrirLightbox(this.querySelector("img").src)'><img src='${p.imagemBase64}' style='width:100%;height:100%;object-fit:cover'></div></div>`;} };
+window.openEditPedido=function(key){ const p=pedidos[key]; if(!p) return; editingPedKey=key; document.getElementById('modal-ped-title').textContent='Editar pedido'; document.getElementById('btn-save-ped').textContent='Salvar'; openModal('modal-pedido'); document.getElementById('o-nome').value=p.nome||''; document.getElementById('o-forn').value=p.fornecedor||''; document.getElementById('o-cliente').value=p.cliente||''; document.getElementById('o-etapa').value=p.etapa||0; document.getElementById('o-valor').value=p.valor||''; if(document.getElementById('o-obs')) document.getElementById('o-obs').value=p.obs||''; window.toggleDateFields(); if(p.dataFaturamento) document.getElementById('o-fat').value=toInputDate(p.dataFaturamento); if(p.dataAgendamento) document.getElementById('o-agd').value=toInputDate(p.dataAgendamento); if(p.dataEmissao) document.getElementById('o-emissao').value=toInputDate(p.dataEmissao); pendingImagens = p.imagens&&p.imagens.length ? [...p.imagens] : (p.imagemBase64 ? [p.imagemBase64] : []); renderImagensPreview(); };
 window.savePedido=function(){
   const nome=document.getElementById('o-nome').value.trim();
   const etapa=Number(document.getElementById('o-etapa').value);
-  const data={ nome, fornecedor:document.getElementById('o-forn').value, cliente:document.getElementById('o-cliente').value, etapa, valor:parseFloat(document.getElementById('o-valor').value)||0, obs:document.getElementById('o-obs')?document.getElementById('o-obs').value.trim():'', dataEmissao:document.getElementById('o-emissao').value||'', dataFaturamento:etapa>=1?document.getElementById('o-fat').value:'', dataAgendamento:etapa>=2?document.getElementById('o-agd').value:'', imagemBase64:pendingImageData||'', atualizadoEm:Date.now() };
+  const data={ nome, fornecedor:document.getElementById('o-forn').value, cliente:document.getElementById('o-cliente').value, etapa, valor:parseFloat(document.getElementById('o-valor').value)||0, obs:document.getElementById('o-obs')?document.getElementById('o-obs').value.trim():'', dataEmissao:document.getElementById('o-emissao').value||'', dataFaturamento:etapa>=1?document.getElementById('o-fat').value:'', dataAgendamento:etapa>=2?document.getElementById('o-agd').value:'', imagemBase64:pendingImagens&&pendingImagens.length?pendingImagens[0]:'', imagens:pendingImagens?[...pendingImagens]:[], atualizadoEm:Date.now() };
   if(editingPedKey){ update(ref(db,'pedidos/'+editingPedKey),data); }
   else { push(ref(db,'pedidos'),{...data,criadoEm:Date.now()}); addNotif(`📦 ${USERS[currentUser]?.label||currentUser} adicionou o pedido: "${nome||'Novo pedido'}"`); }
   window.closeModal('modal-pedido');
@@ -900,7 +901,7 @@ function renderPedidos(){
   if(!entries.length){ el.innerHTML='<div class="empty"><i class="ti ti-package"></i>Nenhum pedido encontrado.</div>'; }
   else { el.innerHTML=entries.map(([key,p])=>{
     const isOpen=openedPedidoKey===key;
-    const temImg=p.imagemBase64&&p.imagemBase64.length>0;
+    const imgs=(p.imagens&&p.imagens.length)?p.imagens:(p.imagemBase64?[p.imagemBase64]:[]); const temImg=imgs.length>0;
     const detail=isOpen?`<div style="background:var(--surface-2);border-radius:8px;padding:12px 14px;margin-top:8px;border:0.5px solid rgba(0,178,122,0.28)">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
         ${p.valor?`<div><div style="font-size:12px;color:var(--text-3);text-transform:uppercase;margin-bottom:2px">Valor</div><div style="font-size:16px;font-weight:500">${fmtVal(p.valor)}</div></div>`:''}
@@ -909,7 +910,7 @@ function renderPedidos(){
         ${p.dataAgendamento?`<div><div style="font-size:12px;color:var(--text-3);text-transform:uppercase;margin-bottom:2px">Agendamento</div><div style="font-size:14px">${fmtDate(p.dataAgendamento)}</div></div>`:''}
       </div>
       ${p.obs?`<div style="background:var(--surface);border-left:2px solid var(--accent);border-radius:8px;padding:8px 10px;font-size:14px;color:var(--text-2);margin-bottom:8px">📝 ${p.obs}</div>`:''}
-      ${temImg?`<div style="font-size:12px;color:var(--text-3);text-transform:uppercase;margin-bottom:8px">📎 Imagem anexada — clique para ampliar</div><div style="display:flex;gap:6px"><div style="width:150px;height:150px;border-radius:10px;overflow:hidden;border:1.5px solid rgba(0,178,122,0.5);cursor:zoom-in;" title="Clique para ampliar" onclick="event.stopPropagation();abrirLightbox('${p.imagemBase64}')"><img src="${p.imagemBase64}" style="width:100%;height:100%;object-fit:cover"></div></div>`:''}
+      ${temImg?`<div style="font-size:12px;color:var(--text-3);text-transform:uppercase;margin-bottom:8px">📎 ${imgs.length} imagem(ns) anexada(s) — clique para ampliar</div><div style="display:flex;gap:8px;flex-wrap:wrap">${imgs.map((src,i)=>`<div style="width:130px;height:130px;border-radius:10px;overflow:hidden;border:1.5px solid rgba(0,178,122,0.5);cursor:zoom-in;" title="Clique para ampliar" onclick="event.stopPropagation();abrirLightbox('${src}')"><img src="${src}" style="width:100%;height:100%;object-fit:cover"></div>`).join('')}</div>`:''}
     </div>`:'';
     return `<div class="order-item" onclick="togglePedidoDetail('${key}')" style="cursor:pointer">
       <div class="order-top">
@@ -1097,8 +1098,36 @@ window.fecharLightbox = function(){ document.getElementById('lightbox').style.di
 
 // Imagem upload
 let pendingImageData = null;
-window.handleImageUpload = function(e){ const file=e.target.files[0]; if(!file) return; const reader=new FileReader(); reader.onload=ev=>{ pendingImageData=ev.target.result; const prev=document.getElementById('o-img-preview'); prev.innerHTML=`<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap"><div style="position:relative;width:72px;height:72px;border-radius:8px;overflow:hidden;border:0.5px solid rgba(0,178,122,0.28);cursor:pointer" onclick="abrirLightbox('${pendingImageData}')"><img src="${pendingImageData}" style="width:100%;height:100%;object-fit:cover"><button onclick="event.stopPropagation();removerImagem()" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.6);border:none;border-radius:50%;width:16px;height:16px;color:#fff;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button></div></div>`; }; reader.readAsDataURL(file); };
-window.removerImagem = function(){ pendingImageData=null; document.getElementById('o-img-preview').innerHTML=''; document.getElementById('o-img-input').value=''; };
+window.handleImageUpload = function(e){
+  const files = Array.from(e.target.files);
+  if(!files.length) return;
+  let loaded = 0;
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+      pendingImagens.push(ev.target.result);
+      loaded++;
+      if(loaded === files.length) renderImagensPreview();
+    };
+    reader.readAsDataURL(file);
+  });
+  document.getElementById('o-img-input').value='';
+};
+
+function renderImagensPreview(){
+  const prev = document.getElementById('o-img-preview');
+  if(!prev) return;
+  if(!pendingImagens.length){ prev.innerHTML=''; return; }
+  prev.innerHTML = '<div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">' +
+    pendingImagens.map((src,i) => `<div style="position:relative;width:72px;height:72px;border-radius:8px;overflow:hidden;border:0.5px solid rgba(0,178,122,0.28)">
+      <img src="${src}" style="width:100%;height:100%;object-fit:cover;cursor:zoom-in" onclick="abrirLightbox('${src}')">
+      <button onclick="removerImagem(${i})" style="position:absolute;top:2px;right:2px;background:rgba(0,0,0,0.6);border:none;border-radius:50%;width:18px;height:18px;color:#fff;font-size:11px;cursor:pointer;">✕</button>
+    </div>`).join('') + '</div>';
+}
+window.removerImagem = function(i){
+  if(pendingImagens) pendingImagens.splice(i,1);
+  renderImagensPreview();
+};
 
 // Inativos
 function calcInativos(){

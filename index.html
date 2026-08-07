@@ -1165,45 +1165,24 @@ function ignorarInativo(cliente, fornecedor){
 }
 window.ignorarInativo = ignorarInativo;
 
-function ignorarTodosInativos(){
-  if(!confirm('Dispensar todos os inativos da lista?')) return;
-  const lista = calcInativos();
-  lista.forEach(x => {
-    const key = x.cliente+'|||'+x.fornecedor;
-    if(!inativosIgnorados.includes(key)) inativosIgnorados.push(key);
-  });
-  localStorage.setItem('dfd_inativos_ignorados', JSON.stringify(inativosIgnorados));
-  renderInativos();
-  atualizarBadgeInativos();
-}
+// ignorarTodosInativos removido
 window.ignorarTodosInativos = ignorarTodosInativos;
 
-function restaurarInativos(){
-  if(!confirm('Restaurar todos os inativos dispensados?')) return;
-  inativosIgnorados = [];
-  localStorage.removeItem('dfd_inativos_ignorados');
-  renderInativos();
-  atualizarBadgeInativos();
-}
-window.restaurarInativos = restaurarInativos;
+// restaurarInativos removido
 
 function renderInativos(){
   const lista=calcInativos().filter(x=>!inativosIgnorados.includes(x.cliente+'|||'+x.fornecedor));
   const el=document.getElementById('lista-inativos');
   if(!el) return;
   if(!lista.length){
-    el.innerHTML=`<div class="empty"><i class="ti ti-circle-check" style="color:var(--green)"></i>Nenhum cliente inativo!<br>Todos compraram nos últimos 30 dias.</div>
-    ${inativosIgnorados.length?`<div style="margin-top:12px"><button onclick="restaurarInativos()" style="background:none;border:0.5px solid var(--border);border-radius:8px;padding:6px 12px;font-size:14px;color:var(--text-3);cursor:pointer;font-family:inherit">↩ Restaurar ${inativosIgnorados.length} dispensado(s)</button></div>`:''}`;
+    el.innerHTML=`<div class="empty"><i class="ti ti-circle-check" style="color:var(--green)"></i>Nenhum cliente inativo!<br>Todos compraram nos últimos 30 dias.</div>`;
     return;
   }
   const porCliente={};
   lista.forEach(x=>{ if(!porCliente[x.cliente]) porCliente[x.cliente]={cliente:x.cliente,itens:[]}; porCliente[x.cliente].itens.push(x); });
-  el.innerHTML=`<div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:12px;">
-    ${inativosIgnorados.length?`<button onclick="restaurarInativos()" style="background:none;border:0.5px solid var(--border);border-radius:8px;padding:5px 12px;font-size:14px;color:var(--text-3);cursor:pointer;font-family:inherit">↩ Restaurar (${inativosIgnorados.length})</button>`:''}
-    <button onclick="ignorarTodosInativos()" style="background:none;border:0.5px solid var(--border);border-radius:8px;padding:5px 12px;font-size:14px;color:var(--text-3);cursor:pointer;font-family:inherit">🗑 Dispensar todos</button>
-  </div>`+
+  el.innerHTML=
   Object.values(porCliente).map(g=>`
-    <div style="background:var(--surface);border:0.5px solid rgba(245,166,35,0.3);border-radius:12px;padding:14px 16px;margin-bottom:10px;">
+    <div data-cliente-key="${g.cliente}" style="background:var(--surface);border:0.5px solid rgba(245,166,35,0.3);border-radius:12px;padding:14px 16px;margin-bottom:10px;">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;">
         <div><div style="font-size:17px;font-weight:500">👤 ${g.cliente}</div><div style="font-size:13px;color:var(--text-2);margin-top:2px">${g.itens.length} representada(s) inativa(s)</div></div>
         <button class="add-btn" onclick="openNewPedido()">+ Novo pedido</button>
@@ -1239,7 +1218,7 @@ function gerarGraficoPedidos() {
   // Agrupa pedidos concluídos por mês/ano respeitando filtro de representada
   const dados = {};
   Object.values(pedidos)
-    .filter(p => p.etapa === 3 && (!filtroRep || p.fornecedor === filtroRep))
+    .filter(p => (!filtroRep || p.fornecedor === filtroRep))
     .forEach(p => {
       const mes = getMesFromPedido(p);
       const ano = getAnoFromPedido(p);

@@ -781,7 +781,7 @@ window.savePedido=function(){
   else { push(ref(db,'pedidos'),{...data,criadoEm:Date.now()}); addNotif(`📦 ${USERS[currentUser]?.label||currentUser} adicionou o pedido: "${nome||'Novo pedido'}"`); }
   window.closeModal('modal-pedido');
 };
-window.advancePedido=function(key,e){ if(e) e.stopPropagation(); const p=pedidos[key]; if(!p||p.etapa>=3) return; const upd={etapa:p.etapa+1,atualizadoEm:Date.now()}; if(p.etapa===0){const d=prompt('Data de faturamento (DD/MM/AAAA):'); upd.dataFaturamento=d||'';} if(p.etapa===1){const d=prompt('Data de agendamento (DD/MM/AAAA):'); upd.dataAgendamento=d||'';} update(ref(db,'pedidos/'+key),upd); };
+window.advancePedido=function(key,e){ if(e) e.stopPropagation(); const p=pedidos[key]; if(!p||p.etapa>=3) return; const upd={etapa:p.etapa+1,atualizadoEm:Date.now()}; if(p.etapa===0){const d=prompt('Data de faturamento (DD/MM/AAAA):'); upd.dataFaturamento=d||'';} if(p.etapa===1){const d=prompt('Data de agendamento (DD/MM/AAAA):'); upd.dataAgendamento=d||'';} if(p.etapa===2){ upd.dataConclusao=new Date().toISOString().slice(0,10); } update(ref(db,'pedidos/'+key),upd); };
 window.deletePedido=function(key,e){ if(e) e.stopPropagation(); if(!confirm('Remover este pedido?')) return; remove(ref(db,'pedidos/'+key)); if(openedPedidoKey===key) openedPedidoKey=null; };
 
 // ── NOTAS FISCAIS ──
@@ -1084,8 +1084,33 @@ setInterval(updateTime,30000);
 // ── FILTRO MÊS PEDIDOS ──
 const MESES_NOMES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 
-function getMesFromPedido(p){ const d=p.dataEmissao||p.dataFaturamento||''; if(!d) return ''; if(d.includes('-')) return d.slice(5,7); if(d.includes('/')) return d.split('/')[1]; return ''; }
-function getAnoFromPedido(p){ const d=p.dataEmissao||p.dataFaturamento||''; if(!d) return ''; if(d.includes('-')) return d.slice(0,4); if(d.includes('/')) return d.split('/')[2]; return ''; }
+function getMesFromPedido(p){
+  // Prioridade: dataFaturamento → dataConclusao → atualizadoEm (se concluído) → dataEmissao
+  const d=p.dataFaturamento||p.dataConclusao||p.dataEmissao||'';
+  if(d){
+    if(d.includes('-')) return d.slice(5,7);
+    if(d.includes('/')) return d.split('/')[1];
+  }
+  // Se não tem data mas está concluído, usa atualizadoEm ou criadoEm
+  if(p.etapa===3 && (p.atualizadoEm||p.criadoEm)){
+    const ts = p.atualizadoEm||p.criadoEm;
+    return String(new Date(ts).getMonth()+1).padStart(2,'0');
+  }
+  return '';
+}
+function getAnoFromPedido(p){
+  const d=p.dataFaturamento||p.dataConclusao||p.dataEmissao||'';
+  if(d){
+    if(d.includes('-')) return d.slice(0,4);
+    if(d.includes('/')) return d.split('/')[2];
+  }
+  // Se não tem data mas está concluído, usa atualizadoEm ou criadoEm
+  if(p.etapa===3 && (p.atualizadoEm||p.criadoEm)){
+    const ts = p.atualizadoEm||p.criadoEm;
+    return String(new Date(ts).getFullYear());
+  }
+  return '';
+}
 function fmtVal(v){ return 'R$ '+Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2}); }
 
 // Pedido clicável - detalhe

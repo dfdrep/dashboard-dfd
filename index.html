@@ -1157,15 +1157,20 @@ window.removerImagem = function(i){
 // Inativos
 function calcInativos(){
   const pares={};
-  const INICIO = new Date('2026-07-01').getTime(); // só conta pedidos a partir de julho/2026
+  const INICIO = new Date('2026-07-01').getTime();
   Object.values(pedidos).forEach(p=>{
     if(!p.cliente||!p.fornecedor) return;
     const key=`${p.cliente}|||${p.fornecedor}`;
-    const data=p.dataEmissao||p.dataFaturamento||p.dataAgendamento||'';
     let ts=0;
-    if(data){ try{ const iso=data.includes('-')?data:`${data.split('/')[2]}-${data.split('/')[1]}-${data.split('/')[0]}`; ts=new Date(iso).getTime(); }catch(e){} }
-    if(ts < INICIO) return; // ignora pedidos anteriores a julho/2026
-    if(!pares[key]||ts>pares[key].ts) pares[key]={cliente:p.cliente,fornecedor:p.fornecedor,ts,data};
+    // Prioridade: atualizadoEm (quando foi marcado entregue) → data de emissão
+    if(p.etapa===3 && p.atualizadoEm){
+      ts = p.atualizadoEm;
+    } else {
+      const data=p.dataEmissao||p.dataFaturamento||p.dataAgendamento||'';
+      if(data){ try{ const iso=data.includes('-')?data:`${data.split('/')[2]}-${data.split('/')[1]}-${data.split('/')[0]}`; ts=new Date(iso).getTime(); }catch(e){} }
+    }
+    if(ts < INICIO) return;
+    if(!pares[key]||ts>pares[key].ts) pares[key]={cliente:p.cliente,fornecedor:p.fornecedor,ts};
   });
   const agora=Date.now(), resultado=[];
   Object.values(pares).forEach(par=>{ if(!par.ts) return; const dias=Math.floor((agora-par.ts)/(1000*60*60*24)); if(dias>=30) resultado.push({...par,dias}); });
@@ -1185,8 +1190,21 @@ function ignorarInativo(cliente, fornecedor){
   const key = cliente+'|||'+fornecedor;
   if(!inativosIgnorados.includes(key)) inativosIgnorados.push(key);
   localStorage.setItem('dfd_inativos_ignorados', JSON.stringify(inativosIgnorados));
-  renderInativos();
+  // Remove instantaneamente do DOM
+  const el = document.getElementById('lista-inativos');
+  if(el){
+    // Remove linha específica do fornecedor
+    const rows = el.querySelectorAll('[data-inativo="'+key+'"]');
+    rows.forEach(r => {
+      const card = r.closest('[data-cliente-key]');
+      r.remove();
+      // Se o card ficou vazio (sem linhas de fornecedor), remove o card inteiro
+      if(card && card.querySelectorAll('[data-inativo]').length === 0) card.remove();
+    });
+  }
   atualizarBadgeInativos();
+  // Re-render para garantir consistência
+  setTimeout(renderInativos, 100);
 }
 window.ignorarInativo = ignorarInativo;
 
@@ -1212,7 +1230,7 @@ function renderInativos(){
         <button class="add-btn" onclick="openNewPedido()">+ Novo pedido</button>
       </div>
       ${g.itens.map(x=>`
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:var(--surface-2);border-radius:8px;margin-bottom:5px;font-size:14px;border:0.5px solid var(--border)">
+        <div data-inativo="${x.cliente}|||${x.fornecedor}" style="display:flex;align-items:center;justify-content:space-between;padding:7px 10px;background:var(--surface-2);border-radius:8px;margin-bottom:5px;font-size:14px;border:0.5px solid var(--border)">
           <span>🏭 <strong>${x.fornecedor}</strong> — sem compra há <strong style="color:var(--red)">${x.dias} dias</strong></span>
           <div style="display:flex;align-items:center;gap:6px">
             <span style="background:var(--red-bg);color:var(--red);font-size:13px;font-weight:600;padding:2px 8px;border-radius:99px">${x.dias}d</span>

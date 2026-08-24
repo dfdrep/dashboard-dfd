@@ -670,8 +670,10 @@ onValue(ref(db,'notas'),      snap=>{ notas=snap.val()||{};      renderNotas(); 
 onValue(ref(db,'notificacoes'), snap=>{ notificacoes=snap.val()||{}; renderNotifs(); });
 
 // ── NOTIFICAÇÕES ──
-function addNotif(texto) {
-  push(ref(db,'notificacoes'), { texto, ts: Date.now(), lido: {} });
+function addNotif(texto, pedidoKey) {
+  const data = { texto, ts: Date.now(), lido: {} };
+  if(pedidoKey) data.pedidoKey = pedidoKey;
+  push(ref(db,'notificacoes'), data);
 }
 function renderNotifs() {
   const sec = document.getElementById('notif-section');
@@ -690,13 +692,13 @@ function renderNotifs() {
     </div>
     <div class="notif-list">
       ${visiveis.map(([k,n])=>`
-        <div class="notif-item new">
+        <div class="notif-item new ${n.pedidoKey?'notif-clickable':''}" ${n.pedidoKey?`onclick="irParaPedido('${n.pedidoKey}','${k}')" title="Ver pedido"`:''}  style="${n.pedidoKey?'cursor:pointer;':''}" >
           <div class="notif-dot"></div>
           <div class="notif-body">
             <div class="notif-text">${n.texto}</div>
-            <div class="notif-time">${fmtTs(n.ts)}</div>
+            <div class="notif-time">${fmtTs(n.ts)}${n.pedidoKey?' · <span style="color:var(--accent-2);font-size:11px">Toque para ver o pedido →</span>':''}</div>
           </div>
-          <button class="notif-del" onclick="dismissNotif('${k}')" title="Dispensar"><i class="ti ti-x"></i></button>
+          <button class="notif-del" onclick="event.stopPropagation();dismissNotif('${k}')" title="Dispensar"><i class="ti ti-x"></i></button>
         </div>
       `).join('')}
     </div>
@@ -716,6 +718,24 @@ window.clearAllNotifs = function() {
     update(ref(db, 'notificacoes/' + k + '/lido'), { [currentUser]: true });
   });
 };
+function irParaPedido(pedidoKey, notifKey) {
+  // Marca notificação como lida
+  if(notifKey && currentUser) update(ref(db, 'notificacoes/' + notifKey + '/lido'), { [currentUser]: true });
+  // Vai para aba de pedidos
+  switchTab('tab-pedidos');
+  // Aguarda render e destaca o pedido
+  setTimeout(() => {
+    const el = document.getElementById('ped-' + pedidoKey);
+    if(el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el.style.transition = 'box-shadow 0.3s';
+      el.style.boxShadow = '0 0 0 2px var(--accent-2)';
+      setTimeout(() => { el.style.boxShadow = ''; }, 2500);
+    }
+  }, 300);
+}
+window.irParaPedido = irParaPedido;
+
 function fmtTs(ts) {
   if(!ts) return '';
   const d=new Date(ts);
@@ -778,7 +798,7 @@ window.savePedido=function(){
   const etapa=Number(document.getElementById('o-etapa').value);
   const data={ nome, fornecedor:document.getElementById('o-forn').value, cliente:document.getElementById('o-cliente').value, etapa, valor:parseFloat(document.getElementById('o-valor').value)||0, obs:document.getElementById('o-obs')?document.getElementById('o-obs').value.trim():'', dataEmissao:document.getElementById('o-emissao').value||'', dataFaturamento:etapa>=1?document.getElementById('o-fat').value:'', dataAgendamento:etapa>=2?document.getElementById('o-agd').value:'', imagemBase64:pendingImagens&&pendingImagens.length?pendingImagens[0]:'', imagens:pendingImagens?[...pendingImagens]:[], atualizadoEm:Date.now() };
   if(editingPedKey){ update(ref(db,'pedidos/'+editingPedKey),data); }
-  else { push(ref(db,'pedidos'),{...data,criadoEm:Date.now()}); addNotif(`📦 ${USERS[currentUser]?.label||currentUser} adicionou o pedido: "${nome||'Novo pedido'}"`); }
+  else { const newPedRef = push(ref(db,'pedidos'),{...data,criadoEm:Date.now()}); addNotif(`📦 ${USERS[currentUser]?.label||currentUser} adicionou o pedido: "${nome||'Novo pedido'}"`, newPedRef.key); }
   window.closeModal('modal-pedido');
 };
 window.advancePedido=function(key,e){ if(e) e.stopPropagation(); const p=pedidos[key]; if(!p||p.etapa>=3) return; const upd={etapa:p.etapa+1,atualizadoEm:Date.now()}; if(p.etapa===0){const d=prompt('Data de faturamento (DD/MM/AAAA):'); upd.dataFaturamento=d||'';} if(p.etapa===1){const d=prompt('Data de agendamento (DD/MM/AAAA):'); upd.dataAgendamento=d||'';} if(p.etapa===2){ upd.dataConclusao=new Date().toISOString().slice(0,10); } update(ref(db,'pedidos/'+key),upd); };
@@ -912,14 +932,14 @@ function renderPedidos(){
       ${p.obs?`<div style="background:var(--surface);border-left:2px solid var(--accent);border-radius:8px;padding:8px 10px;font-size:14px;color:var(--text-2);margin-bottom:8px">📝 ${p.obs}</div>`:''}
       ${temImg?`<div style="font-size:12px;color:var(--text-3);text-transform:uppercase;margin-bottom:8px">📎 ${imgs.length} imagem(ns) anexada(s) — clique para ampliar</div><div style="display:flex;gap:8px;flex-wrap:wrap">${imgs.map((src,i)=>`<div style="width:130px;height:130px;border-radius:10px;overflow:hidden;border:1.5px solid rgba(0,178,122,0.5);cursor:zoom-in;" title="Clique para ampliar" onclick="event.stopPropagation();abrirLightbox('${src}')"><img src="${src}" style="width:100%;height:100%;object-fit:cover"></div>`).join('')}</div>`:''}
     </div>`:'';
-    return `<div class="order-item" onclick="togglePedidoDetail('${key}')" style="cursor:pointer">
+    return `<div class="order-item" id="ped-${key}" onclick="togglePedidoDetail('${key}')" style="cursor:pointer">
       <div class="order-top">
         <div><div class="order-name">${p.nome||'Sem nome'}${temImg?' 📷':''}</div>
           <div class="order-meta">${p.fornecedor?`<i class="ti ti-building-store" style="font-size:13px"></i> ${p.fornecedor}`:''}${p.fornecedor&&p.cliente?'<span class="dot"></span>':''}${p.cliente?`<i class="ti ti-users" style="font-size:13px"></i> ${p.cliente}`:''}</div>
         </div>
         <div class="order-actions">${etapaBadge(p.etapa||0)}<button class="icon-btn" onclick="event.stopPropagation();openEditPedido('${key}')"><i class="ti ti-edit"></i></button><button class="icon-btn del" onclick="deletePedido('${key}',event)"><i class="ti ti-trash"></i></button></div>
       </div>
-      <div class="info-row">${p.dataEmissao?`<div class="chip" style="background:rgba(90,90,90,0.25);color:#c0c0c0"><i class="ti ti-file-text"></i> Emitido em: ${fmtDate(p.dataEmissao)}</div>`:''} ${p.dataFaturamento?`<div class="chip chip-green"><i class="ti ti-receipt"></i> Faturado em: ${fmtDate(p.dataFaturamento)}</div>`:(p.etapa===0?'<div class="chip chip-red"><i class="ti ti-receipt-off"></i> Faturamento pendente</div>':'')}${p.dataAgendamento?`<div class="chip chip-blue"><i class="ti ti-calendar-event"></i> Agendado para: ${fmtDate(p.dataAgendamento)}</div>`:''}</div>
+      <div class="info-row">${p.dataEmissao?`<div class="chip" style="background:rgba(90,90,90,0.25);color:#c0c0c0"><i class="ti ti-file-text"></i> Emitido em: ${fmtDate(p.dataEmissao)}</div>`:''} ${p.dataFaturamento?`<div class="chip chip-green"><i class="ti ti-receipt"></i> Faturado em: ${fmtDate(p.dataFaturamento)}</div>`:(p.etapa===0?'<div class="chip chip-red"><i class="ti ti-receipt-off"></i> Faturamento pendente</div>':'')}${p.dataAgendamento?`<div class="chip chip-blue"><i class="ti ti-calendar-event"></i> Agendado para: ${fmtDate(p.dataAgendamento)}</div>`:''}${p.etapa===3&&p.atualizadoEm?`<div class="chip" style="background:rgba(0,178,122,0.15);color:var(--green)"><i class="ti ti-check"></i> Entregue em: ${fmtTs(p.atualizadoEm)}</div>`:''}</div>
       <div class="steps">${[0,1,2,3].map(i=>`<div class="step ${stepCls(i,p.etapa||0)}"></div>`).join('')}</div>
       <div class="steps-labels">${['Faturamento','Agendamento','Agendado','Entregue'].map((l,i)=>`<div class="step-lbl ${i<(p.etapa||0)?'done-lbl':i===(p.etapa||0)?'active':''}">${l}</div>`).join('')}</div>
       <div class="order-footer"><div class="step-next">${(p.etapa||0)<3?'Próximo: '+ETAPA_LABELS[(p.etapa||0)+1]:'✓ Concluído'}</div>${(p.etapa||0)<3?`<button class="advance-btn" onclick="advancePedido('${key}',event)">Avançar →</button>`:''}</div>
@@ -1031,7 +1051,7 @@ function getEventsForDay(y,m,d) {
     const emi=p.dataEmissao;
     if(emi&&(emi===isoStr||emi===dateStr)) events.push({type:'emissao',label:'Emissão do pedido',name:p.nome||'Sem nome',meta:p.fornecedor||'',color:'#9a9a9a'});
     if(fat&&(fat===isoStr||fat===dateStr)) events.push({type:'faturamento',label:'Faturamento',name:p.nome||'Sem nome',meta:p.fornecedor||'',color:'var(--blue)'});
-    if(agd&&(agd===isoStr||agd===dateStr)) events.push({type:'agendamento',label:'Agendamento',name:p.nome||'Sem nome',meta:p.cliente||'',color:'var(--green)'});
+    if(agd&&(agd===isoStr||agd===dateStr)) events.push({type:'agendamento',label:'Agendamento',name:p.nome||'Sem nome',meta:[p.cliente,p.fornecedor].filter(Boolean).join(' · '),color:'var(--green)'});
   });
   return events;
 }

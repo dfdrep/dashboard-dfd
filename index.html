@@ -722,7 +722,7 @@ function irParaPedido(pedidoKey, notifKey) {
   // Marca notificação como lida
   if(notifKey && currentUser) update(ref(db, 'notificacoes/' + notifKey + '/lido'), { [currentUser]: true });
   // Vai para aba de pedidos
-  switchTab('tab-pedidos');
+  switchTab('pedidos');
   // Aguarda render e destaca o pedido
   setTimeout(() => {
     const el = document.getElementById('ped-' + pedidoKey);

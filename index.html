@@ -464,7 +464,7 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
       <div class="form-group"><label>Cliente / Atacadista</label><select id="p-cliente"><option value="">— Selecione —</option></select></div>
     </div>
     <div class="form-row">
-      <div class="form-group"><label>Prazo</label><input type="text" id="p-prazo" placeholder="Ex: Hoje, Amanhã" /></div>
+      <div class="form-group"><label>Prazo</label><input type="date" id="p-prazo" /></div>
       <div class="form-group"><label>Responsável</label><input type="text" id="p-resp" placeholder="Nome (opcional)" /></div>
     </div>
     <div class="form-group"><label>Prioridade</label>
@@ -778,7 +778,7 @@ window.openNewPendencia=function(){ editingPendKey=null; document.getElementById
 window.openEditPendencia=function(key){ const p=pendencias[key]; if(!p) return; editingPendKey=key; document.getElementById('modal-pend-title').textContent='Editar pendência'; document.getElementById('btn-save-pend').textContent='Salvar'; openModal('modal-pendencia'); document.getElementById('p-titulo').value=p.titulo||''; document.getElementById('p-forn').value=p.fornecedor||''; document.getElementById('p-cliente').value=p.cliente||''; document.getElementById('p-prazo').value=p.prazo||''; document.getElementById('p-resp').value=p.responsavel||''; document.getElementById('p-prio').value=p.prioridade||'med'; };
 window.savePendencia=function(){
   const titulo=document.getElementById('p-titulo').value.trim();
-  const data={ titulo, fornecedor:document.getElementById('p-forn').value, cliente:document.getElementById('p-cliente').value, prazo:document.getElementById('p-prazo').value.trim()||'Sem prazo', responsavel:document.getElementById('p-resp').value.trim(), prioridade:document.getElementById('p-prio').value };
+  const data={ titulo, fornecedor:document.getElementById('p-forn').value, cliente:document.getElementById('p-cliente').value, prazo:document.getElementById('p-prazo').value||'', responsavel:document.getElementById('p-resp').value.trim(), prioridade:document.getElementById('p-prio').value };
   if(editingPendKey){ update(ref(db,'pendencias/'+editingPendKey),data); }
   else { 
     push(ref(db,'pendencias'),{...data,done:false,criadoEm:Date.now()}); 
@@ -1043,7 +1043,7 @@ function getEventsForDay(y,m,d) {
   const isoStr=`${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
 
   Object.values(pendencias).forEach(p=>{
-    if(p.prazo&&(p.prazo===dateStr||p.prazo.toLowerCase().includes(isoStr)))
+    if(p.prazo&&(p.prazo===isoStr||p.prazo===dateStr))
       events.push({type:'pendencia',label:'Pendência',name:p.titulo||'Sem título',meta:p.prioridade==='high'?'Urgente':p.prioridade==='med'?'Média':'Baixa',color:'var(--amber)'});
   });
   Object.values(pedidos).forEach(p=>{

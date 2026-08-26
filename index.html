@@ -1049,8 +1049,8 @@ function getEventsForDay(y,m,d) {
   Object.values(pedidos).forEach(p=>{
     const fat=p.dataFaturamento; const agd=p.dataAgendamento;
     const emi=p.dataEmissao;
-    if(emi&&(emi===isoStr||emi===dateStr)) events.push({type:'emissao',label:'Emissão do pedido',name:p.nome||'Sem nome',meta:p.fornecedor||'',color:'#9a9a9a'});
-    if(fat&&(fat===isoStr||fat===dateStr)) events.push({type:'faturamento',label:'Faturamento',name:p.nome||'Sem nome',meta:p.fornecedor||'',color:'var(--blue)'});
+    if(emi&&(emi===isoStr||emi===dateStr)) events.push({type:'emissao',label:'Emissão do pedido',name:p.nome||'Sem nome',meta:[p.cliente,p.fornecedor].filter(Boolean).join(' · '),color:'#9a9a9a'});
+    if(fat&&(fat===isoStr||fat===dateStr)) events.push({type:'faturamento',label:'Faturamento',name:p.nome||'Sem nome',meta:[p.cliente,p.fornecedor].filter(Boolean).join(' · '),color:'var(--blue)'});
     if(agd&&(agd===isoStr||agd===dateStr)) events.push({type:'agendamento',label:'Agendamento',name:p.nome||'Sem nome',meta:[p.cliente,p.fornecedor].filter(Boolean).join(' · '),color:'var(--green)'});
   });
   return events;

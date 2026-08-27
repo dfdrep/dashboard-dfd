@@ -644,8 +644,8 @@ window.doLogout = function() {
   document.getElementById('remember-me').checked = false;
 };
 
-const FORNECEDORES = ['Agroindústria Real','Asa','Fugini Alimentos','Gaboardi','Global','Globopack','Godinho','Infinity','JPS','Master','Mundial','Nossa Distribuidora','Oderich','RTL','Superglobo','Tradição Real'];
-const CLIENTES = ['Asa','Atacaforte','Estampa','Flex','G10','Global','Godinho','Hiper Opa','Infinity','JM','JPS','Master','MegaMinas','Multimix','Mundial','Nossa Distribuidora','Real','RTL','Somamix','Única','Upside'];
+const FORNECEDORES = ['Agroindústria Real','Asa','Atakaforte','Max Atacado Brasil','Fugini Alimentos','Gaboardi','Global','Globopack','Godinho','Infinity','JPS','Master','Mundial','Nossa Distribuidora','Oderich','RTL','Superglobo','Tradição Real'];
+const CLIENTES = ['Asa','Atakaforte','Esthampa','Flex','G10','Global','Godinho','Hiper Opa','Infinity','JM','JPS','Master','MegaMinas','Multimix','Mundial','Nossa Distribuidora','Real','RTL','Somamix','Única','Upside'];
 const ETAPA_LABELS = ['Não faturado','Precisa agendar','Foi agendado','Foi entregue'];
 const PRIO_ORDER = { high:0, med:1, low:2 };
 
@@ -665,7 +665,7 @@ onValue(ref(db,'.info/connected'), snap=>{
   txt.textContent=online?'Sincronizado em tempo real':'Reconectando...';
 });
 onValue(ref(db,'pendencias'), snap=>{ pendencias=snap.val()||{}; renderPendencias(); renderCalendar(); });
-onValue(ref(db,'pedidos'),    snap=>{ pedidos=snap.val()||{};    renderPedidos();   renderCalendar(); renderInativos(); atualizarBadgeInativos(); });
+onValue(ref(db,'pedidos'),    snap=>{ pedidos=snap.val()||{};    renderPedidos();   renderCalendar(); renderInativos(); atualizarBadgeInativos(); migrarNomes(); });
 onValue(ref(db,'notas'),      snap=>{ notas=snap.val()||{};      renderNotas(); });
 onValue(ref(db,'notificacoes'), snap=>{ notificacoes=snap.val()||{}; renderNotifs(); });
 
@@ -1258,6 +1258,29 @@ function renderInativos(){
           </div>
         </div>`).join('')}
     </div>`).join('');
+}
+
+// ── MIGRAÇÃO DE NOMES ──
+// Corrige registros antigos com nomes desatualizados
+function migrarNomes() {
+  const renomearCliente = { 'Atacaforte': 'Atakaforte', 'Estampa': 'Esthampa' };
+  const renomearFornecedor = { 'Estampa': 'Esthampa' };
+
+  // Migra pedidos
+  Object.entries(pedidos).forEach(([key, p]) => {
+    const upd = {};
+    if(p.cliente && renomearCliente[p.cliente]) upd.cliente = renomearCliente[p.cliente];
+    if(p.fornecedor && renomearFornecedor[p.fornecedor]) upd.fornecedor = renomearFornecedor[p.fornecedor];
+    if(Object.keys(upd).length) update(ref(db, 'pedidos/' + key), upd);
+  });
+
+  // Migra pendências
+  Object.entries(pendencias).forEach(([key, p]) => {
+    const upd = {};
+    if(p.cliente && renomearCliente[p.cliente]) upd.cliente = renomearCliente[p.cliente];
+    if(p.fornecedor && renomearFornecedor[p.fornecedor]) upd.fornecedor = renomearFornecedor[p.fornecedor];
+    if(Object.keys(upd).length) update(ref(db, 'pendencias/' + key), upd);
+  });
 }
 
 // Wire up buttons

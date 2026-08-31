@@ -1210,21 +1210,18 @@ function ignorarInativo(cliente, fornecedor){
   const key = cliente+'|||'+fornecedor;
   if(!inativosIgnorados.includes(key)) inativosIgnorados.push(key);
   localStorage.setItem('dfd_inativos_ignorados', JSON.stringify(inativosIgnorados));
-  // Remove instantaneamente do DOM
+  // Remove instantaneamente do DOM — busca por todos os [data-inativo] e compara o valor
   const el = document.getElementById('lista-inativos');
   if(el){
-    // Remove linha específica do fornecedor
-    const rows = el.querySelectorAll('[data-inativo="'+key+'"]');
-    rows.forEach(r => {
-      const card = r.closest('[data-cliente-key]');
-      r.remove();
-      // Se o card ficou vazio (sem linhas de fornecedor), remove o card inteiro
-      if(card && card.querySelectorAll('[data-inativo]').length === 0) card.remove();
+    el.querySelectorAll('[data-inativo]').forEach(r => {
+      if(r.getAttribute('data-inativo') === key){
+        const card = r.closest('[data-cliente-key]');
+        r.remove();
+        if(card && card.querySelectorAll('[data-inativo]').length === 0) card.remove();
+      }
     });
   }
   atualizarBadgeInativos();
-  // Re-render para garantir consistência
-  setTimeout(renderInativos, 100);
 }
 window.ignorarInativo = ignorarInativo;
 
@@ -1486,26 +1483,4 @@ function checarNotificacoes() {
     ultimoCheckAtrasados = agora;
     const hoje = new Date().toISOString().slice(0,10);
     Object.entries(pedidos).forEach(([key, p]) => {
-      if(!p.dataAgendamento || ['Foi entregue'].includes(ETAPA_LABELS[p.etapa])) return;
-      const previsao = p.dataAgendamento.includes('-') ? p.dataAgendamento : `${p.dataAgendamento.split('/')[2]}-${p.dataAgendamento.split('/')[1]}-${p.dataAgendamento.split('/')[0]}`;
-      if(previsao < hoje && !atrasadosJaNotificados.includes(key)) {
-        atrasadosJaNotificados.push(key);
-        localStorage.setItem('dfd_notif_atrasados', JSON.stringify(atrasadosJaNotificados));
-        enviarNotif(
-          '📦 Pedido atrasado',
-          `${p.nome||'Pedido'} — ${p.fornecedor||''} está com entrega atrasada`,
-          '📦'
-        );
-      }
-    });
-    // Remove pedidos já entregues da lista
-    atrasadosJaNotificados = atrasadosJaNotificados.filter(k => pedidos[k] && ETAPA_LABELS[pedidos[k].etapa] !== 'Foi entregue');
-    localStorage.setItem('dfd_notif_atrasados', JSON.stringify(atrasadosJaNotificados));
-  }
-}
-
-// Notificações iniciadas dentro de startSession
-
-</script>
-</body>
-</html>
+      if(!p.dataAgendamento || ['Foi entregue'].includes(ETAPA_LABELS[p.etapa])) 

@@ -1260,24 +1260,26 @@ function renderInativos(){
 // ── MIGRAÇÃO DE NOMES ──
 // Corrige registros antigos com nomes desatualizados
 function migrarNomes() {
-  const renomearCliente = { 'Atacaforte': 'Atakaforte', 'Estampa': 'Esthampa' };
-  const renomearFornecedor = { 'Estampa': 'Esthampa' };
-
-  // Migra pedidos
-  Object.entries(pedidos).forEach(([key, p]) => {
-    const upd = {};
-    if(p.cliente && renomearCliente[p.cliente]) upd.cliente = renomearCliente[p.cliente];
-    if(p.fornecedor && renomearFornecedor[p.fornecedor]) upd.fornecedor = renomearFornecedor[p.fornecedor];
-    if(Object.keys(upd).length) update(ref(db, 'pedidos/' + key), upd);
-  });
-
-  // Migra pendências
-  Object.entries(pendencias).forEach(([key, p]) => {
-    const upd = {};
-    if(p.cliente && renomearCliente[p.cliente]) upd.cliente = renomearCliente[p.cliente];
-    if(p.fornecedor && renomearFornecedor[p.fornecedor]) upd.fornecedor = renomearFornecedor[p.fornecedor];
-    if(Object.keys(upd).length) update(ref(db, 'pendencias/' + key), upd);
-  });
+  try {
+    const renomearCliente = { 'Atacaforte': 'Atakaforte', 'Estampa': 'Esthampa' };
+    const renomearFornecedor = { 'Estampa': 'Esthampa' };
+    if(pedidos && typeof pedidos === 'object') {
+      Object.entries(pedidos).forEach(([key, p]) => {
+        const upd = {};
+        if(p.cliente && renomearCliente[p.cliente]) upd.cliente = renomearCliente[p.cliente];
+        if(p.fornecedor && renomearFornecedor[p.fornecedor]) upd.fornecedor = renomearFornecedor[p.fornecedor];
+        if(Object.keys(upd).length) update(ref(db, 'pedidos/' + key), upd);
+      });
+    }
+    if(pendencias && typeof pendencias === 'object') {
+      Object.entries(pendencias).forEach(([key, p]) => {
+        const upd = {};
+        if(p.cliente && renomearCliente[p.cliente]) upd.cliente = renomearCliente[p.cliente];
+        if(p.fornecedor && renomearFornecedor[p.fornecedor]) upd.fornecedor = renomearFornecedor[p.fornecedor];
+        if(Object.keys(upd).length) update(ref(db, 'pendencias/' + key), upd);
+      });
+    }
+  } catch(e) { console.warn('migrarNomes:', e); }
 }
 
 // Wire up buttons
@@ -1483,4 +1485,26 @@ function checarNotificacoes() {
     ultimoCheckAtrasados = agora;
     const hoje = new Date().toISOString().slice(0,10);
     Object.entries(pedidos).forEach(([key, p]) => {
-      if(!p.dataAgendamento || ['Foi entregue'].includes(ETAPA_LABELS[p.etapa])) 
+      if(!p.dataAgendamento || ['Foi entregue'].includes(ETAPA_LABELS[p.etapa])) return;
+      const previsao = p.dataAgendamento.includes('-') ? p.dataAgendamento : `${p.dataAgendamento.split('/')[2]}-${p.dataAgendamento.split('/')[1]}-${p.dataAgendamento.split('/')[0]}`;
+      if(previsao < hoje && !atrasadosJaNotificados.includes(key)) {
+        atrasadosJaNotificados.push(key);
+        localStorage.setItem('dfd_notif_atrasados', JSON.stringify(atrasadosJaNotificados));
+        enviarNotif(
+          '📦 Pedido atrasado',
+          `${p.nome||'Pedido'} — ${p.fornecedor||''} está com entrega atrasada`,
+          '📦'
+        );
+      }
+    });
+    // Remove pedidos já entregues da lista
+    atrasadosJaNotificados = atrasadosJaNotificados.filter(k => pedidos[k] && ETAPA_LABELS[pedidos[k].etapa] !== 'Foi entregue');
+    localStorage.setItem('dfd_notif_atrasados', JSON.stringify(atrasadosJaNotificados));
+  }
+}
+
+// Notificações iniciadas dentro de startSession
+
+</script>
+</body>
+</html>

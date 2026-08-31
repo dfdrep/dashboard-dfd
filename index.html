@@ -1206,21 +1206,16 @@ function atualizarBadgeInativos(){
 // Inativos ignorados (por sessão)
 let inativosIgnorados = JSON.parse(localStorage.getItem('dfd_inativos_ignorados')||'[]');
 
-function ignorarInativo(cliente, fornecedor){
-  const key = cliente+'|||'+fornecedor;
+function ignorarInativo(btn){
+  const row = btn.closest('[data-inativo]');
+  if(!row) return;
+  const key = row.getAttribute('data-inativo');
+  if(!key) return;
   if(!inativosIgnorados.includes(key)) inativosIgnorados.push(key);
   localStorage.setItem('dfd_inativos_ignorados', JSON.stringify(inativosIgnorados));
-  // Remove instantaneamente do DOM — busca por todos os [data-inativo] e compara o valor
-  const el = document.getElementById('lista-inativos');
-  if(el){
-    el.querySelectorAll('[data-inativo]').forEach(r => {
-      if(r.getAttribute('data-inativo') === key){
-        const card = r.closest('[data-cliente-key]');
-        r.remove();
-        if(card && card.querySelectorAll('[data-inativo]').length === 0) card.remove();
-      }
-    });
-  }
+  const card = row.closest('[data-cliente-key]');
+  row.remove();
+  if(card && card.querySelectorAll('[data-inativo]').length === 0) card.remove();
   atualizarBadgeInativos();
 }
 window.ignorarInativo = ignorarInativo;
@@ -1251,7 +1246,7 @@ function renderInativos(){
           <span>🏭 <strong>${x.fornecedor}</strong> — sem compra há <strong style="color:var(--red)">${x.dias} dias</strong></span>
           <div style="display:flex;align-items:center;gap:6px">
             <span style="background:var(--red-bg);color:var(--red);font-size:13px;font-weight:600;padding:2px 8px;border-radius:99px">${x.dias}d</span>
-            <button onclick="ignorarInativo('${x.cliente.replace(/'/g,"\'")}','${x.fornecedor.replace(/'/g,"\'")}'')" title="Dispensar" style="background:none;border:0.5px solid var(--border);border-radius:6px;padding:3px 7px;cursor:pointer;color:var(--text-3);font-size:14px;font-family:inherit">✕</button>
+            <button onclick="ignorarInativo(this)" title="Dispensar" style="background:none;border:0.5px solid var(--border);border-radius:6px;padding:3px 7px;cursor:pointer;color:var(--text-3);font-size:14px;font-family:inherit">✕</button>
           </div>
         </div>`).join('')}
     </div>`).join('');

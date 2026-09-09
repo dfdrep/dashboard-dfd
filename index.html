@@ -226,6 +226,18 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
 .date-field.show { display:block; }
 .loading { text-align:center; padding:2rem 0; color:var(--text-3); font-size:16px; }
 </style>
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: "c4d5d452-85ac-4d0f-b2c5-bfaa7c89222a",
+        safari_web_id: "web.onesignal.auto.c4d5d452-85ac-4d0f-b2c5-bfaa7c89222a",
+        notifyButton: { enable: false },
+        allowLocalhostAsSecureOrigin: true,
+      });
+    });
+  </script>
 </head>
 <body>
 
@@ -580,6 +592,12 @@ function startSession(user) {
   document.getElementById('login-error').style.display = 'none';
   resetInactivityTimer();
   ['click','keydown','mousemove','touchstart'].forEach(e => document.addEventListener(e, resetInactivityTimer, {passive:true}));
+  // Registra usuário no OneSignal
+  if(window.OneSignalDeferred) {
+    OneSignalDeferred.push(async function(OneSignal) {
+      try { await OneSignal.login(user); } catch(e) {}
+    });
+  }
   // Inicia PWA notificações
   setTimeout(() => {
     solicitarPermissaoNotif();
@@ -1433,24 +1451,37 @@ if('serviceWorker' in navigator) {
 
 // Solicita permissão de notificação após login
 function solicitarPermissaoNotif() {
-  if('Notification' in window && Notification.permission === 'default') {
-    Notification.requestPermission().then(perm => {
-      if(perm === 'granted') {
-        enviarNotif('DFD Representações', 'Notificações ativadas! ✅', '📋');
-      }
+  // OneSignal cuida da permissão automaticamente
+  if(window.OneSignalDeferred) {
+    OneSignalDeferred.push(async function(OneSignal) {
+      try {
+        await OneSignal.Notifications.requestPermission();
+        // Define o usuário atual como External ID para segmentação
+        if(currentUser) {
+          await OneSignal.login(currentUser);
+        }
+      } catch(e) { console.log('OneSignal:', e); }
     });
   }
 }
 
 // Envia notificação
 function enviarNotif(titulo, corpo, icone) {
-  if(!('Notification' in window) || Notification.permission !== 'granted') return;
-  const options = { body: corpo, icon: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%232C2C2A'/%3E%3Ccircle cx='50' cy='50' r='30' fill='%2300B27A'/%3E%3C/svg%3E", badge: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%2300B27A'/%3E%3C/svg%3E", tag: titulo };
-  if(navigator.serviceWorker.controller) {
-    navigator.serviceWorker.ready.then(reg => reg.showNotification(titulo, options));
-  } else {
-    new Notification(titulo, options);
-  }
+  // Envia via OneSignal REST API para todos os usuários (exceto quem enviou)
+  const payload = {
+    app_id: "c4d5d452-85ac-4d0f-b2c5-bfaa7c89222a",
+    included_segments: ["All"],
+    headings: { en: titulo, pt: titulo },
+    contents: { en: corpo, pt: corpo },
+    filters: currentUser ? [
+      { field: "tag", key: "user_id", relation: "!=", value: currentUser }
+    ] : []
+  };
+  fetch("https://onesignal.com/api/v1/notifications", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  }).catch(e => console.log("OneSignal notif:", e));
 }
 
 // Checa inativos e pedidos atrasados — roda a cada 1 hora

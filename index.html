@@ -1479,7 +1479,10 @@ function enviarNotif(titulo, corpo, icone) {
   };
   fetch("https://onesignal.com/api/v1/notifications", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Key os_v2_app_ytk5iuufvrgq7mwfx6vhzcjcfjpuaozg2xmechmgkyuhcwp4hcmwqhpnunvsosse64b2oj5cfdaycjxh22mwdrjuyr5nwy45ez3aopy"
+    },
     body: JSON.stringify(payload)
   }).catch(e => console.log("OneSignal notif:", e));
 }

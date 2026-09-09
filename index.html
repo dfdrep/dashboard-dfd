@@ -539,7 +539,6 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
 import { getDatabase, ref, push, update, remove, onValue } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
-import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyD2wVhNsMBdlyXtXzkWAQlyS0uObJrKIYs",
@@ -552,12 +551,11 @@ const firebaseConfig = {
 };
 const app = initializeApp(firebaseConfig);
 const db  = getDatabase(app);
-const auth = getAuth(app);
 
 // ── USUÁRIOS ──
 const USERS = {
-  'breno':   { pass: 'dfd2026', label: 'Breno',   email: 'breno@dashboarddfd.com' },
-  'roberto': { pass: 'dfd2026', label: 'Roberto', email: 'roberto@dashboarddfd.com' }
+  'breno':   { pass: 'dfd2026', label: 'Breno' },
+  'roberto': { pass: 'dfd2026', label: 'Roberto' }
 };
 let currentUser = null;
 const INACTIVITY_LIMIT = 3 * 60 * 60 * 1000; // 3 horas
@@ -603,10 +601,7 @@ function startSession(user) {
       if(localStorage.getItem('dfd_remember') === '1') {
         document.getElementById('remember-me').checked = true;
       }
-      // Re-autentica no Firebase para garantir acesso ao banco
-      signInWithEmailAndPassword(auth, USERS[savedUser].email, USERS[savedUser].pass)
-        .then(() => { iniciarListeners(); startSession(savedUser); })
-        .catch(() => { iniciarListeners(); startSession(savedUser); });
+      iniciarListeners(); startSession(savedUser);
     } else {
       localStorage.removeItem('dfd_user');
       localStorage.removeItem('dfd_pass');
@@ -629,10 +624,7 @@ window.doLogin = function() {
       localStorage.setItem('dfd_pass', p);
       localStorage.removeItem('dfd_remember');
     }
-    // Autentica no Firebase Auth nos bastidores
-    signInWithEmailAndPassword(auth, USERS[u].email, USERS[u].pass)
-      .then(() => { iniciarListeners(); startSession(u); })
-      .catch(() => { iniciarListeners(); startSession(u); }); // Se Auth falhar, loga normalmente mesmo assim
+    iniciarListeners(); startSession(u); // Se Auth falhar, loga normalmente mesmo assim
   } else {
     document.getElementById('login-error').style.display = 'block';
   }
@@ -645,7 +637,6 @@ window.doLogout = function() {
   localStorage.removeItem('dfd_pass');
   localStorage.removeItem('dfd_last_activity');
   localStorage.removeItem('dfd_remember');
-  signOut(auth).catch(()=>{});
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('app-screen').style.display = 'none';
   document.getElementById('login-user').value = '';

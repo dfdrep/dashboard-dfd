@@ -603,7 +603,10 @@ function startSession(user) {
       if(localStorage.getItem('dfd_remember') === '1') {
         document.getElementById('remember-me').checked = true;
       }
-      startSession(savedUser);
+      // Re-autentica no Firebase para garantir acesso ao banco
+      signInWithEmailAndPassword(auth, USERS[savedUser].email, USERS[savedUser].pass)
+        .then(() => { iniciarListeners(); startSession(savedUser); })
+        .catch(() => { iniciarListeners(); startSession(savedUser); });
     } else {
       localStorage.removeItem('dfd_user');
       localStorage.removeItem('dfd_pass');
@@ -628,8 +631,8 @@ window.doLogin = function() {
     }
     // Autentica no Firebase Auth nos bastidores
     signInWithEmailAndPassword(auth, USERS[u].email, USERS[u].pass)
-      .then(() => startSession(u))
-      .catch(() => startSession(u)); // Se Auth falhar, loga normalmente mesmo assim
+      .then(() => { iniciarListeners(); startSession(u); })
+      .catch(() => { iniciarListeners(); startSession(u); }); // Se Auth falhar, loga normalmente mesmo assim
   } else {
     document.getElementById('login-error').style.display = 'block';
   }
@@ -670,17 +673,16 @@ onValue(ref(db,'.info/connected'), snap=>{
   dot.className='status-dot '+(online?'online':'');
   txt.textContent=online?'Sincronizado em tempo real':'Reconectando...';
 });
-// Só inicia listeners após Firebase Auth confirmar login
+// Listeners iniciados após login confirmado (ver iniciarListeners())
 let listenersAtivos = false;
-onAuthStateChanged(auth, (user) => {
-  if(user && !listenersAtivos) {
-    listenersAtivos = true;
-    onValue(ref(db,'pendencias'), snap=>{ pendencias=snap.val()||{}; renderPendencias(); renderCalendar(); });
-    onValue(ref(db,'pedidos'),    snap=>{ pedidos=snap.val()||{};    renderPedidos();   renderCalendar(); renderInativos(); atualizarBadgeInativos(); migrarNomes(); });
-    onValue(ref(db,'notas'),      snap=>{ notas=snap.val()||{};      renderNotas(); });
-    onValue(ref(db,'notificacoes'), snap=>{ notificacoes=snap.val()||{}; renderNotifs(); });
-  }
-});
+function iniciarListeners() {
+  if(listenersAtivos) return;
+  listenersAtivos = true;
+  onValue(ref(db,'pendencias'), snap=>{ pendencias=snap.val()||{}; renderPendencias(); renderCalendar(); });
+  onValue(ref(db,'pedidos'),    snap=>{ pedidos=snap.val()||{};    renderPedidos();   renderCalendar(); renderInativos(); atualizarBadgeInativos(); migrarNomes(); });
+  onValue(ref(db,'notas'),      snap=>{ notas=snap.val()||{};      renderNotas(); });
+  onValue(ref(db,'notificacoes'), snap=>{ notificacoes=snap.val()||{}; renderNotifs(); });
+}
 
 // ── NOTIFICAÇÕES ──
 function addNotif(texto, pedidoKey) {

@@ -588,6 +588,17 @@ function startSession(user) {
   setInterval(checarNotificacoes, 60*60*1000);
 }
 
+// Listeners iniciados após login confirmado (ver iniciarListeners())
+let listenersAtivos = false;
+function iniciarListeners() {
+  if(listenersAtivos) return;
+  listenersAtivos = true;
+  onValue(ref(db,'pendencias'), snap=>{ pendencias=snap.val()||{}; renderPendencias(); renderCalendar(); });
+  onValue(ref(db,'pedidos'),    snap=>{ pedidos=snap.val()||{};    renderPedidos();   renderCalendar(); renderInativos(); atualizarBadgeInativos(); migrarNomes(); });
+  onValue(ref(db,'notas'),      snap=>{ notas=snap.val()||{};      renderNotas(); });
+  onValue(ref(db,'notificacoes'), snap=>{ notificacoes=snap.val()||{}; renderNotifs(); });
+}
+
 // Verificar sessão salva ao carregar
 (function checkSavedSession() {
   const savedUser = localStorage.getItem('dfd_user');
@@ -664,16 +675,7 @@ onValue(ref(db,'.info/connected'), snap=>{
   dot.className='status-dot '+(online?'online':'');
   txt.textContent=online?'Sincronizado em tempo real':'Reconectando...';
 });
-// Listeners iniciados após login confirmado (ver iniciarListeners())
-let listenersAtivos = false;
-function iniciarListeners() {
-  if(listenersAtivos) return;
-  listenersAtivos = true;
-  onValue(ref(db,'pendencias'), snap=>{ pendencias=snap.val()||{}; renderPendencias(); renderCalendar(); });
-  onValue(ref(db,'pedidos'),    snap=>{ pedidos=snap.val()||{};    renderPedidos();   renderCalendar(); renderInativos(); atualizarBadgeInativos(); migrarNomes(); });
-  onValue(ref(db,'notas'),      snap=>{ notas=snap.val()||{};      renderNotas(); });
-  onValue(ref(db,'notificacoes'), snap=>{ notificacoes=snap.val()||{}; renderNotifs(); });
-}
+
 
 // ── NOTIFICAÇÕES ──
 function addNotif(texto, pedidoKey) {

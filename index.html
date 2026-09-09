@@ -539,6 +539,7 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
 import { getDatabase, ref, push, update, remove, onValue } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
+import { getAuth, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyD2wVhNsMBdlyXtXzkWAQlyS0uObJrKIYs",
@@ -551,11 +552,12 @@ const firebaseConfig = {
 };
 const app = initializeApp(firebaseConfig);
 const db  = getDatabase(app);
+const auth = getAuth(app);
 
 // ── USUÁRIOS ──
 const USERS = {
-  'breno':   { pass: 'dfd2026', label: 'Breno' },
-  'roberto': { pass: 'dfd2026', label: 'Roberto' }
+  'breno':   { pass: 'dfd2026', label: 'Breno',   email: 'breno@dashboarddfd.com' },
+  'roberto': { pass: 'dfd2026', label: 'Roberto', email: 'roberto@dashboarddfd.com' }
 };
 let currentUser = null;
 const INACTIVITY_LIMIT = 3 * 60 * 60 * 1000; // 3 horas
@@ -624,7 +626,10 @@ window.doLogin = function() {
       localStorage.setItem('dfd_pass', p);
       localStorage.removeItem('dfd_remember');
     }
-    startSession(u);
+    // Autentica no Firebase Auth nos bastidores
+    signInWithEmailAndPassword(auth, USERS[u].email, USERS[u].pass)
+      .then(() => startSession(u))
+      .catch(() => startSession(u)); // Se Auth falhar, loga normalmente mesmo assim
   } else {
     document.getElementById('login-error').style.display = 'block';
   }
@@ -637,6 +642,7 @@ window.doLogout = function() {
   localStorage.removeItem('dfd_pass');
   localStorage.removeItem('dfd_last_activity');
   localStorage.removeItem('dfd_remember');
+  signOut(auth).catch(()=>{});
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('app-screen').style.display = 'none';
   document.getElementById('login-user').value = '';

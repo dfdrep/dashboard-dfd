@@ -235,6 +235,8 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
         safari_web_id: "web.onesignal.auto.c4d5d452-85ac-4d0f-b2c5-bfaa7c89222a",
         notifyButton: { enable: false },
         allowLocalhostAsSecureOrigin: true,
+        serviceWorkerPath: "OneSignalSDKWorker.js",
+        serviceWorkerParam: { scope: "/dashboard-dfd/" },
       });
     });
   </script>
@@ -1459,6 +1461,7 @@ function solicitarPermissaoNotif() {
         // Define o usuário atual como External ID para segmentação
         if(currentUser) {
           await OneSignal.login(currentUser);
+          await OneSignal.User.addTag("user_id", currentUser);
         }
       } catch(e) { console.log('OneSignal:', e); }
     });

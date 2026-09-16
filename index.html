@@ -235,7 +235,7 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
         safari_web_id: "web.onesignal.auto.c4d5d452-85ac-4d0f-b2c5-bfaa7c89222a",
         notifyButton: { enable: false },
         allowLocalhostAsSecureOrigin: true,
-        serviceWorkerPath: "OneSignalSDKWorker.js",
+        serviceWorkerPath: "dashboard-dfd/OneSignalSDKWorker.js",
         serviceWorkerParam: { scope: "/dashboard-dfd/" },
       });
     });
@@ -1444,12 +1444,7 @@ document.getElementById('filtro-forn-nf').addEventListener('change', function(){
 document.getElementById('filtro-mes-nf').addEventListener('change',  function(){ gMesNF=this.value;  filterNF=null; renderNotas(); });
 
 // ── PWA + NOTIFICAÇÕES ──────────────────────────────────
-// Registra Service Worker
-if('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').then(reg => {
-    console.log('SW registrado:', reg.scope);
-  }).catch(err => console.log('SW erro:', err));
-}
+// (Service Worker de push é registrado automaticamente pelo próprio OneSignal acima)
 
 // Solicita permissão de notificação após login
 function solicitarPermissaoNotif() {

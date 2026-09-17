@@ -229,19 +229,51 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
   <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
   <script>
     window.OneSignalDeferred = window.OneSignalDeferred || [];
+    if(window.dfdDbg) window.dfdDbg('Script do OneSignal (CDN) carregado, entrando na fila de inicialização...');
     OneSignalDeferred.push(async function(OneSignal) {
-      await OneSignal.init({
-        appId: "c4d5d452-85ac-4d0f-b2c5-bfaa7c89222a",
-        safari_web_id: "web.onesignal.auto.c4d5d452-85ac-4d0f-b2c5-bfaa7c89222a",
-        notifyButton: { enable: false },
-        allowLocalhostAsSecureOrigin: true,
-        serviceWorkerPath: "dashboard-dfd/OneSignalSDKWorker.js",
-        serviceWorkerParam: { scope: "/dashboard-dfd/" },
-      });
+      if(window.dfdDbg) window.dfdDbg('OneSignalDeferred executando, chamando OneSignal.init()...');
+      try {
+        await OneSignal.init({
+          appId: "c4d5d452-85ac-4d0f-b2c5-bfaa7c89222a",
+          safari_web_id: "web.onesignal.auto.c4d5d452-85ac-4d0f-b2c5-bfaa7c89222a",
+          notifyButton: { enable: false },
+          allowLocalhostAsSecureOrigin: true,
+          serviceWorkerPath: "dashboard-dfd/OneSignalSDKWorker.js",
+          serviceWorkerParam: { scope: "/dashboard-dfd/" },
+        });
+        if(window.dfdDbg) window.dfdDbg('OneSignal.init() concluído com SUCESSO.');
+      } catch(initErr) {
+        if(window.dfdDbg) window.dfdDbg('ERRO no OneSignal.init(): ' + (initErr && initErr.message ? initErr.message : JSON.stringify(initErr)));
+      }
     });
   </script>
 </head>
 <body>
+<div id="dfd-debug-box" style="position:fixed;bottom:0;left:0;right:0;max-height:45vh;overflow:auto;background:#000;color:#0f0;font:11px monospace;padding:8px;z-index:999999;white-space:pre-wrap;display:none;"></div>
+<script>
+  (function(){
+    var params = new URLSearchParams(location.search);
+    var debugOn = params.get('debug') === '1';
+    var box = document.getElementById('dfd-debug-box');
+    if (debugOn) box.style.display = 'block';
+    window.dfdDbg = function(msg) {
+      console.log('[DFD-DEBUG]', msg);
+      if (!debugOn) return;
+      var line = document.createElement('div');
+      line.textContent = new Date().toLocaleTimeString() + ' — ' + msg;
+      box.appendChild(line);
+      box.scrollTop = box.scrollHeight;
+    };
+    window.dfdDbg('Página carregada. Notification.permission = ' + (('Notification' in window) ? Notification.permission : 'API de Notification NÃO existe neste navegador'));
+    window.dfdDbg('serviceWorker suportado: ' + ('serviceWorker' in navigator));
+    window.addEventListener('error', function(ev){
+      window.dfdDbg('ERRO GERAL NA PÁGINA: ' + ev.message + ' (arquivo: ' + ev.filename + ':' + ev.lineno + ')');
+    });
+    window.addEventListener('unhandledrejection', function(ev){
+      window.dfdDbg('PROMISE REJEITADA SEM TRATAMENTO: ' + (ev.reason && ev.reason.message ? ev.reason.message : JSON.stringify(ev.reason)));
+    });
+  })();
+</script>
 
 <!-- LOGIN -->
 <div id="login-screen">
@@ -595,13 +627,23 @@ function startSession(user) {
   resetInactivityTimer();
   ['click','keydown','mousemove','touchstart'].forEach(e => document.addEventListener(e, resetInactivityTimer, {passive:true}));
   // Registra usuário no OneSignal
+  if(window.dfdDbg) window.dfdDbg('startSession: login concluído no dashboard, currentUser=' + user);
   if(window.OneSignalDeferred) {
+    if(window.dfdDbg) window.dfdDbg('startSession: chamando OneSignal.login(' + user + ')...');
     OneSignalDeferred.push(async function(OneSignal) {
-      try { await OneSignal.login(user); } catch(e) {}
+      try {
+        await OneSignal.login(user);
+        if(window.dfdDbg) window.dfdDbg('startSession: OneSignal.login() OK');
+      } catch(e) {
+        if(window.dfdDbg) window.dfdDbg('startSession: ERRO no OneSignal.login(): ' + (e && e.message ? e.message : JSON.stringify(e)));
+      }
     });
+  } else {
+    if(window.dfdDbg) window.dfdDbg('startSession: window.OneSignalDeferred NÃO existe! O script do OneSignal não carregou.');
   }
   // Inicia PWA notificações
   setTimeout(() => {
+    if(window.dfdDbg) window.dfdDbg('Chamando solicitarPermissaoNotif() após 2s...');
     solicitarPermissaoNotif();
     checarNotificacoes();
   }, 2000);
@@ -1449,17 +1491,27 @@ document.getElementById('filtro-mes-nf').addEventListener('change',  function(){
 // Solicita permissão de notificação após login
 function solicitarPermissaoNotif() {
   // OneSignal cuida da permissão automaticamente
+  if(window.dfdDbg) window.dfdDbg('solicitarPermissaoNotif: window.OneSignalDeferred existe? ' + !!window.OneSignalDeferred);
   if(window.OneSignalDeferred) {
     OneSignalDeferred.push(async function(OneSignal) {
+      if(window.dfdDbg) window.dfdDbg('solicitarPermissaoNotif: chamando OneSignal.Notifications.requestPermission()... (Notification.permission atual = ' + Notification.permission + ')');
       try {
-        await OneSignal.Notifications.requestPermission();
+        var result = await OneSignal.Notifications.requestPermission();
+        if(window.dfdDbg) window.dfdDbg('requestPermission() retornou: ' + JSON.stringify(result) + ' | Notification.permission agora = ' + Notification.permission);
         // Define o usuário atual como External ID para segmentação
         if(currentUser) {
           await OneSignal.login(currentUser);
+          if(window.dfdDbg) window.dfdDbg('login OK dentro de solicitarPermissaoNotif');
           await OneSignal.User.addTag("user_id", currentUser);
+          if(window.dfdDbg) window.dfdDbg('addTag OK — fluxo completo com sucesso!');
         }
-      } catch(e) { console.log('OneSignal:', e); }
+      } catch(e) {
+        console.log('OneSignal:', e);
+        if(window.dfdDbg) window.dfdDbg('ERRO em solicitarPermissaoNotif: ' + (e && e.message ? e.message : JSON.stringify(e)) + (e && e.stack ? (' | stack: ' + e.stack) : ''));
+      }
     });
+  } else {
+    if(window.dfdDbg) window.dfdDbg('solicitarPermissaoNotif: OneSignalDeferred não existe, abortando.');
   }
 }
 

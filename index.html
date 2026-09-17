@@ -1538,6 +1538,7 @@ function enviarNotif(titulo, corpo, icone) {
       { field: "tag", key: "user_id", relation: "!=", value: currentUser }
     ] : []
   };
+  if(window.dfdDbg) window.dfdDbg('enviarNotif: iniciando fetch para OneSignal... payload=' + JSON.stringify(payload));
   fetch("https://onesignal.com/api/v1/notifications", {
     method: "POST",
     headers: {
@@ -1545,7 +1546,13 @@ function enviarNotif(titulo, corpo, icone) {
       "Authorization": "Key os_v2_app_ytk5iuufvrgq7mwfx6vhzcjcfjpuaozg2xmechmgkyuhcwp4hcmwqhpnunvsosse64b2oj5cfdaycjxh22mwdrjuyr5nwy45ez3aopy"
     },
     body: JSON.stringify(payload)
-  }).catch(e => console.log("OneSignal notif:", e));
+  }).then(async function(resp){
+    var text = await resp.text().catch(function(){ return '(sem corpo)'; });
+    if(window.dfdDbg) window.dfdDbg('enviarNotif: resposta recebida! status=' + resp.status + ' body=' + text);
+  }).catch(function(e){
+    console.log("OneSignal notif:", e);
+    if(window.dfdDbg) window.dfdDbg('enviarNotif: ERRO NO FETCH (provável bloqueio CORS ou rede): ' + (e && e.name ? e.name + ' — ' : '') + (e && e.message ? e.message : JSON.stringify(e)));
+  });
 }
 
 // Checa inativos e pedidos atrasados — roda a cada 1 hora

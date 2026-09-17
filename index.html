@@ -250,19 +250,30 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
 </head>
 <body>
 <div id="dfd-debug-box" style="position:fixed;bottom:0;left:0;right:0;max-height:45vh;overflow:auto;background:#000;color:#0f0;font:11px monospace;padding:8px;z-index:999999;white-space:pre-wrap;display:none;"></div>
+<button id="dfd-debug-toggle" style="position:fixed;bottom:8px;right:8px;z-index:999999;width:36px;height:36px;border-radius:50%;background:#ff3b30;color:#fff;border:none;font-size:16px;opacity:0.55;">🐞</button>
 <script>
   (function(){
     var params = new URLSearchParams(location.search);
-    var debugOn = params.get('debug') === '1';
+    var debugOn = params.get('debug') === '1' || (params.get('debug')||'').toLowerCase() === '1';
+    try { if (localStorage.getItem('dfd_debug') === '1') debugOn = true; } catch(e){}
     var box = document.getElementById('dfd-debug-box');
+    var btn = document.getElementById('dfd-debug-toggle');
+    function showBox(){
+      debugOn = true;
+      try { localStorage.setItem('dfd_debug', '1'); } catch(e){}
+      box.style.display = 'block';
+    }
     if (debugOn) box.style.display = 'block';
+    btn.addEventListener('click', function(){
+      if (box.style.display === 'none') { showBox(); } else { box.style.display = 'none'; }
+    });
     window.dfdDbg = function(msg) {
       console.log('[DFD-DEBUG]', msg);
-      if (!debugOn) return;
       var line = document.createElement('div');
       line.textContent = new Date().toLocaleTimeString() + ' — ' + msg;
       box.appendChild(line);
       box.scrollTop = box.scrollHeight;
+      if (debugOn) box.style.display = 'block';
     };
     window.dfdDbg('Página carregada. Notification.permission = ' + (('Notification' in window) ? Notification.permission : 'API de Notification NÃO existe neste navegador'));
     window.dfdDbg('serviceWorker suportado: ' + ('serviceWorker' in navigator));

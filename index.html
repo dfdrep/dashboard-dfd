@@ -167,11 +167,6 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
 .advance-btn:hover { background:rgba(124,92,252,0.12); border-color:var(--accent); }
 
 /* ── NF TABELA ── */
-.nf-table { width:100%; border-collapse:collapse; font-size:14px; }
-.nf-table th { font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-3); padding:6px 10px; border-bottom:0.5px solid var(--border); text-align:left; white-space:nowrap; }
-.nf-table td { padding:10px; border-bottom:0.5px solid var(--border); vertical-align:middle; }
-.nf-table tr:last-child td { border-bottom:none; }
-.nf-table tr:hover td { background:var(--surface-2); }
 .si { display:inline-flex; align-items:center; justify-content:center; width:22px; height:22px; border-radius:50%; }
 .si-ok { background:var(--green-bg); color:var(--green); }
 .si-no { background:var(--red-bg); color:var(--red); }
@@ -249,42 +244,6 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
   </script>
 </head>
 <body>
-<div id="dfd-debug-box" style="position:fixed;bottom:0;left:0;right:0;max-height:45vh;overflow:auto;background:#000;color:#0f0;font:11px monospace;padding:8px;z-index:999999;white-space:pre-wrap;display:none;"></div>
-<button id="dfd-debug-toggle" style="position:fixed;bottom:8px;right:8px;z-index:999999;width:36px;height:36px;border-radius:50%;background:#ff3b30;color:#fff;border:none;font-size:16px;opacity:0.55;">🐞</button>
-<script>
-  (function(){
-    var params = new URLSearchParams(location.search);
-    var debugOn = params.get('debug') === '1' || (params.get('debug')||'').toLowerCase() === '1';
-    try { if (localStorage.getItem('dfd_debug') === '1') debugOn = true; } catch(e){}
-    var box = document.getElementById('dfd-debug-box');
-    var btn = document.getElementById('dfd-debug-toggle');
-    function showBox(){
-      debugOn = true;
-      try { localStorage.setItem('dfd_debug', '1'); } catch(e){}
-      box.style.display = 'block';
-    }
-    if (debugOn) box.style.display = 'block';
-    btn.addEventListener('click', function(){
-      if (box.style.display === 'none') { showBox(); } else { box.style.display = 'none'; }
-    });
-    window.dfdDbg = function(msg) {
-      console.log('[DFD-DEBUG]', msg);
-      var line = document.createElement('div');
-      line.textContent = new Date().toLocaleTimeString() + ' — ' + msg;
-      box.appendChild(line);
-      box.scrollTop = box.scrollHeight;
-      if (debugOn) box.style.display = 'block';
-    };
-    window.dfdDbg('Página carregada. Notification.permission = ' + (('Notification' in window) ? Notification.permission : 'API de Notification NÃO existe neste navegador'));
-    window.dfdDbg('serviceWorker suportado: ' + ('serviceWorker' in navigator));
-    window.addEventListener('error', function(ev){
-      window.dfdDbg('ERRO GERAL NA PÁGINA: ' + ev.message + ' (arquivo: ' + ev.filename + ':' + ev.lineno + ')');
-    });
-    window.addEventListener('unhandledrejection', function(ev){
-      window.dfdDbg('PROMISE REJEITADA SEM TRATAMENTO: ' + (ev.reason && ev.reason.message ? ev.reason.message : JSON.stringify(ev.reason)));
-    });
-  })();
-</script>
 
 <!-- LOGIN -->
 <div id="login-screen">
@@ -357,7 +316,6 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
   <div class="tabs">
     <button class="tab active" onclick="switchTab('pendencias')"><i class="ti ti-alert-circle"></i> Pendências</button>
     <button class="tab" onclick="switchTab('pedidos')"><i class="ti ti-package"></i> Pedidos</button>
-    <button class="tab" onclick="switchTab('notas')"><i class="ti ti-currency-dollar"></i> Comissões</button>
     <button class="tab" onclick="switchTab('calendario')"><i class="ti ti-calendar"></i> Meu Calendário</button>
     <button class="tab" onclick="switchTab('inativos')"><i class="ti ti-alert-triangle"></i> Inativos <span id="badge-inativos" style="display:none;background:#f56565;color:#fff;font-size:12px;font-weight:600;padding:1px 5px;border-radius:99px;margin-left:2px">0</span></button>
   </div>
@@ -418,53 +376,6 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
       <div id="grafico-pedidos" style="display:none;margin-bottom:14px;"></div>
       <div id="mes-resumo-ped" style="display:none;background:var(--surface-2);border:0.5px solid rgba(0,178,122,0.28);border-radius:8px;padding:8px 14px;font-size:14px;color:var(--text-2);margin-bottom:12px;display:flex;gap:16px;flex-wrap:wrap"></div>
       <div id="lista-pedidos"><div class="loading">Carregando...</div></div>
-    </div>
-  </div>
-
-  <!-- COMISSÕES -->
-  <div class="tab-content" id="tab-notas">
-    <div style="font-size:18px;font-weight:500;margin-bottom:14px;display:flex;align-items:center;gap:7px;"><i class="ti ti-currency-dollar" style="color:var(--accent-2)"></i> Comissões</div>
-    <div class="metrics-3" id="metrics-nf" style="grid-template-columns:repeat(4,minmax(0,1fr))"></div>
-    <div id="grafico-comissoes" style="display:none;margin-bottom:14px;"></div>
-    <div class="panel" style="margin-top:14px;">
-      <div class="panel-header">
-        <div class="panel-title"><i class="ti ti-file-invoice"></i> Notas Fiscais de comissão</div>
-        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-          <select id="filtro-forn-nf" style="background:var(--surface-2);border:0.5px solid rgba(0,178,122,0.28);border-radius:8px;color:var(--text);font-size:14px;padding:6px 10px;font-family:inherit;outline:none;cursor:pointer">
-            <option value="">Todos os fornecedores</option>
-            <option value="Agroindústria Real">Agroindústria Real</option>
-            <option value="Asa">Asa</option>
-            <option value="Fugini Alimentos">Fugini Alimentos</option>
-            <option value="Gaboardi">Gaboardi</option>
-            <option value="Global">Global</option>
-            <option value="Globopack">Globopack</option>
-            <option value="Godinho">Godinho</option>
-            <option value="Infinity">Infinity</option>
-            <option value="JPS">JPS</option>
-            <option value="Master">Master</option>
-            <option value="Mundial">Mundial</option>
-            <option value="Nossa Distribuidora">Nossa Distribuidora</option>
-            <option value="Oderich">Oderich</option>
-            <option value="RTL">RTL</option>
-            <option value="Superglobo">Superglobo</option>
-            <option value="Tradição Real">Tradição Real</option>
-          </select>
-          <select id="filtro-mes-nf" style="background:var(--surface-2);border:0.5px solid rgba(0,178,122,0.28);border-radius:8px;color:var(--text);font-size:14px;padding:6px 10px;font-family:inherit;outline:none;cursor:pointer">
-            <option value="">Todos os meses</option>
-            <option value="01">Janeiro</option><option value="02">Fevereiro</option><option value="03">Março</option>
-            <option value="04">Abril</option><option value="05">Maio</option><option value="06">Junho</option>
-            <option value="07">Julho</option><option value="08">Agosto</option><option value="09">Setembro</option>
-            <option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option>
-          </select>
-          <button class="add-btn" onclick="openNewNF()">+ Adicionar NF</button>
-        </div>
-      </div>
-      <div style="overflow-x:auto;">
-        <table class="nf-table">
-          <thead><tr><th>Fornecedor</th><th>Descrição</th><th>Prazo envio</th><th>Valor Comissão</th><th>NF emitida</th><th>NF enviada</th><th>Comissão recebida</th><th></th></tr></thead>
-          <tbody id="lista-nf"></tbody>
-        </table>
-      </div>
     </div>
   </div>
 
@@ -570,29 +481,6 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
   </div>
 </div>
 
-<div class="modal-overlay hidden" id="modal-nf">
-  <div class="modal">
-    <h2 id="modal-nf-title">Nova nota fiscal de comissão</h2>
-    <div class="form-group"><label>Fornecedor</label><select id="nf-forn"><option value="">— Selecione —</option></select></div>
-    <div class="form-group"><label>Descrição</label><input type="text" id="nf-desc" placeholder="Ex: Comissão referente ao mês de junho" /></div>
-    <div class="form-row">
-      <div class="form-group"><label>Prazo de envio</label><input type="date" id="nf-prazo" /></div>
-      <div class="form-group"><label>Valor da Comissão (R$)</label><input type="number" id="nf-valor" placeholder="0,00" min="0" step="0.01" /></div>
-    </div>
-    <div class="form-row">
-      <div class="form-group"><label>NF emitida?</label><select id="nf-emitida"><option value="nao">Não</option><option value="sim">Sim</option></select></div>
-      <div class="form-group"><label>NF enviada?</label><select id="nf-enviada"><option value="nao">Não</option><option value="sim">Sim</option></select></div>
-    </div>
-    <div class="form-group"><label>Comissão recebida?</label>
-      <select id="nf-comissao"><option value="nao">Não</option><option value="aguardando">Aguardando</option><option value="sim">Sim</option></select>
-    </div>
-    <div class="modal-footer">
-      <button class="btn-cancel" onclick="closeModal('modal-nf')">Cancelar</button>
-      <button class="btn-save" id="btn-save-nf" onclick="saveNF()">Adicionar</button>
-    </div>
-  </div>
-</div>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
 import { getDatabase, ref, push, update, remove, onValue } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
@@ -668,7 +556,6 @@ function iniciarListeners() {
   listenersAtivos = true;
   onValue(ref(db,'pendencias'), snap=>{ pendencias=snap.val()||{}; renderPendencias(); renderCalendar(); });
   onValue(ref(db,'pedidos'),    snap=>{ pedidos=snap.val()||{};    renderPedidos();   renderCalendar(); renderInativos(); atualizarBadgeInativos(); migrarNomes(); });
-  onValue(ref(db,'notas'),      snap=>{ notas=snap.val()||{};      renderNotas(); });
   onValue(ref(db,'notificacoes'), snap=>{ notificacoes=snap.val()||{}; renderNotifs(); });
 }
 
@@ -733,12 +620,12 @@ const CLIENTES = ['Asa','Atakaforte','Esthampa','Flex','G10','Global','Godinho',
 const ETAPA_LABELS = ['Não faturado','Precisa agendar','Foi agendado','Foi entregue'];
 const PRIO_ORDER = { high:0, med:1, low:2 };
 
-let pendencias={}, pedidos={}, notas={}, notificacoes={};
+let pendencias={}, pedidos={}, notificacoes={};
 let pendingImagens = [];
 // Filtros globais — atualizados pelos event listeners dos selects
-let gMesPed='', gAnoPed='', gRepPed='', gFornNF='', gMesNF='', gBuscaPed='';
-let editingPendKey=null, editingPedKey=null, editingNfKey=null;
-let filterPend=null, filterPed=null, filterNF=null;
+let gMesPed='', gAnoPed='', gRepPed='', gBuscaPed='';
+let editingPendKey=null, editingPedKey=null;
+let filterPend=null, filterPed=null;
 let calYear=new Date().getFullYear(), calMonth=new Date().getMonth(), calSelected=null;
 
 // ── FIREBASE LISTENERS ──
@@ -828,7 +715,7 @@ window.switchTab=function(id){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
   document.getElementById('tab-'+id).classList.add('active');
-  const tabIndex={'pendencias':0,'pedidos':1,'notas':2,'calendario':3,'inativos':4}; document.querySelectorAll('.tab')[tabIndex[id]]?.classList.add('active'); if(id==='inativos') renderInativos();
+  const tabIndex={'pendencias':0,'pedidos':1,'calendario':2,'inativos':3}; document.querySelectorAll('.tab')[tabIndex[id]]?.classList.add('active'); if(id==='inativos') renderInativos();
   if(id==='calendario') renderCalendar();
 };
 
@@ -838,7 +725,7 @@ window.closeModal=function(id){
   document.getElementById(id).querySelectorAll('input').forEach(i=>i.value='');
   document.getElementById(id).querySelectorAll('select').forEach(s=>s.selectedIndex=0);
   document.querySelectorAll('.date-field').forEach(d=>d.classList.remove('show'));
-  editingPendKey=null; editingPedKey=null; editingNfKey=null; pendingImagens=[]; const prev=document.getElementById('o-img-preview'); if(prev) prev.innerHTML='';
+  editingPendKey=null; editingPedKey=null; pendingImagens=[]; const prev=document.getElementById('o-img-preview'); if(prev) prev.innerHTML='';
 };
 function openModal(id) {
   fillSelects();
@@ -850,7 +737,7 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape') document.querySele
 window.toggleDateFields=function(){ const v=Number(document.getElementById('o-etapa').value); document.getElementById('field-fat').classList.toggle('show',v>=1); document.getElementById('field-agd').classList.toggle('show',v>=2); };
 
 function fillSelects() {
-  ['p-forn','o-forn','nf-forn'].forEach(id=>{ const el=document.getElementById(id),cur=el.value; el.innerHTML='<option value="">— Selecione —</option>'+FORNECEDORES.map(f=>`<option value="${f}">${f}</option>`).join(''); el.value=cur; });
+  ['p-forn','o-forn'].forEach(id=>{ const el=document.getElementById(id),cur=el.value; el.innerHTML='<option value="">— Selecione —</option>'+FORNECEDORES.map(f=>`<option value="${f}">${f}</option>`).join(''); el.value=cur; });
   ['p-cliente','o-cliente'].forEach(id=>{ const el=document.getElementById(id),cur=el.value; el.innerHTML='<option value="">— Selecione —</option>'+CLIENTES.map(c=>`<option value="${c}">${c}</option>`).join(''); el.value=cur; });
 }
 
@@ -886,10 +773,6 @@ window.advancePedido=function(key,e){ if(e) e.stopPropagation(); const p=pedidos
 window.deletePedido=function(key,e){ if(e) e.stopPropagation(); if(!confirm('Remover este pedido?')) return; remove(ref(db,'pedidos/'+key)); if(openedPedidoKey===key) openedPedidoKey=null; };
 
 // ── NOTAS FISCAIS ──
-window.openNewNF=function(){ editingNfKey=null; document.getElementById('modal-nf-title').textContent='Nova nota fiscal de comissão'; document.getElementById('btn-save-nf').textContent='Adicionar'; openModal('modal-nf'); };
-window.openEditNF=function(key){ const n=notas[key]; if(!n) return; editingNfKey=key; document.getElementById('modal-nf-title').textContent='Editar nota fiscal'; document.getElementById('btn-save-nf').textContent='Salvar'; openModal('modal-nf'); document.getElementById('nf-forn').value=n.fornecedor||''; document.getElementById('nf-desc').value=n.descricao||''; document.getElementById('nf-prazo').value=toInputDate(n.prazo)||''; document.getElementById('nf-valor').value=n.valor||''; document.getElementById('nf-emitida').value=n.emitida||'nao'; document.getElementById('nf-enviada').value=n.enviada||'nao'; document.getElementById('nf-comissao').value=n.comissao||'nao'; };
-window.saveNF=function(){ const data={fornecedor:document.getElementById('nf-forn').value, descricao:document.getElementById('nf-desc').value.trim(), prazo:document.getElementById('nf-prazo').value, valor:parseFloat(document.getElementById('nf-valor').value)||0, emitida:document.getElementById('nf-emitida').value, enviada:document.getElementById('nf-enviada').value, comissao:document.getElementById('nf-comissao').value}; if(editingNfKey){update(ref(db,'notas/'+editingNfKey),data);}else{push(ref(db,'notas'),{...data,criadoEm:Date.now()});} window.closeModal('modal-nf'); };
-window.deleteNF=function(key){ if(!confirm('Remover esta NF?')) return; remove(ref(db,'notas/'+key)); };
 
 // ── FILTROS ──
 window.toggleFilterPend=function(f){ filterPend=filterPend===f?null:f; renderPendencias(); };
@@ -899,13 +782,6 @@ window.toggleFilterPed=function(f){
   if(filterPed==='grafico'){ gerarGraficoPedidos(); if(g) g.style.display='block'; }
   else { if(g) g.style.display='none'; }
   renderPedidos();
-};
-window.toggleFilterNF=function(f){
-  filterNF=filterNF===f?null:f;
-  const g=document.getElementById('grafico-comissoes');
-  if(filterNF==='grafico'){ gerarGraficoComissoes(); if(g) g.style.display='block'; }
-  else { if(g) g.style.display='none'; }
-  renderNotas();
 };
 
 // ── HELPERS ──
@@ -1038,78 +914,6 @@ function renderPedidos(){
     <div class="metric ${filterPed==='aguardAgend'?'active-filter':''}" onclick="toggleFilterPed('aguardAgend')"><div class="metric-label">Ag. agendamento</div><div class="metric-value">${aguardAgend}</div><div class="metric-sub" style="color:var(--amber)">${aguardAgend} pedido(s)</div></div>
     <div class="metric ${filterPed==='agendados'?'active-filter':''}" onclick="toggleFilterPed('agendados')"><div class="metric-label">Ag. entrega</div><div class="metric-value">${agendados}</div><div class="metric-sub" style="color:var(--blue)">${agendados} agendado(s)</div></div>
     <div class="metric ${filterPed==='entregues'?'active-filter':''}" onclick="toggleFilterPed('entregues')"><div class="metric-label">Concluídos</div><div class="metric-value">${entregues}</div><div class="metric-sub" style="color:var(--green)">${entregues} entregue(s)</div></div>
-  `;
-}
-
-function getNfMes(n){ const d=n.prazo||''; if(!d) return ''; if(d.includes('-')) return d.slice(5,7); if(d.includes('/')) return d.split('/')[1]; return ''; }
-
-function renderNotas(){
-  const tb=document.getElementById('lista-nf');
-  // popula filtro fornecedor NF
-  const filtroFornNF=gFornNF;
-  const filtroMesNF=gMesNF;
-
-  let entriesNF=Object.entries(notas).sort((a,b)=>(b[1].criadoEm||0)-(a[1].criadoEm||0));
-  if(filtroFornNF) entriesNF=entriesNF.filter(([,n])=>n.fornecedor===filtroFornNF);
-  if(filtroMesNF) entriesNF=entriesNF.filter(([,n])=>getNfMes(n)===filtroMesNF);
-  if(filterNF==='emitidas')  entriesNF=entriesNF.filter(([,n])=>n.emitida==='sim');
-  if(filterNF==='pendEmit')  entriesNF=entriesNF.filter(([,n])=>n.emitida!=='sim');
-  if(filterNF==='comReceb')  entriesNF=entriesNF.filter(([,n])=>n.comissao==='sim');
-  if(filterNF==='totalVal')  entriesNF=entriesNF.filter(([,n])=>n.valor>0);
-
-  const entries=entriesNF;
-  if(!entries.length){ tb.innerHTML=`<tr><td colspan="8"><div class="empty"><i class="ti ti-file-invoice"></i>Nenhuma NF cadastrada.</div></td></tr>`; }
-  else { tb.innerHTML=entries.map(([key,n])=>`<tr>
-    <td><strong>${n.fornecedor||'—'}</strong></td>
-    <td style="color:var(--text-2);font-size:14px">${n.descricao||'—'}</td>
-    <td><span class="badge ${prazoColor(n.prazo)}">${fmtDate(n.prazo)||'—'}</span></td>
-    <td style="font-weight:600;color:var(--accent-2)">${n.valor?fmtVal(n.valor):'—'}</td>
-    <td>${siIcon(n.emitida)}</td>
-    <td>${siIcon(n.enviada)}</td>
-    <td>${siIcon(n.comissao)}</td>
-    <td><div style="display:flex;gap:2px"><button class="icon-btn" onclick="openEditNF('${key}')"><i class="ti ti-edit"></i></button><button class="icon-btn del" onclick="deleteNF('${key}')"><i class="ti ti-trash"></i></button></div></td>
-  </tr>`).join(''); }
-
-  // calcula sobre todos (sem filtro de card) para os cards
-  let base=Object.values(notas);
-  if(filtroFornNF) base=base.filter(n=>n.fornecedor===filtroFornNF);
-  if(filtroMesNF) base=base.filter(n=>getNfMes(n)===filtroMesNF);
-
-  const emitidas=base.filter(n=>n.emitida==='sim').length;
-  const pendEmit=base.filter(n=>n.emitida!=='sim').length;
-  const comReceb=base.filter(n=>n.comissao==='sim').length;
-  const totalValor=base.reduce((s,n)=>s+(n.valor||0),0);
-  const recebidoValor=base.filter(n=>n.comissao==='sim').reduce((s,n)=>s+(n.valor||0),0);
-  const pendValor=base.filter(n=>n.comissao!=='sim').reduce((s,n)=>s+(n.valor||0),0);
-  const hoje=new Date(); hoje.setHours(0,0,0,0);
-  const vencem=base.filter(n=>{ if(!n.prazo||n.emitida==='sim') return false; let dt; if(n.prazo.includes('-')) dt=new Date(n.prazo); else{const [d,m,y]=n.prazo.split('/'); dt=new Date(`${y}-${m}-${d}`);} return dt<=hoje; }).length;
-
-  document.getElementById('metrics-nf').innerHTML=`
-    <div class="metric ${filterNF==='pendEmit'?'active-filter':''}" onclick="toggleFilterNF('pendEmit')">
-      <div class="metric-label">Aguardando emissão</div>
-      <div class="metric-value">${pendEmit}</div>
-      <div class="metric-sub" style="color:${vencem>0?'var(--red)':'var(--text-2)'}">${vencem>0?vencem+' vence(m) hoje':'Em dia'}</div>
-    </div>
-    <div class="metric ${filterNF==='emitidas'?'active-filter':''}" onclick="toggleFilterNF('emitidas')">
-      <div class="metric-label">NFs emitidas</div>
-      <div class="metric-value">${emitidas}</div>
-      <div class="metric-sub">de ${base.length} no período</div>
-    </div>
-    <div class="metric ${filterNF==='comReceb'?'active-filter':''}" onclick="toggleFilterNF('comReceb')">
-      <div class="metric-label">Comissões recebidas</div>
-      <div class="metric-value">${comReceb}</div>
-      <div class="metric-sub" style="color:var(--amber)">${base.length-comReceb} aguardando</div>
-    </div>
-    <div class="metric ${filterNF==='totalVal'?'active-filter':''}" onclick="toggleFilterNF('totalVal')" style="cursor:pointer">
-      <div class="metric-label">💰 Total comissões</div>
-      <div class="metric-value" style="font-size:19px;color:var(--accent-2)">${fmtVal(totalValor)}</div>
-      <div class="metric-sub" style="color:var(--green)">✅ ${fmtVal(recebidoValor)} &nbsp;·&nbsp; <span style="color:var(--amber)">⏳ ${fmtVal(pendValor)}</span></div>
-    </div>
-    <div class="metric ${filterNF==='grafico'?'active-filter':''}" onclick="toggleFilterNF('grafico')" style="cursor:pointer">
-      <div class="metric-label">📊 Evolução mensal</div>
-      <div class="metric-value" style="font-size:16px;">Ver gráfico</div>
-      <div class="metric-sub">Comissões por mês</div>
-    </div>
   `;
 }
 
@@ -1422,68 +1226,6 @@ function gerarGraficoPedidos() {
     </div>`;
 }
 
-function gerarGraficoComissoes() {
-  const el = document.getElementById('grafico-comissoes');
-  if(!el) return;
-
-  const filtroForn = gFornNF;
-
-  // Agrupa NFs por mês/ano
-  const dados = {};
-  Object.values(notas)
-    .filter(n => n.valor > 0 && (!filtroForn || n.fornecedor === filtroForn))
-    .forEach(n => {
-      const mes = getNfMes(n);
-      const prazo = n.prazo || '';
-      let ano = '';
-      if(prazo.includes('-')) ano = prazo.slice(0,4);
-      else if(prazo.includes('/')) ano = prazo.split('/')[2];
-      if(!mes || !ano) return;
-      const key = `${ano}-${mes}`;
-      const label = MESES_NOMES[parseInt(mes)-1].slice(0,3)+'/'+ano.slice(2);
-      if(!dados[key]) dados[key] = { label, total: 0, recebido: 0 };
-      dados[key].total += n.valor || 0;
-      if(n.comissao === 'sim') dados[key].recebido += n.valor || 0;
-    });
-
-  const sorted = Object.entries(dados).sort((a,b) => a[0].localeCompare(b[0]));
-  if(sorted.length === 0) { el.innerHTML=''; return; }
-
-  const maxVal = Math.max(...sorted.map(([,d]) => d.total));
-  const totalGeral = sorted.reduce((s,[,d])=>s+d.total,0);
-  const totalReceb = sorted.reduce((s,[,d])=>s+d.recebido,0);
-  const titulo = filtroForn ? `Comissões — ${filtroForn}` : 'Evolução de comissões por mês';
-
-  el.innerHTML = `
-    <div style="background:var(--surface);border:0.5px solid var(--border);border-radius:12px;padding:18px 20px;">
-      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
-        <div>
-          <div style="font-size:17px;font-weight:500;display:flex;align-items:center;gap:8px;"><i class="ti ti-chart-line" style="color:var(--accent-2)"></i> ${titulo}</div>
-          <div style="font-size:13px;color:var(--text-2);margin-top:3px;">Total: <strong style="color:var(--accent-2)">${fmtVal(totalGeral)}</strong> · Recebido: <strong style="color:var(--green)">${fmtVal(totalReceb)}</strong> · Pendente: <strong style="color:var(--amber)">${fmtVal(totalGeral-totalReceb)}</strong></div>
-        </div>
-        <div style="display:flex;gap:12px;font-size:12px;color:var(--text-2);align-items:center;">
-          <span><span style="display:inline-block;width:10px;height:10px;background:rgba(0,178,122,0.35);border-radius:2px;margin-right:4px;border:0.5px solid rgba(0,178,122,0.6)"></span>Total</span>
-          <span><span style="display:inline-block;width:10px;height:10px;background:var(--accent);border-radius:2px;margin-right:4px"></span>Recebido</span>
-        </div>
-      </div>
-      <div style="overflow-x:auto;padding-bottom:4px;">
-        <div style="display:flex;align-items:flex-end;gap:6px;min-height:180px;padding-bottom:4px;min-width:${Math.max(300, sorted.length * 80)}px;">
-          ${sorted.map(([key, d]) => {
-            const hTotal = maxVal > 0 ? Math.max(12, Math.round((d.total / maxVal) * 150)) : 12;
-            const hReceb = maxVal > 0 ? Math.round((d.recebido / maxVal) * 150) : 0;
-            return `<div style="display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;min-width:60px;" title="${d.label}: Total ${fmtVal(d.total)} | Recebido ${fmtVal(d.recebido)}">
-              <div style="font-size:12px;color:var(--accent-2);font-weight:500;white-space:nowrap;">${fmtValShort(d.total)}</div>
-              <div style="width:80%;height:${hTotal}px;position:relative;background:rgba(0,178,122,0.25);border-radius:5px 5px 0 0;border:0.5px solid rgba(0,178,122,0.5);">
-                <div style="position:absolute;bottom:0;left:0;right:0;height:${hReceb}px;background:var(--accent);border-radius:${hReceb>=hTotal?'5px 5px':'0'} 0 0;"></div>
-              </div>
-              <div style="font-size:11px;color:var(--text-2);white-space:nowrap;">${d.label}</div>
-            </div>`;
-          }).join('')}
-        </div>
-      </div>
-    </div>`;
-}
-
 document.getElementById('btn-entrar').addEventListener('click', doLogin);
 document.getElementById('btn-sair').addEventListener('click', doLogout);
 document.getElementById('login-pass').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
@@ -1493,8 +1235,6 @@ document.getElementById('busca-ped').addEventListener('input', function(){ gBusc
 document.getElementById('filtro-mes-ped').addEventListener('change', function(){ gMesPed=this.value; filterPed=null; renderPedidos(); });
 document.getElementById('filtro-ano-ped').addEventListener('change', function(){ gAnoPed=this.value; filterPed=null; renderPedidos(); });
 document.getElementById('filtro-rep-ped').addEventListener('change', function(){ gRepPed=this.value; filterPed=null; renderPedidos(); });
-document.getElementById('filtro-forn-nf').addEventListener('change', function(){ gFornNF=this.value; filterNF=null; renderNotas(); });
-document.getElementById('filtro-mes-nf').addEventListener('change',  function(){ gMesNF=this.value;  filterNF=null; renderNotas(); });
 
 // ── PWA + NOTIFICAÇÕES ──────────────────────────────────
 // (Service Worker de push é registrado automaticamente pelo próprio OneSignal acima)

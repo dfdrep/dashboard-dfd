@@ -318,6 +318,7 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
     <button class="tab" onclick="switchTab('pedidos')"><i class="ti ti-package"></i> Pedidos</button>
     <button class="tab" onclick="switchTab('calendario')"><i class="ti ti-calendar"></i> Meu Calendário</button>
     <button class="tab" onclick="switchTab('inativos')"><i class="ti ti-alert-triangle"></i> Inativos <span id="badge-inativos" style="display:none;background:#f56565;color:#fff;font-size:12px;font-weight:600;padding:1px 5px;border-radius:99px;margin-left:2px">0</span></button>
+    <button class="tab" onclick="switchTab('resumo')"><i class="ti ti-report"></i> Resumo do Dia</button>
   </div>
 
   <!-- PENDÊNCIAS -->
@@ -410,6 +411,29 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
         <div class="panel-title"><i class="ti ti-alert-triangle" style="color:var(--amber)"></i> Clientes inativos por representada</div>
       </div>
       <div id="lista-inativos"><div class="loading">Carregando...</div></div>
+    </div>
+  </div>
+
+  <!-- RESUMO DO DIA -->
+  <div class="tab-content" id="tab-resumo">
+    <div class="metrics" id="metrics-resumo"></div>
+    <div class="panel" style="margin-bottom:14px;">
+      <div class="panel-header">
+        <div class="panel-title"><i class="ti ti-alert-circle" style="color:var(--red)"></i> Pendências urgentes</div>
+      </div>
+      <div id="resumo-urgentes"><div class="loading">Carregando...</div></div>
+    </div>
+    <div class="panel" style="margin-bottom:14px;">
+      <div class="panel-header">
+        <div class="panel-title"><i class="ti ti-truck-delivery" style="color:var(--accent-2)"></i> Entregas de hoje</div>
+      </div>
+      <div id="resumo-entregas"><div class="loading">Carregando...</div></div>
+    </div>
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title"><i class="ti ti-receipt-off" style="color:var(--amber)"></i> Pedidos não faturados</div>
+      </div>
+      <div id="resumo-naofat"><div class="loading">Carregando...</div></div>
     </div>
   </div>
 
@@ -525,6 +549,14 @@ function startSession(user) {
   document.getElementById('login-error').style.display = 'none';
   resetInactivityTimer();
   ['click','keydown','mousemove','touchstart'].forEach(e => document.addEventListener(e, resetInactivityTimer, {passive:true}));
+  // Se veio de uma notificação de resumo, abre direto na aba Resumo do Dia
+  try {
+    const params = new URLSearchParams(window.location.search);
+    if(params.get('aba') === 'resumo') {
+      setTimeout(() => { window.switchTab('resumo'); }, 300);
+      history.replaceState(null, '', window.location.pathname);
+    }
+  } catch(e) {}
   // Registra usuário no OneSignal
   if(window.dfdDbg) window.dfdDbg('startSession: login concluído no dashboard, currentUser=' + user);
   if(window.OneSignalDeferred) {
@@ -554,9 +586,10 @@ let listenersAtivos = false;
 function iniciarListeners() {
   if(listenersAtivos) return;
   listenersAtivos = true;
-  onValue(ref(db,'pendencias'), snap=>{ pendencias=snap.val()||{}; renderPendencias(); renderCalendar(); });
-  onValue(ref(db,'pedidos'),    snap=>{ pedidos=snap.val()||{};    renderPedidos();   renderCalendar(); renderInativos(); atualizarBadgeInativos(); migrarNomes(); });
+  onValue(ref(db,'pendencias'), snap=>{ pendencias=snap.val()||{}; renderPendencias(); renderCalendar(); renderResumoDia(); });
+  onValue(ref(db,'pedidos'),    snap=>{ pedidos=snap.val()||{};    renderPedidos();   renderCalendar(); renderInativos(); atualizarBadgeInativos(); migrarNomes(); renderResumoDia(); });
   onValue(ref(db,'notificacoes'), snap=>{ notificacoes=snap.val()||{}; renderNotifs(); });
+  onValue(ref(db,'notifInativos'), snap=>{ notifInativosRemote=snap.val()||{}; });
 }
 
 // Verificar sessão salva ao carregar
@@ -621,6 +654,7 @@ const ETAPA_LABELS = ['Não faturado','Precisa agendar','Foi agendado','Foi entr
 const PRIO_ORDER = { high:0, med:1, low:2 };
 
 let pendencias={}, pedidos={}, notificacoes={};
+let notifInativosRemote={};
 let pendingImagens = [];
 // Filtros globais — atualizados pelos event listeners dos selects
 let gMesPed='', gAnoPed='', gRepPed='', gBuscaPed='';
@@ -715,8 +749,9 @@ window.switchTab=function(id){
   document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
   document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
   document.getElementById('tab-'+id).classList.add('active');
-  const tabIndex={'pendencias':0,'pedidos':1,'calendario':2,'inativos':3}; document.querySelectorAll('.tab')[tabIndex[id]]?.classList.add('active'); if(id==='inativos') renderInativos();
+  const tabIndex={'pendencias':0,'pedidos':1,'calendario':2,'inativos':3,'resumo':4}; document.querySelectorAll('.tab')[tabIndex[id]]?.classList.add('active'); if(id==='inativos') renderInativos();
   if(id==='calendario') renderCalendar();
+  if(id==='resumo') renderResumoDia();
 };
 
 // ── MODAIS ──
@@ -1137,6 +1172,59 @@ function renderInativos(){
     </div>`).join('');
 }
 
+// Resumo do Dia
+function renderResumoDia(){
+  const metricsEl=document.getElementById('metrics-resumo');
+  if(!metricsEl) return; // DOM ainda não montado (antes do login)
+  const hojeISO = new Date().toISOString().slice(0,10);
+  const pendArr = Object.values(pendencias);
+  const urgentes = pendArr.filter(p=>!p.done && p.prioridade==='high');
+
+  const pedArr = Object.values(pedidos);
+  const entregasHoje = pedArr.filter(p=>p.etapa===2 && p.dataAgendamento && toInputDate(p.dataAgendamento)<=hojeISO);
+  const naoFaturados = pedArr.filter(p=>p.etapa===0);
+
+  const anoAtual = String(new Date().getFullYear());
+  const mesAtual = String(new Date().getMonth()+1).padStart(2,'0');
+  const faturamentoMes = pedArr
+    .filter(p=>getMesFromPedido(p)===mesAtual && getAnoFromPedido(p)===anoAtual)
+    .reduce((s,p)=>s+(p.valor||0),0);
+
+  metricsEl.innerHTML = `
+    <div class="metric"><div class="metric-label">Urgentes</div><div class="metric-value">${urgentes.length}</div><div class="metric-sub" style="color:${urgentes.length?'var(--red)':'var(--text-2)'}">${urgentes.length?'Atenção':'Ok'}</div></div>
+    <div class="metric"><div class="metric-label">Entregas hoje</div><div class="metric-value">${entregasHoje.length}</div><div class="metric-sub" style="color:var(--text-2)">agendado(s)</div></div>
+    <div class="metric"><div class="metric-label">Não faturados</div><div class="metric-value">${naoFaturados.length}</div><div class="metric-sub" style="color:${naoFaturados.length?'var(--amber)':'var(--text-2)'}">${naoFaturados.length?'Pendente':'Ok'}</div></div>
+    <div class="metric"><div class="metric-label">Faturamento do mês</div><div class="metric-value" style="font-size:19px">${fmtValShort(faturamentoMes)}</div><div class="metric-sub" style="color:var(--text-2)">${MESES_NOMES[new Date().getMonth()]}</div></div>
+  `;
+
+  const elU=document.getElementById('resumo-urgentes');
+  elU.innerHTML = urgentes.length ? urgentes.map(p=>`
+    <div class="item">
+      <div class="item-body" onclick="switchTab('pendencias')" style="cursor:pointer">
+        <div class="item-title">${p.titulo||'Sem título'}</div>
+        <div class="item-meta">${prioBadge(p.prioridade)}${p.fornecedor?`<span class="dot"></span><i class="ti ti-building-store" style="font-size:13px"></i> ${p.fornecedor}`:''} ${p.cliente?`<span class="dot"></span><i class="ti ti-users" style="font-size:13px"></i> ${p.cliente}`:''} ${p.responsavel?`<span class="dot"></span><i class="ti ti-user" style="font-size:13px"></i> ${p.responsavel}`:''}</div>
+      </div>
+    </div>`).join('') : '<div class="empty"><i class="ti ti-circle-check" style="color:var(--green)"></i>Nenhuma pendência urgente.</div>';
+
+  const elE=document.getElementById('resumo-entregas');
+  elE.innerHTML = entregasHoje.length ? entregasHoje.map(p=>`
+    <div class="item">
+      <div class="item-body" onclick="switchTab('pedidos')" style="cursor:pointer">
+        <div class="item-title">${p.nome||'Pedido'}</div>
+        <div class="item-meta">${p.fornecedor?`<i class="ti ti-building-store" style="font-size:13px"></i> ${p.fornecedor}`:''} ${p.cliente?`<span class="dot"></span><i class="ti ti-users" style="font-size:13px"></i> ${p.cliente}`:''}${p.valor?`<span class="dot"></span>${fmtVal(p.valor)}`:''}</div>
+      </div>
+    </div>`).join('') : '<div class="empty"><i class="ti ti-circle-check" style="color:var(--green)"></i>Nenhuma entrega agendada pra hoje.</div>';
+
+  const elN=document.getElementById('resumo-naofat');
+  elN.innerHTML = naoFaturados.length ? naoFaturados.map(p=>`
+    <div class="item">
+      <div class="item-body" onclick="switchTab('pedidos')" style="cursor:pointer">
+        <div class="item-title">${p.nome||'Pedido'}</div>
+        <div class="item-meta">${p.fornecedor?`<i class="ti ti-building-store" style="font-size:13px"></i> ${p.fornecedor}`:''} ${p.cliente?`<span class="dot"></span><i class="ti ti-users" style="font-size:13px"></i> ${p.cliente}`:''}${p.valor?`<span class="dot"></span>${fmtVal(p.valor)}`:''}</div>
+      </div>
+    </div>`).join('') : '<div class="empty"><i class="ti ti-circle-check" style="color:var(--green)"></i>Todos os pedidos estão faturados.</div>';
+}
+
 // ── MIGRAÇÃO DE NOMES ──
 // Corrige registros antigos com nomes desatualizados
 function migrarNomes() {
@@ -1297,8 +1385,11 @@ function enviarNotif(titulo, corpo, icone) {
 // Checa inativos e pedidos atrasados — roda a cada 1 hora
 let ultimoCheckInativos = 0;
 let ultimoCheckAtrasados = 0;
-let inativosJaNotificados = JSON.parse(localStorage.getItem('dfd_notif_inativos')||'[]');
+// Controle de "cliente inativo já notificado" fica no Firebase (notifInativosRemote),
+// compartilhado entre todos os aparelhos — evita repetir a notificação quando um
+// dispositivo diferente abre o dashboard e "não sabia" que já tinha avisado.
 let atrasadosJaNotificados = JSON.parse(localStorage.getItem('dfd_notif_atrasados')||'[]');
+function fbKeyInativo(s){ return String(s).replace(/[.#$\[\]\/]/g,'_'); }
 
 function checarNotificacoes() {
   const agora = Date.now();
@@ -1309,9 +1400,10 @@ function checarNotificacoes() {
     const inativos = calcInativos().filter(x=>!inativosIgnorados.includes(x.cliente+'|||'+x.fornecedor));
     inativos.forEach(x => {
       const key = x.cliente+'|||'+x.fornecedor;
-      if(!inativosJaNotificados.includes(key)) {
-        inativosJaNotificados.push(key);
-        localStorage.setItem('dfd_notif_inativos', JSON.stringify(inativosJaNotificados));
+      const fKey = fbKeyInativo(key);
+      if(!notifInativosRemote[fKey]) {
+        notifInativosRemote[fKey] = true; // otimista, evita reenvio local antes do Firebase confirmar
+        update(ref(db,'notifInativos'), { [fKey]: true });
         enviarNotif(
           '⚠️ Cliente inativo',
           `${x.cliente} — ${x.fornecedor} sem compra há ${x.dias} dias`,
@@ -1319,9 +1411,11 @@ function checarNotificacoes() {
         );
       }
     });
-    // Remove da lista de notificados clientes que voltaram a comprar
-    inativosJaNotificados = inativosJaNotificados.filter(k => inativos.some(x => x.cliente+'|||'+x.fornecedor === k));
-    localStorage.setItem('dfd_notif_inativos', JSON.stringify(inativosJaNotificados));
+    // Libera do registro quem voltou a comprar, pra notificar de novo se ficar inativo outra vez
+    const aindaInativosKeys = new Set(inativos.map(x=>fbKeyInativo(x.cliente+'|||'+x.fornecedor)));
+    Object.keys(notifInativosRemote).forEach(k=>{
+      if(!aindaInativosKeys.has(k)){ delete notifInativosRemote[k]; update(ref(db,'notifInativos'), { [k]: null }); }
+    });
   }
 
   // Checa pedidos atrasados (a cada 1 hora)

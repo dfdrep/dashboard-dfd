@@ -587,9 +587,22 @@ function iniciarListeners() {
   if(listenersAtivos) return;
   listenersAtivos = true;
   onValue(ref(db,'pendencias'), snap=>{ pendencias=snap.val()||{}; renderPendencias(); renderCalendar(); renderResumoDia(); });
-  onValue(ref(db,'pedidos'),    snap=>{ pedidos=snap.val()||{};    renderPedidos();   renderCalendar(); renderInativos(); atualizarBadgeInativos(); migrarNomes(); renderResumoDia(); });
+  onValue(ref(db,'pedidos'),    snap=>{ pedidos=snap.val()||{};    renderPedidos();   renderCalendar(); renderInativos(); atualizarBadgeInativos(); migrarNomes(); renderResumoDia(); pedidosCarregados=true; tentarChecagemInicial(); });
   onValue(ref(db,'notificacoes'), snap=>{ notificacoes=snap.val()||{}; renderNotifs(); });
-  onValue(ref(db,'notifInativos'), snap=>{ notifInativosRemote=snap.val()||{}; });
+  onValue(ref(db,'inativosIgnorados'), snap=>{
+    inativosIgnorados=Object.values(snap.val()||{});
+    if(!ignoradosCarregados){
+      ignoradosCarregados=true;
+      // migra o que já tinha sido dispensado neste aparelho (antes ficava só no navegador)
+      try {
+        const locais=JSON.parse(localStorage.getItem('dfd_inativos_ignorados')||'[]');
+        locais.forEach(k=>{ if(!inativosIgnorados.includes(k)){ inativosIgnorados.push(k); update(ref(db,'inativosIgnorados'), { [fbKeyInativo(k)]: k }); } });
+        localStorage.removeItem('dfd_inativos_ignorados');
+      } catch(e) {}
+    }
+    renderInativos(); atualizarBadgeInativos(); tentarChecagemInicial();
+  });
+  onValue(ref(db,'notifInativos'), snap=>{ notifInativosRemote=snap.val()||{}; notifInativosCarregado=true; tentarChecagemInicial(); });
 }
 
 // Verificar sessão salva ao carregar
@@ -655,6 +668,7 @@ const PRIO_ORDER = { high:0, med:1, low:2 };
 
 let pendencias={}, pedidos={}, notificacoes={};
 let notifInativosRemote={};
+let pedidosCarregados=false, notifInativosCarregado=false;
 let pendingImagens = [];
 // Filtros globais — atualizados pelos event listeners dos selects
 let gMesPed='', gAnoPed='', gRepPed='', gBuscaPed='';
@@ -1118,13 +1132,15 @@ function calcInativos(){
 }
 
 function atualizarBadgeInativos(){
-  const n=calcInativos().length;
+  const n=calcInativos().filter(x=>!inativosIgnorados.includes(x.cliente+'|||'+x.fornecedor)).length;
   const badge=document.getElementById('badge-inativos');
   if(badge){ badge.textContent=n; badge.style.display=n>0?'inline-block':'none'; }
 }
 
 // Inativos ignorados (por sessão)
-let inativosIgnorados = JSON.parse(localStorage.getItem('dfd_inativos_ignorados')||'[]');
+// Lista de inativos dispensados: guardada no Firebase (compartilhada entre todos os aparelhos)
+let inativosIgnorados = [];
+let ignoradosCarregados = false;
 
 function ignorarInativo(btn){
   const row = btn.closest('[data-inativo]');
@@ -1132,7 +1148,7 @@ function ignorarInativo(btn){
   const key = row.getAttribute('data-inativo');
   if(!key) return;
   if(!inativosIgnorados.includes(key)) inativosIgnorados.push(key);
-  localStorage.setItem('dfd_inativos_ignorados', JSON.stringify(inativosIgnorados));
+  update(ref(db,'inativosIgnorados'), { [fbKeyInativo(key)]: key });
   const card = row.closest('[data-cliente-key]');
   row.remove();
   if(card && card.querySelectorAll('[data-inativo]').length === 0) card.remove();
@@ -1391,13 +1407,21 @@ let ultimoCheckAtrasados = 0;
 let atrasadosJaNotificados = JSON.parse(localStorage.getItem('dfd_notif_atrasados')||'[]');
 function fbKeyInativo(s){ return String(s).replace(/[.#$\[\]\/]/g,'_'); }
 
+// Só roda a checagem quando os pedidos E o registro de inativos já vieram do Firebase.
+// Antes disso a lista parece vazia, o que "limpava" o registro e fazia reenviar tudo depois.
+function tentarChecagemInicial() {
+  if(currentUser && pedidosCarregados && notifInativosCarregado && ignoradosCarregados) checarNotificacoes();
+}
+
 function checarNotificacoes() {
+  if(!pedidosCarregados || !notifInativosCarregado || !ignoradosCarregados) return;
   const agora = Date.now();
 
   // Checa inativos (a cada 1 hora)
   if(agora - ultimoCheckInativos > 60*60*1000) {
     ultimoCheckInativos = agora;
-    const inativos = calcInativos().filter(x=>!inativosIgnorados.includes(x.cliente+'|||'+x.fornecedor));
+    const todosInativos = calcInativos(); // sem filtro de "dispensados" (que é por aparelho)
+    const inativos = todosInativos.filter(x=>!inativosIgnorados.includes(x.cliente+'|||'+x.fornecedor));
     inativos.forEach(x => {
       const key = x.cliente+'|||'+x.fornecedor;
       const fKey = fbKeyInativo(key);
@@ -1412,7 +1436,7 @@ function checarNotificacoes() {
       }
     });
     // Libera do registro quem voltou a comprar, pra notificar de novo se ficar inativo outra vez
-    const aindaInativosKeys = new Set(inativos.map(x=>fbKeyInativo(x.cliente+'|||'+x.fornecedor)));
+    const aindaInativosKeys = new Set(todosInativos.map(x=>fbKeyInativo(x.cliente+'|||'+x.fornecedor)));
     Object.keys(notifInativosRemote).forEach(k=>{
       if(!aindaInativosKeys.has(k)){ delete notifInativosRemote[k]; update(ref(db,'notifInativos'), { [k]: null }); }
     });

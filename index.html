@@ -268,10 +268,6 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
       <label>Senha</label>
       <input type="password" id="login-pass" placeholder="Sua senha" />
     </div>
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.75rem;">
-      <input type="checkbox" id="remember-me" style="width:15px;height:15px;accent-color:var(--accent);cursor:pointer;">
-      <label for="remember-me" style="font-size:16px;color:var(--text-2);cursor:pointer;">Lembrar senha</label>
-    </div>
     <button class="login-btn" id="btn-entrar">Entrar</button>
     <div class="login-error" id="login-error">Usuário ou senha incorretos.</div>
   </div>
@@ -512,9 +508,10 @@ body::before { content:''; position:fixed; top:0; left:0; right:0; height:1px; b
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
 import { getDatabase, ref, push, update, remove, onValue, set, get } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-database.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyD2wVhNsMBdlyXtXzkWAQlyS0uObJrKIYs",
+  apiKey: "AIzaSyD2wVhNsMBdlyXtXzkWAQlyS0uObJrK1Ys",
   authDomain: "dashboarddfd.firebaseapp.com",
   databaseURL: "https://dashboarddfd-default-rtdb.firebaseio.com",
   projectId: "dashboarddfd",
@@ -524,12 +521,15 @@ const firebaseConfig = {
 };
 const app = initializeApp(firebaseConfig);
 const db  = getDatabase(app);
+const auth = getAuth(app); // login de verdade (Firebase Authentication): as senhas ficam no Firebase, não no código
 
 // ── USUÁRIOS ──
 const USERS = {
-  'breno':   { pass: 'dfd2026', label: 'Breno' },
-  'roberto': { pass: 'dfd2026', label: 'Roberto' }
+  'breno':   { email: 'breno@dfd.app',   label: 'Breno' },
+  'roberto': { email: 'roberto@dfd.app', label: 'Roberto' }
 };
+// Limpa restos do login antigo (a senha ficava guardada em texto no aparelho)
+try{ ['dfd_pass','dfd_user','dfd_remember'].forEach(k=>localStorage.removeItem(k)); }catch(e){}
 let currentUser = null;
 const INACTIVITY_LIMIT = 3 * 60 * 60 * 1000; // 3 horas
 let inactivityTimer = null;
@@ -609,60 +609,52 @@ function iniciarListeners() {
   onValue(ref(db,'notifInativos'), snap=>{ notifInativosRemote=snap.val()||{}; notifInativosCarregado=true; tentarChecagemInicial(); });
 }
 
-// Verificar sessão salva ao carregar
-(function checkSavedSession() {
-  const savedUser = localStorage.getItem('dfd_user');
-  const savedPass = localStorage.getItem('dfd_pass');
+// Sessão: o Firebase Authentication guarda o login no aparelho (fica conectado).
+// Aqui só aplicamos a regra de inatividade (3 horas) e abrimos o painel.
+onAuthStateChanged(auth, (fbUser) => {
+  if(!fbUser) return;
+  const u = (fbUser.email||'').split('@')[0].toLowerCase();
+  if(!USERS[u]){ signOut(auth).catch(()=>{}); return; }
   const lastActivity = parseInt(localStorage.getItem('dfd_last_activity') || '0');
-  const now = Date.now();
-  if(savedUser && savedPass && USERS[savedUser] && USERS[savedUser].pass === savedPass) {
-    if(now - lastActivity < INACTIVITY_LIMIT) {
-      document.getElementById('login-user').value = savedUser;
-      document.getElementById('login-pass').value = savedPass;
-      if(localStorage.getItem('dfd_remember') === '1') {
-        document.getElementById('remember-me').checked = true;
-      }
-      iniciarListeners(); startSession(savedUser);
-    } else {
-      localStorage.removeItem('dfd_user');
-      localStorage.removeItem('dfd_pass');
-      localStorage.removeItem('dfd_last_activity');
-    }
+  if(Date.now() - lastActivity >= INACTIVITY_LIMIT){
+    localStorage.removeItem('dfd_last_activity');
+    signOut(auth).catch(()=>{});
+    return;
   }
-})();
+  if(currentUser) return; // já está aberto
+  iniciarListeners(); startSession(u);
+});
 
-window.doLogin = function() {
+window.doLogin = async function() {
   const u = document.getElementById('login-user').value.trim().toLowerCase();
   const p = document.getElementById('login-pass').value;
-  const remember = document.getElementById('remember-me').checked;
-  if(USERS[u] && USERS[u].pass === p) {
-    if(remember) {
-      localStorage.setItem('dfd_user', u);
-      localStorage.setItem('dfd_pass', p);
-      localStorage.setItem('dfd_remember', '1');
-    } else {
-      localStorage.setItem('dfd_user', u);
-      localStorage.setItem('dfd_pass', p);
-      localStorage.removeItem('dfd_remember');
-    }
-    iniciarListeners(); startSession(u); // Se Auth falhar, loga normalmente mesmo assim
-  } else {
-    document.getElementById('login-error').style.display = 'block';
+  const err = document.getElementById('login-error');
+  const btn = document.getElementById('btn-entrar');
+  if(!USERS[u] || !p){ err.textContent='Usuário ou senha incorretos.'; err.style.display='block'; return; }
+  err.style.display='none'; btn.disabled=true;
+  try{
+    localStorage.setItem('dfd_last_activity', Date.now().toString());
+    await signInWithEmailAndPassword(auth, USERS[u].email, p);
+    // o painel abre pelo onAuthStateChanged acima
+  }catch(e){
+    const code=(e&&e.code)||'';
+    err.textContent = code==='auth/network-request-failed' ? 'Sem conexão. Tente de novo.'
+                    : code==='auth/too-many-requests' ? 'Muitas tentativas. Aguarde alguns minutos.'
+                    : 'Usuário ou senha incorretos.';
+    err.style.display='block';
   }
+  btn.disabled=false;
 };
 
 window.doLogout = function() {
   currentUser = null;
+  try{ signOut(auth); }catch(e){}
   clearTimeout(inactivityTimer);
-  localStorage.removeItem('dfd_user');
-  localStorage.removeItem('dfd_pass');
   localStorage.removeItem('dfd_last_activity');
-  localStorage.removeItem('dfd_remember');
   document.getElementById('login-screen').style.display = 'flex';
   document.getElementById('app-screen').style.display = 'none';
   document.getElementById('login-user').value = '';
   document.getElementById('login-pass').value = '';
-  document.getElementById('remember-me').checked = false;
 };
 
 const FORNECEDORES = ['Agroindústria Real','Asa','Atakaforte','Max Atacado Brasil','Fugini Alimentos','Gaboardi','Global','Globopack','Godinho','Infinity','JPS','Master','Mundial','Nossa Distribuidora','Oderich','RTL','Superglobo','Tradição Real'];
@@ -1568,4 +1560,3 @@ function checarNotificacoes() {
 </script>
 </body>
 </html>
-

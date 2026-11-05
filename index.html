@@ -655,6 +655,7 @@ window.doLogout = function() {
   document.getElementById('app-screen').style.display = 'none';
   document.getElementById('login-user').value = '';
   document.getElementById('login-pass').value = '';
+  window.location.reload(); // recarrega para religar a conexão com o banco no próximo login
 };
 
 const FORNECEDORES = ['Agroindústria Real','Asa','Atakaforte','Max Atacado Brasil','Fugini Alimentos','Gaboardi','Global','Globopack','Godinho','Infinity','JPS','Master','Mundial','Nossa Distribuidora','Oderich','RTL','Superglobo','Tradição Real'];
